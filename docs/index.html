@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geoquímica de rocas — EarthChem / PetDB</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface-1: #fcfcfb; --text-primary: #0b0b0b; --text-secondary: #52514e;
+    --muted: #898781; --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+    --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface-1: #1a1a19; --text-primary: #f0efec; --text-secondary: #c3c2b7;
+      --muted: #898781; --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+      --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--text-primary);
+         font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  nav { position: sticky; top: 0; z-index: 10; background: var(--surface-1); border-bottom: 1px solid var(--border);
+        display: flex; gap: 1.25rem; padding: .75rem 1.5rem; flex-wrap: wrap; }
+  nav a { color: var(--text-secondary); text-decoration: none; font-weight: 500; }
+  nav a:hover { color: var(--text-primary); }
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+  section { padding: 2rem 0; border-bottom: 1px solid var(--border); }
+  h1 { font-size: 2rem; margin: .5rem 0; } h2 { font-size: 1.4rem; margin-top: 0; }
+  p, li { color: var(--text-secondary); }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+  .tile, .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; }
+  .tile .v { font-size: 2rem; font-weight: 600; color: var(--text-primary); }
+  .tile .k { color: var(--muted); font-size: .9rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 1rem; }
+  .card h3 { margin: 0 0 .25rem; font-size: 1rem; } .card p { margin: 0 0 .5rem; font-size: .9rem; }
+  .plot { width: 100%; height: 340px; }
+  .wide { grid-column: 1 / -1; } .wide .plot { height: 440px; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--grid); }
+  th { color: var(--muted); font-weight: 500; position: sticky; top: 0; background: var(--surface-1); }
+  .scroll { max-height: 420px; overflow: auto; }
+  .tag { display: inline-block; padding: 0 .5rem; border-radius: 999px; border: 1px solid var(--border); font-size: .8rem; }
+  details summary { cursor: pointer; color: var(--text-secondary); margin: .5rem 0; }
+  footer { color: var(--muted); font-size: .85rem; padding: 2rem 0; }
+  a { color: var(--series-1); }
+</style>
+</head>
+<body>
+<nav>
+  <a href="#inicio">Inicio</a><a href="#datos">Datos</a><a href="#dashboard">Dashboard</a>
+  <a href="#metodologia">Metodología</a><a href="#autores">Autores</a>
+</nav>
+<main>
+  <section id="inicio">
+    <h1>Geoquímica de rocas: estadística y machine learning</h1>
+    <p>Análisis estadístico y modelos de machine learning sobre composiciones químicas de roca total
+       (elementos mayores, trazas y tierras raras) compiladas por EarthChem / PetDB a partir de miles de artículos científicos.</p>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section id="datos">
+    <h2>Datos</h2>
+    <p>Fuente: exportación de <a href="https://www.earthchem.org/petdb">EarthChem PetDB</a> (13-oct-2026), material analizado
+       <em>whole rock</em>. Cada fila es un análisis de una muestra. Licencia CC BY 4.0.
+       Las celdas vacías significan "no medido", no cero.</p>
+    <details open><summary>Diccionario de variables</summary>
+      <div class="scroll card"><table id="dic"><thead><tr><th>Columna</th><th>Tipo</th><th>% con dato</th></tr></thead><tbody></tbody></table></div>
+    </details>
+  </section>
+
+  <section id="dashboard">
+    <h2>Dashboard</h2>
+    <div class="grid">
+      <div class="card"><h3>Muestras por ambiente tectónico</h3><p>12 ambientes más frecuentes</p><div class="plot" id="g-tec"></div></div>
+      <div class="card"><h3>Distribución de SiO<sub>2</sub></h3><p>Muestras con SiO<sub>2</sub> entre 30 y 85 wt%, bins de 1 wt%</p><div class="plot" id="g-sio2"></div></div>
+      <div class="card"><h3>Clase de SiO<sub>2</sub> (ordinal)</h3><p>Ultrabásica &lt; 45 ≤ básica &lt; 52 ≤ intermedia &lt; 63 ≤ ácida</p><div class="plot" id="g-clase"></div></div>
+      <div class="card"><h3>Grado de alteración (ordinal)</h3><p>0 = fresca … 5 = totalmente alterada</p><div class="plot" id="g-alt"></div></div>
+      <div class="card wide"><h3>Diagrama TAS: álcalis totales vs. sílice</h3><p>Rocas volcánicas, muestra aleatoria de 6 000 análisis</p><div class="plot" id="g-tas"></div></div>
+      <div class="card wide"><h3>Ubicación de las muestras</h3><p>Muestra aleatoria de 6 000 análisis</p><div class="plot" id="g-mapa"></div></div>
+      <div class="card wide"><h3>Análisis por año de publicación</h3><p>Variable discreta derivada de la cita</p><div class="plot" id="g-anio"></div></div>
+    </div>
+  </section>
+
+  <section id="metodologia">
+    <h2>Metodología</h2>
+    <ol>
+      <li><b>Limpieza</b> (<code>scripts/limpiar.py</code>): se quitan las columnas de método, laboratorio y comentario; se cruzan los metadatos
+          de cada muestra; se conservan las variables químicas con dato en ≥ 5 % de las filas; las coordenadas pasan a grados decimales.</li>
+      <li><b>Variables derivadas</b>: año de publicación y número de analitos (discretas), grado de alteración y clase de SiO<sub>2</sub> (ordinales).</li>
+      <li><b>Análisis exploratorio y estadístico</b>: <em>pendiente</em>.</li>
+      <li><b>Machine learning</b>: <em>pendiente</em> (p. ej. clasificar el ambiente tectónico a partir de la química).</li>
+    </ol>
+  </section>
+
+  <section id="autores">
+    <h2>Autores</h2>
+    <div class="tiles">
+      <div class="tile"><div class="v" style="font-size:1.1rem">Nombre Apellido</div><div class="k">Rol · correo</div></div>
+      <div class="tile"><div class="v" style="font-size:1.1rem">Nombre Apellido</div><div class="k">Rol · correo</div></div>
+    </div>
+  </section>
+
+  <footer>Datos: Astromaterials Data Synthesis / EarthChem PetDB (<a href="https://search.astromat.org/">search.astromat.org</a>), descargados el 13 de octubre de 2026, CC BY 4.0.</footer>
+</main>
+
+<script>
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt = n => n.toLocaleString("es");
+
+function base(extra = {}) {
+  const axis = { gridcolor: css("--grid"), linecolor: css("--axis"), zeroline: false,
+                 tickfont: { color: css("--muted") }, title: { font: { color: css("--text-secondary") } } };
+  return Object.assign({
+    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { family: 'system-ui, -apple-system, "Segoe UI", sans-serif', color: css("--text-secondary"), size: 12 },
+    margin: { l: 56, r: 16, t: 8, b: 44 }, bargap: 0.15, showlegend: false,
+    hoverlabel: { bgcolor: css("--surface-1"), bordercolor: css("--axis"), font: { color: css("--text-primary") } },
+    xaxis: { ...axis }, yaxis: { ...axis },
+  }, extra);
+}
+const cfg = { displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+const bar = (x, y, extra = {}) => ({ type: "bar", x, y, marker: { color: css("--series-1"), line: { color: css("--surface-1"), width: 2 } }, ...extra });
+
+function dibujar(d) {
+  document.getElementById("tiles").innerHTML = [
+    [fmt(d.filas), "análisis (filas)"], [d.columnas, "variables (columnas)"],
+    [fmt(d.articulos), "artículos de origen"], [`${d.anios[0]}–${d.anios[1]}`, "años de publicación"],
+  ].map(([v, k]) => `<div class="tile"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("");
+
+  document.querySelector("#dic tbody").innerHTML = d.diccionario.map(r =>
+    `<tr><td>${r.columna}</td><td><span class="tag">${r.tipo}</span></td><td>${r.llenado}</td></tr>`).join("");
+
+  const t = d.tectonica;
+  Plotly.react("g-tec", [bar(t.values.slice().reverse(), t.labels.slice().reverse(),
+    { orientation: "h", hovertemplate: "%{y}: %{x:,} muestras<extra></extra>" })],
+    base({ margin: { l: 190, r: 16, t: 8, b: 40 }, xaxis: { ...base().xaxis, title: { text: "muestras" } } }), cfg);
+
+  Plotly.react("g-sio2", [bar(d.hist_sio2.x.map(x => x + 0.5), d.hist_sio2.y,
+    { width: 1, customdata: d.hist_sio2.x.map(x => `${x}–${x + 1}`), hovertemplate: "%{customdata} wt%: %{y:,} muestras<extra></extra>" })],
+    base({ bargap: 0, xaxis: { ...base().xaxis, title: { text: "SiO₂ (wt%)" } }, yaxis: { ...base().yaxis, title: { text: "muestras" } } }), cfg);
+
+  Plotly.react("g-clase", [bar(d.clase_sio2.labels, d.clase_sio2.values, { hovertemplate: "%{x}: %{y:,}<extra></extra>",
+    marker: { color: ["#86b6ef", "#5598e7", "#256abf", "#104281"], line: { color: css("--surface-1"), width: 2 } } })],
+    base({ yaxis: { ...base().yaxis, title: { text: "muestras" } } }), cfg);
+
+  Plotly.react("g-alt", [bar(d.alteracion.labels, d.alteracion.values, { hovertemplate: "grado %{x}: %{y:,}<extra></extra>",
+    marker: { color: ["#86b6ef", "#6da7ec", "#5598e7", "#2a78d6", "#1c5cab", "#104281"], line: { color: css("--surface-1"), width: 2 } } })],
+    base({ xaxis: { ...base().xaxis, title: { text: "grado de alteración" }, dtick: 1 }, yaxis: { ...base().yaxis, title: { text: "muestras" } } }), cfg);
+
+  const nombres = { "igneous:volcanic:mafic": "máfica", "igneous:volcanic:intermediate": "intermedia", "igneous:volcanic:felsic": "félsica" };
+  const colores = { "igneous:volcanic:mafic": "--series-1", "igneous:volcanic:intermediate": "--series-2", "igneous:volcanic:felsic": "--series-3" };
+  Plotly.react("g-tas", Object.keys(nombres).filter(k => d.tas[k]).map(k => ({
+    type: "scattergl", mode: "markers", name: nombres[k], x: d.tas[k].x, y: d.tas[k].y,
+    marker: { size: 6, opacity: 0.6, color: css(colores[k]), line: { color: css("--surface-1"), width: 1 } },
+    hovertemplate: `${nombres[k]}<br>SiO₂ %{x} wt%<br>Na₂O+K₂O %{y} wt%<extra></extra>` })),
+    base({ showlegend: true, legend: { orientation: "h", y: 1.08 }, margin: { l: 56, r: 16, t: 32, b: 44 },
+           xaxis: { ...base().xaxis, title: { text: "SiO₂ (wt%)" } }, yaxis: { ...base().yaxis, range: [0, 16], title: { text: "Na₂O + K₂O (wt%)" } } }), cfg);
+
+  Plotly.react("g-mapa", [{ type: "scattergeo", lat: d.mapa.lat, lon: d.mapa.lon, text: d.mapa.tec, mode: "markers",
+    marker: { size: 5, opacity: 0.6, color: css("--series-1") }, hovertemplate: "%{text}<br>%{lat}, %{lon}<extra></extra>" }],
+    base({ margin: { l: 0, r: 0, t: 0, b: 0 }, geo: { projection: { type: "natural earth" }, bgcolor: "rgba(0,0,0,0)",
+      showland: true, landcolor: css("--grid"), showocean: true, oceancolor: css("--surface-1"),
+      coastlinecolor: css("--axis"), showcountries: false, showframe: false } }), cfg);
+
+  const anios = Object.keys(d.anio_pub);
+  Plotly.react("g-anio", [bar(anios, anios.map(a => d.anio_pub[a]), { hovertemplate: "%{x}: %{y:,} análisis<extra></extra>" })],
+    base({ xaxis: { ...base().xaxis, title: { text: "año" } }, yaxis: { ...base().yaxis, title: { text: "análisis" } } }), cfg);
+}
+
+fetch("data/resumen.json").then(r => r.json()).then(d => {
+  dibujar(d);
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => dibujar(d));
+});
+</script>
+</body>
+</html>

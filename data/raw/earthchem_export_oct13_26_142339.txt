@@ -1,0 +1,42 @@
+dateTime: 2026-10-13T14:40:10.357Z
+searchURL: https://www.earthchem.org/petdb?analysisTypes=rock%3A%3A%5BUNSPECIFIED+ROCK+MATERIAL+AS+WHOLE+ROCK+OR+GLASS%2CWHOLE+ROCK%5D&variables=AGE%7C%7CEM%7C%7CMAJ%7C%7CMODE%7C%7CNGAS%7C%7CREE%7C%7CTE%7C%7CVO&outputMetadata=default&timestamp=1791901416715
+filters: analysisTypes:
+  rock:
+    - UNSPECIFIED ROCK MATERIAL AS WHOLE ROCK OR GLASS
+    - WHOLE ROCK
+variables:
+  - AGE
+  - EM
+  - MAJ
+  - MODE
+  - NGAS
+  - REE
+  - TE
+  - VO
+outputMetadata:
+  - default
+timestamp:
+  - 1791901416715
+
+ 
+ --- 
+ 
+# Terms of Use
+
+By downloading and using data from this site you agree to adhere to any and all licensing requirements as stipulated by the provider of datasets held in the Astromaterials Data Synthesis Database. In the case of non-compliance or misuse of services, the Astromaterials Data System reserves the right to disable access without notice.
+
+## Disclaimer
+All data held within the Synthesis Database have been ingested and curated from peer-reviewed publications, comprising decades of cosmochemical and geochemical literature. Note that only, the information recorded in the respective publications are entered into the Synthesis Database. We cannot take responsibility for missing (meta-) data or analytical quality. We are aware that some cosmochemical data — in particular from older literature sources and using older analytical methods — may not meet current quality standards. We therefore urge all users of the Astromaterials Data Synthesis to critically evaluate downloaded datasets and to be mindful of potential shortcomings with respect to analytical precision and other metadata. We ask that you notify us immediately of any contributions that contain objectionable material.
+
+The Synthesis Database is regularly supplemented with current publications. We take great effort to compile high-quality published data and to report all additional information on samples, analytical methods, reference materials, and analytical uncertainties.
+
+## Usage
+Use of data compilations downloaded from the Astromaterials Data Synthesis is only permitted under the regulations of the [Creative Commons Attribution International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/deed.en)  
+You are free to copy, transform and redistribute the data in any medium and format.
+You must give appropriate credit to Astromaterials Data Synthesis and the original data sources.
+Data provided through the Astromaterials Data Synthesis are covered by separate licensing requirements as stipulated by the provider of the dataset(s).
+
+## Data Citation
+To cite the Astromaterials Data Synthesis Database, please reference its URL in text and in figure captions: [https://search.astromat.org/](https://search.astromat.org/)  Please cite the specific download by giving the date and, if possible, parameters of the download.
+
+*"The data were downloaded from the [Astromaterials Data Synthesis ](https://search.astromat.org/) on 1 May 2024, using the following parameters: sample collections = lunar samples and analyzed material = whole rock.”*
