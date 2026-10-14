@@ -3,278 +3,528 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Geoquímica de rocas — EarthChem / PetDB</title>
-<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+<title>La química de la Tierra — Geoquímica de rocas con estadística y machine learning</title>
+<meta name="description" content="Proyecto de Estadística y Probabilidades (FIGEMPA-UCE): 159.760 análisis geoquímicos de roca total de EarthChem PetDB.">
+<meta property="og:image" content="img/hero.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8" defer></script>
 <style>
+  /* Paleta "basalto": superficie casi negra cálida, tinta hueso, acento magma.
+     Los colores de series vienen de la paleta de datos validada (modo oscuro). */
   :root {
-    color-scheme: light;
-    --page: #f9f9f7; --surface-1: #fcfcfb; --text-primary: #0b0b0b; --text-secondary: #52514e;
-    --muted: #898781; --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
-    --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      color-scheme: dark;
-      --page: #0d0d0d; --surface-1: #1a1a19; --text-primary: #f0efec; --text-secondary: #c3c2b7;
-      --muted: #898781; --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
-      --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
-    }
+    color-scheme: dark;
+    --page: #0f0e0c; --surface-1: #171513; --surface-2: #1f1c19; --line: rgba(240,236,228,.09);
+    --text-primary: #f0ece4; --text-secondary: #c3bcb0; --muted: #8f887c;
+    --grid: #2c2a27; --axis: #3d3a36;
+    --magma: #ff6b2c; --magma-soft: rgba(255,107,44,.14); --oro: #e9b44c;
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+    --serif: "Fraunces", Georgia, serif; --sans: "Instrument Sans", "Segoe UI", sans-serif; --mono: "JetBrains Mono", Consolas, monospace;
+    --max: 1180px;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--page); color: var(--text-primary);
-         font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  nav { position: sticky; top: 0; z-index: 10; background: var(--surface-1); border-bottom: 1px solid var(--border);
-        display: flex; gap: 1.25rem; padding: .75rem 1.5rem; flex-wrap: wrap; }
-  nav a { color: var(--text-secondary); text-decoration: none; font-weight: 500; }
-  nav a:hover { color: var(--text-primary); }
-  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
-  section { padding: 2rem 0; border-bottom: 1px solid var(--border); }
-  h1 { font-size: 2rem; margin: .5rem 0; } h2 { font-size: 1.4rem; margin-top: 0; }
-  p, li { color: var(--text-secondary); }
-  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
-  .tile, .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; }
-  .tile .v { font-size: 2rem; font-weight: 600; color: var(--text-primary); }
-  .tile .k { color: var(--muted); font-size: .9rem; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 1rem; }
-  .card h3 { margin: 0 0 .25rem; font-size: 1rem; } .card p { margin: 0 0 .5rem; font-size: .9rem; }
-  .plot { width: 100%; height: 340px; }
-  .wide { grid-column: 1 / -1; } .wide .plot { height: 440px; }
-  table { width: 100%; border-collapse: collapse; font-size: .9rem; font-variant-numeric: tabular-nums; }
-  th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--grid); }
-  th { color: var(--muted); font-weight: 500; position: sticky; top: 0; background: var(--surface-1); }
-  .scroll { max-height: 420px; overflow: auto; }
-  .tag { display: inline-block; padding: 0 .5rem; border-radius: 999px; border: 1px solid var(--border); font-size: .8rem; }
-  details summary { cursor: pointer; color: var(--text-secondary); margin: .5rem 0; }
-  .k { color: var(--muted); font-size: .9rem; }
-  h3 { font-size: 1.05rem; margin: 1rem 0 .4rem; }
-  .formula { font-family: "Cambria Math", Cambria, Georgia, serif; color: var(--text-primary); background: var(--page); padding: .5rem .75rem; border-radius: 8px; }
-  #vars td { vertical-align: top; }
-  footer { color: var(--muted); font-size: .85rem; padding: 2rem 0; }
-  a { color: var(--series-1); }
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+  body { margin: 0; background: var(--page); color: var(--text-primary); font: 17px/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
+  body::before { /* grano sutil, textura de roca */
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: .05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a { color: var(--magma); text-underline-offset: 3px; }
+  img { max-width: 100%; display: block; }
+  ::selection { background: var(--magma); color: #0f0e0c; }
+  :focus-visible { outline: 2px solid var(--magma); outline-offset: 3px; }
+
+  /* Navegación */
+  .nav { position: fixed; top: 0; inset-inline: 0; z-index: 50; display: flex; align-items: center; gap: 1.5rem;
+         padding: .85rem clamp(1rem, 4vw, 2.5rem); transition: background .3s, border-color .3s; border-bottom: 1px solid transparent; }
+  .nav.solid { background: rgba(15,14,12,.86); backdrop-filter: blur(12px); border-color: var(--line); }
+  .marca { display: flex; align-items: center; gap: .6rem; font-family: var(--serif); font-weight: 600; font-size: 1.05rem; color: var(--text-primary); text-decoration: none; white-space: nowrap; }
+  .marca b { display: grid; place-items: center; width: 30px; height: 30px; border: 1.5px solid var(--magma); color: var(--magma); font: 600 .8rem var(--mono); }
+  .nav ul { display: flex; gap: 1.1rem; list-style: none; margin: 0 0 0 auto; padding: 0; }
+  .nav ul a { color: var(--text-secondary); text-decoration: none; font-size: .86rem; white-space: nowrap; }
+  .nav ul a span { font-family: var(--mono); color: var(--muted); margin-right: .3rem; font-size: .75rem; }
+  .nav ul a:hover, .nav ul a.activo { color: var(--text-primary); }
+  .nav ul a.activo span { color: var(--magma); }
+
+  /* Portada */
+  .hero { position: relative; min-height: 100svh; display: grid; align-items: end; overflow: hidden; isolation: isolate; }
+  .hero-img { position: absolute; inset: 0; z-index: -2; background: url("img/hero.jpg") center/cover; animation: deriva 32s ease-in-out infinite alternate; }
+  .hero::after { content: ""; position: absolute; inset: 0; z-index: -1;
+    background: linear-gradient(180deg, rgba(15,14,12,.55) 0%, rgba(15,14,12,.35) 35%, rgba(15,14,12,.92) 78%, var(--page) 100%),
+                linear-gradient(90deg, rgba(15,14,12,.85) 0%, rgba(15,14,12,0) 70%); }
+  @keyframes deriva { from { transform: scale(1.06); } to { transform: scale(1.14) translate(-2%, -1.5%); } }
+  .hero-in { width: min(var(--max), 100% - 2.5rem); margin: 0 auto; padding: 8rem 0 3.5rem; }
+  .ojo { font: 500 .78rem/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--oro); }
+  .hero h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(2.9rem, 8vw, 6.6rem); line-height: .95; letter-spacing: -.025em; margin: 1.1rem 0 1.4rem; max-width: 12ch; font-variation-settings: "opsz" 144; }
+  .hero h1 em { font-style: italic; color: var(--magma); font-weight: 300; }
+  .hero p.lead { font-size: clamp(1.05rem, 1.6vw, 1.25rem); color: var(--text-secondary); max-width: 56ch; margin: 0 0 2rem; }
+  .botones { display: flex; flex-wrap: wrap; gap: .8rem; }
+  .btn { display: inline-flex; align-items: center; gap: .55rem; padding: .8rem 1.3rem; font-weight: 600; font-size: .95rem; text-decoration: none; border: 1px solid var(--line); color: var(--text-primary); background: rgba(255,255,255,.04); transition: transform .2s, background .2s, border-color .2s; }
+  .btn:hover { transform: translateY(-2px); border-color: var(--magma); }
+  .btn.prim { background: var(--magma); border-color: var(--magma); color: #120b07; }
+  .btn.prim:hover { background: #ff8550; }
+
+  /* Cifras con estilo de tabla periódica */
+  .elementos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-top: 3.2rem; max-width: 860px; }
+  .el { background: rgba(15,14,12,.78); backdrop-filter: blur(6px); padding: .9rem 1rem 1rem; position: relative; }
+  .el .z { position: absolute; top: .55rem; right: .7rem; font: .7rem var(--mono); color: var(--muted); }
+  .el .s { font: 600 1.05rem var(--mono); color: var(--magma); }
+  .el .v { font-family: var(--serif); font-size: clamp(1.5rem, 3vw, 2.2rem); line-height: 1.1; margin-top: .2rem; font-variant-numeric: lining-nums tabular-nums; }
+  .el .k { font-size: .8rem; color: var(--text-secondary); }
+
+  /* Capítulos */
+  section.cap { width: min(var(--max), 100% - 2.5rem); margin: 0 auto; padding: clamp(4.5rem, 10vw, 8rem) 0 0; }
+  .cab { display: grid; grid-template-columns: auto 1fr; gap: 0 1.4rem; align-items: baseline; margin-bottom: 2.4rem; }
+  .num { font: 500 .85rem var(--mono); color: var(--magma); border-top: 2px solid var(--magma); padding-top: .4rem; }
+  .cab h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(2rem, 4.6vw, 3.4rem); line-height: 1.02; letter-spacing: -.02em; margin: 0; }
+  .cab p { grid-column: 2; color: var(--text-secondary); margin: .7rem 0 0; max-width: 62ch; }
+  p { margin: 0 0 1.1rem; }
+  .texto p { color: var(--text-secondary); }
+  .texto p:first-child::first-letter { font-family: var(--serif); float: left; font-size: 4.1rem; line-height: .85; padding: .35rem .6rem 0 0; color: var(--magma); }
+  .duo { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(2rem, 5vw, 4.5rem); align-items: start; }
+  figure { margin: 0; }
+  figure.foto { position: relative; isolation: isolate; }
+  figure.foto img { width: 100%; aspect-ratio: 4/5; object-fit: cover; }
+  figcaption { font: .78rem/1.5 var(--mono); color: var(--muted); margin-top: .7rem; }
+  figure.foto::after { content: ""; position: absolute; inset: 14px -14px 2.4rem 14px; border: 1px solid var(--magma); z-index: -1; opacity: .45; }
+
+  .banda { position: relative; min-height: 460px; display: grid; align-items: center; overflow: hidden; isolation: isolate; }
+  .banda img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+  .banda::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(15,14,12,.95) 0%, rgba(15,14,12,.75) 50%, rgba(15,14,12,.2) 100%); }
+  .banda blockquote { margin: 0; padding: clamp(2rem, 5vw, 4rem); max-width: 760px; }
+  .banda blockquote p { font-family: var(--serif); font-size: clamp(1.4rem, 2.6vw, 2.1rem); line-height: 1.25; color: var(--text-primary); font-weight: 300; }
+  .banda blockquote p::before { content: "¿"; color: var(--magma); }
+  .banda cite { font: normal .78rem var(--mono); color: var(--oro); letter-spacing: .1em; text-transform: uppercase; }
+  .columnas { columns: 2 320px; column-gap: 3rem; color: var(--text-secondary); margin-top: 2.5rem; }
+
+  /* Mapa */
+  .pestanas { display: flex; gap: .4rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .pestanas button { font: 500 .85rem var(--sans); padding: .5rem .95rem; background: transparent; color: var(--text-secondary); border: 1px solid var(--line); cursor: pointer; }
+  .pestanas button[aria-selected="true"] { background: var(--text-primary); color: var(--page); border-color: var(--text-primary); }
+  .lamina { background: var(--surface-1); border: 1px solid var(--line); padding: clamp(.5rem, 1.5vw, 1rem); }
+  .lamina img { width: 100%; background: #fff; }
+  .panel[hidden] { display: none; }
+  .descargas { display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; margin-top: 1rem; font-size: .9rem; }
+  .descargas a { color: var(--text-secondary); text-decoration: none; border-bottom: 1px solid var(--magma); }
+  .descargas a:hover { color: var(--text-primary); }
+
+  /* Objetivos */
+  .general { border-left: 3px solid var(--magma); padding: .4rem 0 .4rem 1.6rem; font-family: var(--serif); font-size: clamp(1.3rem, 2.4vw, 1.9rem); line-height: 1.3; font-weight: 300; max-width: 900px; margin-bottom: 3rem; }
+  .especificos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  .esp { background: var(--page); padding: 1.6rem 1.4rem 1.8rem; transition: background .3s; }
+  .esp:hover { background: var(--surface-1); }
+  .esp .u { font: .75rem var(--mono); color: var(--oro); letter-spacing: .08em; }
+  .esp h3 { font-family: var(--serif); font-weight: 500; font-size: 1.35rem; margin: .5rem 0 .6rem; }
+  .esp p { color: var(--text-secondary); font-size: .95rem; margin: 0; }
+
+  /* Población */
+  .conjuntos { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 1.2rem; }
+  .conj { background: var(--surface-1); border: 1px solid var(--line); padding: 1.6rem; display: flex; flex-direction: column; }
+  .conj .letra { font-family: var(--serif); font-size: 3.6rem; line-height: 1; color: var(--magma); font-style: italic; }
+  .conj h3 { margin: .4rem 0 .6rem; font-size: 1.15rem; }
+  .conj p { color: var(--text-secondary); font-size: .95rem; }
+  .formula { margin-top: auto; font: .82rem/1.6 var(--mono); color: var(--text-primary); background: var(--page); border: 1px solid var(--line); padding: .8rem .9rem; }
+  .nota { display: grid; grid-template-columns: 340px 1fr; gap: 2rem; margin-top: 2rem; align-items: center; }
+  .nota img { aspect-ratio: 3/2; object-fit: cover; width: 100%; }
+  .nota p { color: var(--text-secondary); margin: 0 0 .8rem; }
+
+  /* Variables */
+  .clases { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-bottom: 2rem; }
+  .clase { background: var(--page); padding: 1.3rem 1.3rem 1.5rem; }
+  .clase .n { font-family: var(--serif); font-size: 3rem; line-height: 1; }
+  .clase .t { font: .72rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--oro); margin: .5rem 0 .3rem; }
+  .clase h3 { margin: 0 0 .4rem; font-size: 1.1rem; }
+  .clase p { color: var(--text-secondary); font-size: .9rem; margin: 0; }
+  .filtros { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: 1rem; }
+  .chip { font: 500 .82rem var(--sans); padding: .4rem .85rem; border: 1px solid var(--line); background: transparent; color: var(--text-secondary); cursor: pointer; border-radius: 999px; }
+  .chip[aria-pressed="true"] { border-color: var(--magma); color: var(--text-primary); background: var(--magma-soft); }
+  .buscar { margin-left: auto; font: .9rem var(--sans); padding: .5rem .8rem; background: var(--surface-1); border: 1px solid var(--line); color: var(--text-primary); min-width: 240px; }
+  .tabla { max-height: 620px; overflow: auto; border: 1px solid var(--line); }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { position: sticky; top: 0; background: var(--surface-2); text-align: left; font: 500 .72rem var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: .7rem .8rem; z-index: 1; }
+  td { padding: .6rem .8rem; border-top: 1px solid var(--line); vertical-align: top; color: var(--text-secondary); }
+  td:first-child { font-family: var(--mono); color: var(--text-primary); white-space: nowrap; }
+  td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+  td .tag { display: inline-block; padding: .05rem .5rem; border-radius: 999px; font-size: .75rem; border: 1px solid var(--line); white-space: nowrap; }
+  td .tag.cualitativa { color: var(--oro); } td .tag.cuantitativa { color: #86b6ef; }
+  tbody tr:hover td { background: var(--surface-1); }
+
+  /* Gráficos */
+  .graficos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.2rem; }
+  .g { background: var(--surface-1); border: 1px solid var(--line); padding: 1.3rem 1.3rem .6rem; }
+  .g.ancho { grid-column: 1 / -1; }
+  .g h3 { margin: 0; font-size: 1.02rem; } .g p { margin: .2rem 0 .6rem; font-size: .85rem; color: var(--muted); }
+  .plot { width: 100%; height: 330px; } .g.ancho .plot { height: 430px; }
+
+  /* Datos */
+  .fuentes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+  .fuente { display: block; background: var(--surface-1); border: 1px solid var(--line); padding: 1.4rem; text-decoration: none; color: var(--text-primary); transition: border-color .2s, transform .2s; }
+  .fuente:hover { border-color: var(--magma); transform: translateY(-3px); }
+  .fuente .t { font: .72rem var(--mono); color: var(--oro); letter-spacing: .1em; text-transform: uppercase; }
+  .fuente h3 { font-family: var(--serif); font-weight: 500; font-size: 1.3rem; margin: .5rem 0 .3rem; }
+  .fuente p { color: var(--text-secondary); font-size: .9rem; margin: 0; }
+
+  /* Equipo */
+  .equipo { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; }
+  .persona { background: var(--surface-1); border: 1px solid var(--line); }
+  .persona .retrato { aspect-ratio: 1; overflow: hidden; background: var(--surface-2); }
+  .persona img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(.3); transition: filter .4s, transform .6s; }
+  .persona:hover img { filter: grayscale(0); transform: scale(1.04); }
+  .persona .datos { padding: 1rem 1.1rem 1.2rem; }
+  .persona h3 { font-family: var(--serif); font-weight: 500; font-size: 1.15rem; line-height: 1.25; margin: 0 0 .3rem; }
+  .persona span { font-size: .82rem; color: var(--muted); }
+  .docente { margin-top: 1.6rem; color: var(--text-secondary); font-size: .95rem; }
+
+  footer { width: min(var(--max), 100% - 2.5rem); margin: 7rem auto 0; padding: 2rem 0 3rem; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 1rem 2rem; justify-content: space-between; color: var(--muted); font-size: .82rem; }
+
+  /* Aparición al hacer scroll */
+  .rev { opacity: 0; transform: translateY(28px); transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
+  .rev.ver { opacity: 1; transform: none; }
+  .hero .rev { transition-delay: calc(var(--d, 0) * 120ms); }
+  @media (prefers-reduced-motion: reduce) {
+    .rev { opacity: 1; transform: none; transition: none; } .hero-img { animation: none; } html { scroll-behavior: auto; }
+  }
+
+  @media (max-width: 1100px) { .nav ul { display: none; } }
+  @media (max-width: 900px) {
+    .duo, .nota, .conjuntos, .graficos, .fuentes { grid-template-columns: 1fr; }
+    .especificos, .clases, .equipo, .elementos { grid-template-columns: repeat(2, 1fr); }
+    figure.foto img { aspect-ratio: 16/10; }
+    .buscar { margin-left: 0; width: 100%; }
+    .cab p { grid-column: 1 / -1; }
+  }
 </style>
 </head>
 <body>
-<nav>
-  <a href="#inicio">Inicio</a><a href="#introduccion">Introducción</a><a href="#problema">Problema</a>
-  <a href="#mapa">Mapa</a><a href="#objetivos">Objetivos</a><a href="#poblacion">Población y muestra</a>
-  <a href="#variables">Variables</a><a href="#dashboard">Exploración</a><a href="#datos">Datos</a><a href="#autores">Autores</a>
+
+<nav class="nav" id="nav" aria-label="Capítulos">
+  <a class="marca" href="#inicio"><b>Pt</b>Geoquímica PetDB</a>
+  <ul>
+    <li><a href="#introduccion"><span>01</span>Introducción</a></li>
+    <li><a href="#problema"><span>02</span>Problema</a></li>
+    <li><a href="#mapa"><span>03</span>Mapa</a></li>
+    <li><a href="#objetivos"><span>04</span>Objetivos</a></li>
+    <li><a href="#poblacion"><span>05</span>Población</a></li>
+    <li><a href="#variables"><span>06</span>Variables</a></li>
+    <li><a href="#exploracion"><span>07</span>Exploración</a></li>
+    <li><a href="#datos"><span>08</span>Datos</a></li>
+    <li><a href="#equipo"><span>09</span>Equipo</a></li>
+  </ul>
 </nav>
+
+<header class="hero" id="inicio">
+  <div class="hero-img" role="img" aria-label="Lámina delgada de basalto vista al microscopio con luz polarizada"></div>
+  <div class="hero-in">
+    <div class="ojo rev" style="--d:0">Universidad Central del Ecuador · FIGEMPA · Ingeniería en Minas</div>
+    <h1 class="rev" style="--d:1">La química de la Tierra, <em>roca por roca</em></h1>
+    <p class="lead rev" style="--d:2">Estadística y machine learning sobre 159.760 análisis geoquímicos de roca total, recopilados por
+      EarthChem PetDB a partir de más de dos mil artículos científicos. Proyecto semestral de Estadística y Probabilidades.</p>
+    <div class="botones rev" style="--d:3">
+      <a class="btn prim" href="#problema">Explorar el proyecto →</a>
+      <a class="btn" href="reporte_base_datos.pdf">Reporte de la base (PDF)</a>
+    </div>
+    <div class="elementos rev" style="--d:4" id="cifras"></div>
+  </div>
+</header>
+
 <main>
-  <section id="inicio">
-    <p class="k">Universidad Central del Ecuador · Facultad de Ingeniería en Geología, Minas, Petróleos y Ambiental (FIGEMPA) · Carrera de Ingeniería en Minas</p>
-    <h1>Análisis estadístico y machine learning de la geoquímica de rocas a escala mundial</h1>
-    <p>Proyecto semestral de la asignatura <b>Estadística y Probabilidades</b> · Docente: Dr. Christian Mejía E., Ph.D.</p>
-    <p>Estudio de 159.760 análisis químicos de roca total —elementos mayores, trazas y tierras raras— recopilados por
-       EarthChem / PetDB a partir de más de dos mil artículos científicos publicados entre 1932 y 2025.</p>
-    <div class="tiles" id="tiles"></div>
+  <section class="cap" id="introduccion">
+    <div class="cab rev"><span class="num">01</span><h2>Introducción</h2></div>
+    <div class="duo">
+      <div class="texto rev">
+        <p>La geoquímica de rocas estudia la composición química de los materiales que forman la corteza y el manto de la Tierra.
+          Para la ingeniería en minas es una herramienta de todos los días: la concentración de elementos como el níquel, el cromo,
+          el cobalto, el cobre o las tierras raras orienta la exploración de yacimientos, y la proporción de los elementos mayores
+          permite clasificar las rocas y reconocer los procesos que las formaron.</p>
+        <p>Las rocas ultramáficas, por ejemplo, alojan depósitos de cromita y de níquel; los arcos volcánicos, como el de los Andes
+          ecuatorianos, concentran pórfidos de cobre como Mirador y depósitos epitermales de oro como Fruta del Norte.</p>
+        <p>Durante casi un siglo, miles de investigaciones han analizado muestras de roca en todo el planeta, desde afloramientos en
+          los continentes hasta testigos de perforación en el fondo del océano. La base de datos <b>PetDB</b>, parte de la
+          infraestructura <b>EarthChem</b>, reúne esos resultados en un formato común. Este proyecto toma esa compilación como caso
+          de estudio y le aplica, paso a paso, las herramientas de la asignatura: estadística descriptiva, inferencial, regresión y
+          machine learning.</p>
+      </div>
+      <figure class="foto rev">
+        <img src="img/andes.jpg" alt="Estratovolcán nevado de los Andes al amanecer, con afloramientos de roca volcánica en primer plano" loading="lazy">
+        <figcaption>Arco volcánico andino. Imagen ilustrativa generada con IA (Google Flow).</figcaption>
+      </figure>
+    </div>
   </section>
 
-  <section id="introduccion">
-    <h2>Introducción</h2>
-    <p>La geoquímica de rocas estudia la composición química de los materiales que forman la corteza y el manto de la Tierra.
-       Para la ingeniería en minas es una herramienta de todos los días: la concentración de elementos como el níquel, el cromo,
-       el cobalto, el cobre o las tierras raras orienta la exploración de yacimientos, y la proporción de los elementos mayores
-       permite clasificar las rocas y reconocer los procesos que las formaron. Las rocas ultramáficas, por ejemplo, alojan depósitos
-       de cromita y de níquel; los arcos volcánicos, como el de los Andes ecuatorianos, concentran pórfidos de cobre como Mirador y
-       depósitos epitermales de oro como Fruta del Norte.</p>
-    <p>Durante casi un siglo, miles de investigaciones han analizado muestras de roca en todo el planeta, desde afloramientos en los
-       continentes hasta testigos de perforación en el fondo del océano. La base de datos <b>PetDB</b>, parte de la infraestructura
-       <b>EarthChem</b>, reúne esos resultados en un formato común y los pone a disposición de cualquier usuario. Este proyecto toma esa
-       compilación como caso de estudio y le aplica, paso a paso, las herramientas de la asignatura: estadística descriptiva,
-       estadística inferencial, modelos de regresión y machine learning.</p>
+  <section class="cap" id="problema">
+    <div class="cab rev"><span class="num">02</span><h2>Planteamiento del problema</h2></div>
+    <div class="banda rev">
+      <img src="img/barco.jpg" alt="Buque de perforación oceánica iluminado en alta mar, de noche" loading="lazy">
+      <blockquote>
+        <p>Cómo se distribuyen las concentraciones de los elementos mayores, traza y tierras raras en las rocas del planeta, en qué
+          medida dependen del tipo de roca y del ambiente tectónico en que se formaron, y es posible predecir ese tipo o ese ambiente
+          a partir de la composición química?</p>
+        <cite>Pregunta de investigación</cite>
+      </blockquote>
+    </div>
+    <div class="columnas rev">
+      <p>La información geoquímica existe, pero está dispersa en miles de publicaciones, fue producida con métodos de laboratorio
+        distintos y rara vez se analiza en conjunto. Un ingeniero que evalúa una muestra necesita saber si su composición es "normal"
+        para ese tipo de roca o si se aparta de lo esperado, y para eso hacen falta valores de referencia construidos con muchos datos.</p>
+      <p>Además, las concentraciones químicas no se comportan como una campana simétrica: suelen tener colas largas, valores
+        atípicos y muchos datos faltantes, lo que obliga a elegir con cuidado los indicadores y los modelos. Buena parte de las
+        muestras viene de los programas de perforación oceánica, lo que también sesga la base hacia las rocas del fondo marino.</p>
+    </div>
   </section>
 
-  <section id="problema">
-    <h2>Planteamiento del problema</h2>
-    <p>La información geoquímica existe, pero está dispersa en miles de publicaciones, fue producida con métodos de laboratorio
-       distintos y rara vez se analiza en conjunto. Un ingeniero que evalúa una muestra necesita saber si su composición es
-       "normal" para ese tipo de roca o si se aparta de lo esperado, y para eso hacen falta valores de referencia construidos con
-       muchos datos. Además, las concentraciones químicas no se comportan como una campana simétrica: suelen tener colas largas,
-       valores atípicos y muchos datos faltantes, lo que obliga a elegir con cuidado los indicadores y los modelos.</p>
-    <p>Con estos antecedentes, el proyecto busca responder: <b>¿cómo se distribuyen las concentraciones de los elementos mayores,
-       traza y tierras raras en las rocas del planeta, en qué medida dependen del tipo de roca y del ambiente tectónico en que se
-       formaron, y es posible predecir ese tipo de roca o ese ambiente a partir de la composición química?</b></p>
+  <section class="cap" id="mapa">
+    <div class="cab rev"><span class="num">03</span><h2>Mapa de ubicación</h2>
+      <p>Las muestras cubren todos los continentes y océanos; cerca de dos tercios vienen del fondo oceánico. El mapa se elaboró
+        en QGIS y en Python (geopandas), con proyección Robinson y datum WGS84.</p></div>
+    <div class="pestanas rev" role="tablist">
+      <button role="tab" aria-selected="true" aria-controls="p-qgis" data-panel="p-qgis">Composición QGIS (A4)</button>
+      <button role="tab" aria-selected="false" aria-controls="p-py" data-panel="p-py">Mapa en Python</button>
+      <button role="tab" aria-selected="false" aria-controls="p-int" data-panel="p-int">Interactivo</button>
+    </div>
+    <div class="lamina rev">
+      <div class="panel" id="p-qgis" role="tabpanel"><img src="img/mapa_qgis.png" alt="Mapa de ubicación en QGIS: puntos coloreados por ambiente tectónico sobre un planisferio en proyección Robinson" loading="lazy"></div>
+      <div class="panel" id="p-py" role="tabpanel" hidden><img src="img/mapa_ubicacion.png" alt="Mapa de ubicación generado con geopandas" loading="lazy"></div>
+      <div class="panel" id="p-int" role="tabpanel" hidden><div class="plot" id="g-mapa" style="height:520px"></div></div>
+    </div>
+    <div class="descargas rev">
+      <a href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/data/gis/mapa_ubicacion.qgz">Proyecto QGIS (.qgz)</a>
+      <a href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/data/gis/mapa_ubicacion.gpkg">Capas GIS (.gpkg, 35 MB)</a>
+      <a href="img/mapa_qgis.png">Mapa A4 en alta resolución</a>
+    </div>
   </section>
 
-  <section id="mapa">
-    <h2>Mapa de ubicación</h2>
-    <p>Las muestras cubren todos los continentes y océanos. Cerca de dos tercios provienen del fondo oceánico (dorsales, islas
-       oceánicas, arcos y cuencas), porque PetDB nació para reunir los datos de los programas internacionales de perforación
-       oceánica. El mapa muestra una selección aleatoria de 6.000 puntos.</p>
-    <div class="card"><div class="plot" id="g-mapa" style="height:460px"></div></div>
-    <p class="k">El mapa de ubicación elaborado en QGIS se incorporará con la lección 3.</p>
+  <section class="cap" id="objetivos">
+    <div class="cab rev"><span class="num">04</span><h2>Objetivos</h2></div>
+    <p class="general rev">Aplicar métodos de estadística descriptiva, inferencial, regresión y machine learning a los análisis
+      geoquímicos de roca total de EarthChem PetDB, para caracterizar la composición química de las rocas según su tipo y su
+      ambiente tectónico y evaluar si esa composición permite predecirlos.</p>
+    <div class="especificos rev">
+      <div class="esp"><div class="u">UNIDAD 1</div><h3>Describir</h3><p>La distribución de los elementos mayores, traza y tierras raras mediante tablas de frecuencia, gráficas e indicadores de posición, dispersión y forma, por tipo de roca y ambiente tectónico.</p></div>
+      <div class="esp"><div class="u">UNIDAD 2</div><h3>Inferir</h3><p>Ajustar modelos de probabilidad a las variables seleccionadas y estimar sus parámetros con intervalos de confianza, para extender a la población lo observado en la muestra.</p></div>
+      <div class="esp"><div class="u">UNIDAD 3</div><h3>Relacionar</h3><p>Cuantificar la relación entre variables químicas, como la sílice frente a los álcalis o el magnesio frente al níquel, con regresión simple, no lineal y múltiple.</p></div>
+      <div class="esp"><div class="u">UNIDAD 4</div><h3>Predecir</h3><p>Entrenar y evaluar una red neuronal que clasifique el ambiente tectónico o el tipo de roca a partir de la composición química.</p></div>
+    </div>
   </section>
 
-  <section id="objetivos">
-    <h2>Objetivos</h2>
-    <h3>Objetivo general</h3>
-    <p>Aplicar métodos de estadística descriptiva, estadística inferencial, regresión y machine learning a los análisis geoquímicos
-       de roca total de la base EarthChem PetDB, para caracterizar la composición química de las rocas según su tipo y su ambiente
-       tectónico y evaluar si esa composición permite predecirlos.</p>
-    <h3>Objetivos específicos</h3>
-    <ol>
-      <li>Describir la distribución de los elementos mayores, traza y tierras raras mediante tablas de frecuencia, gráficas e
-          indicadores de posición, dispersión y forma, por tipo de roca y por ambiente tectónico.</li>
-      <li>Ajustar modelos de probabilidad a las variables seleccionadas y estimar sus parámetros con intervalos de confianza,
-          para extender a la población los resultados obtenidos en la muestra.</li>
-      <li>Cuantificar la relación entre variables químicas, como la sílice frente a los álcalis o el magnesio frente al níquel,
-          mediante modelos de regresión simple, no lineal y múltiple.</li>
-      <li>Entrenar y evaluar una red neuronal que clasifique el ambiente tectónico o el tipo de roca a partir de la composición química.</li>
-    </ol>
-  </section>
-
-  <section id="poblacion">
-    <h2>Población, individuo y muestra</h2>
-    <div class="grid">
-      <div class="card"><h3>Población (U)</h3>
-        <p>Todas las porciones de roca total de la corteza y del manto superior de la Tierra, en continentes y fondos oceánicos.
-           Es una población <b>infinita</b>: no es posible enumerar todas las porciones de roca del planeta.</p>
-        <p class="formula">U = { x / x es una porción de roca total de la corteza o del manto superior terrestre }</p></div>
-      <div class="card"><h3>Individuo (X<sub>i</sub>)</h3>
+  <section class="cap" id="poblacion">
+    <div class="cab rev"><span class="num">05</span><h2>Población, individuo y muestra</h2></div>
+    <div class="conjuntos">
+      <div class="conj rev"><div class="letra">U</div><h3>Población</h3>
+        <p>Todas las porciones de roca total de la corteza y del manto superior de la Tierra, en continentes y fondos oceánicos. Es
+          <b>infinita</b>: no es posible enumerar todas las porciones de roca del planeta.</p>
+        <div class="formula">U = { x / x es una porción de roca total de la corteza o del manto superior terrestre }</div></div>
+      <div class="conj rev"><div class="letra">X<sub>i</sub></div><h3>Individuo</h3>
         <p>Cada porción de roca —muestra de mano, testigo de perforación o fragmento dragado del fondo marino— que se muele y se
-           analiza químicamente en su totalidad.</p>
-        <p class="formula">X<sub>i</sub>, i = 1, 2, 3, …</p></div>
-      <div class="card wide"><h3>Muestra (M)</h3>
-        <p>Los análisis de roca total registrados en EarthChem PetDB y descargados el 13 de octubre de 2026. Cada análisis es un
-           <b>caso</b> de estudio.</p>
-        <p class="formula">M = { x / x ∈ U ∧ x está registrada en EarthChem PetDB (descarga del 13/10/2026) } &nbsp;·&nbsp; M ⊂ U &nbsp;·&nbsp;
-           Card(M) = n = 159.760 &nbsp;·&nbsp; casos x<sub>i</sub>, i = 1, 2, …, 159.760</p>
-        <p>Dos aclaraciones. En geología se llama "muestra" a cada trozo de roca; aquí ese trozo es el <b>individuo</b>, y la
-           <b>muestra estadística</b> es el conjunto de todos ellos. Además, esta muestra no se obtuvo por sorteo: es una
-           compilación de lo que los investigadores decidieron estudiar, con más rocas oceánicas que continentales. Por eso, para
-           la inferencia se trabajará con submuestras aleatorias estratificadas por ambiente tectónico.</p></div>
+          analiza químicamente en su totalidad.</p>
+        <div class="formula">X<sub>i</sub>, i = 1, 2, 3, …</div></div>
+      <div class="conj rev"><div class="letra">M</div><h3>Muestra</h3>
+        <p>Los análisis de roca total registrados en EarthChem PetDB, descargados el 13 de octubre de 2026. Cada análisis es un
+          <b>caso</b> de estudio.</p>
+        <div class="formula">M = { x / x ∈ U ∧ x está registrada en EarthChem PetDB (13/10/2026) }<br>M ⊂ U · Card(M) = n = 159.760<br>casos x<sub>i</sub>, i = 1, 2, …, 159.760</div></div>
+    </div>
+    <div class="nota rev">
+      <img src="img/nucleos.jpg" alt="Cajas de testigos de perforación con muestras cilíndricas de roca en un laboratorio" loading="lazy">
+      <div>
+        <p><b>Dos aclaraciones.</b> En geología se llama "muestra" a cada trozo de roca; aquí ese trozo es el <b>individuo</b>, y la
+          <b>muestra estadística</b> es el conjunto de todos ellos.</p>
+        <p>Además, esta muestra no se obtuvo por sorteo: es una compilación de lo que los investigadores decidieron estudiar, con
+          más rocas oceánicas que continentales. Por eso, para la inferencia se trabajará con submuestras aleatorias estratificadas
+          por ambiente tectónico.</p>
+      </div>
     </div>
   </section>
 
-  <section id="variables">
-    <h2>Tabla de variables</h2>
-    <p>Una <b>variable cualitativa</b> describe una cualidad que no se expresa con números: es <b>nominal</b> si sus categorías no
-       tienen orden (tipo de roca, ambiente tectónico) y <b>ordinal</b> si lo tienen (grado de alteración, clase de sílice). Una
-       <b>variable cuantitativa</b> se mide con números: es <b>discreta</b> si solo toma valores puntuales, sin intermedios
-       (año de publicación, número de analitos), y <b>continua</b> si puede tomar cualquier valor de un intervalo (concentraciones,
-       coordenadas, edades).</p>
-    <div class="tiles" id="tipos"></div>
-    <p><a href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/data/tabla_variables.xlsx">Descargar la tabla de variables (Excel)</a></p>
-    <div class="scroll card" style="max-height:560px"><table id="vars"><thead><tr>
-      <th>Variable</th><th>Descripción</th><th>Tipo</th><th>Subtipo</th><th>Escala</th><th>Instrumento / método</th><th>Unidad</th><th>Dominio</th><th>% con dato</th>
+  <section class="cap" id="variables">
+    <div class="cab rev"><span class="num">06</span><h2>Tabla de variables</h2>
+      <p>Cada columna de la base es una variable. Se clasifican según lo que miden y la escala en que se expresan.</p></div>
+    <div class="clases rev" id="clases"></div>
+    <div class="filtros rev">
+      <button class="chip" aria-pressed="true" data-f="">Todas</button>
+      <button class="chip" aria-pressed="false" data-f="nominal">Nominales</button>
+      <button class="chip" aria-pressed="false" data-f="ordinal">Ordinales</button>
+      <button class="chip" aria-pressed="false" data-f="discreta">Discretas</button>
+      <button class="chip" aria-pressed="false" data-f="continua">Continuas</button>
+      <input class="buscar" type="search" placeholder="Buscar variable o elemento…" aria-label="Buscar variable">
+    </div>
+    <div class="tabla rev"><table id="vars"><thead><tr>
+      <th>Variable</th><th>Descripción</th><th>Tipo</th><th>Subtipo</th><th>Escala</th><th>Instrumento / método</th><th>Unidad</th><th>Dominio</th><th>% dato</th>
     </tr></thead><tbody></tbody></table></div>
+    <div class="descargas"><a href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/data/tabla_variables.xlsx">Descargar la tabla de variables (Excel)</a></div>
   </section>
 
-  <section id="dashboard">
-    <h2>Exploración preliminar</h2>
-    <p>Primer vistazo a los datos, antes de la estadística descriptiva formal.</p>
-    <div class="grid">
-      <div class="card"><h3>Muestras por ambiente tectónico</h3><p>12 ambientes más frecuentes</p><div class="plot" id="g-tec"></div></div>
-      <div class="card"><h3>Distribución de SiO<sub>2</sub></h3><p>Muestras con SiO<sub>2</sub> entre 30 y 85 wt%, bins de 1 wt%</p><div class="plot" id="g-sio2"></div></div>
-      <div class="card"><h3>Clase de SiO<sub>2</sub> (ordinal)</h3><p>Ultrabásica &lt; 45 ≤ básica &lt; 52 ≤ intermedia &lt; 63 ≤ ácida</p><div class="plot" id="g-clase"></div></div>
-      <div class="card"><h3>Grado de alteración (ordinal)</h3><p>0 = fresca … 5 = totalmente alterada</p><div class="plot" id="g-alt"></div></div>
-      <div class="card wide"><h3>Diagrama TAS: álcalis totales vs. sílice</h3><p>Rocas volcánicas, muestra aleatoria de 6 000 análisis</p><div class="plot" id="g-tas"></div></div>
-      <div class="card wide"><h3>Análisis por año de publicación</h3><p>Variable discreta derivada de la cita</p><div class="plot" id="g-anio"></div></div>
+  <section class="cap" id="exploracion">
+    <div class="cab rev"><span class="num">07</span><h2>Exploración preliminar</h2>
+      <p>Un primer vistazo a los datos, antes de la estadística descriptiva formal de la Unidad 1.</p></div>
+    <div class="graficos">
+      <div class="g rev"><h3>Muestras por ambiente tectónico</h3><p>12 ambientes más frecuentes</p><div class="plot" id="g-tec"></div></div>
+      <div class="g rev"><h3>Distribución de SiO<sub>2</sub></h3><p>Análisis con SiO<sub>2</sub> entre 30 y 85 wt%, intervalos de 1 wt%</p><div class="plot" id="g-sio2"></div></div>
+      <div class="g rev"><h3>Clase de SiO<sub>2</sub> · variable ordinal</h3><p>Ultrabásica &lt; 45 ≤ básica &lt; 52 ≤ intermedia &lt; 63 ≤ ácida</p><div class="plot" id="g-clase"></div></div>
+      <div class="g rev"><h3>Grado de alteración · variable ordinal</h3><p>0 = fresca … 5 = totalmente alterada</p><div class="plot" id="g-alt"></div></div>
+      <div class="g ancho rev"><h3>Diagrama TAS: álcalis totales frente a sílice</h3><p>Rocas volcánicas, selección aleatoria de 6.000 análisis</p><div class="plot" id="g-tas"></div></div>
+      <div class="g ancho rev"><h3>Análisis por año de publicación · variable discreta</h3><p>Derivada de la cita de cada artículo</p><div class="plot" id="g-anio"></div></div>
     </div>
   </section>
 
-  <section id="datos">
-    <h2>Datos</h2>
-    <p>Fuente: <a href="https://www.earthchem.org/petdb">EarthChem PetDB</a> / Astromaterials Data Synthesis, descarga del 13 de octubre
-       de 2026 con el filtro "material analizado = roca total". Licencia CC BY 4.0. La base original traía 2.318 columnas; se
-       quitaron las de método, laboratorio y comentario, se unieron los metadatos de cada muestra y se conservaron las variables
-       químicas con datos en al menos el 5 % de las filas. Las celdas vacías significan "no medido", no cero.</p>
-    <ul>
-      <li><a href="reporte_base_datos.pdf">Reporte de la base de datos (PDF)</a></li>
-      <li><a href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz">Base limpia (.csv.gz, 159.760 filas × 74 columnas)</a></li>
-      <li><a href="https://github.com/DalemberV/geoquimica-earthchem-ml">Repositorio con el código</a></li>
-    </ul>
-  </section>
-
-  <section id="autores">
-    <h2>Autores</h2>
-    <div class="tiles">
-      <div class="tile"><div class="v" style="font-size:1.05rem">Cristoffer Joel Rumiguano Chariguaman</div><div class="k">Ingeniería en Minas</div></div>
-      <div class="tile"><div class="v" style="font-size:1.05rem">Ana Gabriela Fernández Chuquimarca</div><div class="k">Ingeniería en Minas</div></div>
-      <div class="tile"><div class="v" style="font-size:1.05rem">Evelyn Maritza Bustamante Armijos</div><div class="k">Ingeniería en Minas</div></div>
-      <div class="tile"><div class="v" style="font-size:1.05rem">Jessica Jaqueline Haro Simba</div><div class="k">Ingeniería en Minas</div></div>
+  <section class="cap" id="datos">
+    <div class="cab rev"><span class="num">08</span><h2>Datos y fuente</h2>
+      <p>EarthChem PetDB / Astromaterials Data Synthesis, descarga del 13 de octubre de 2026 con el filtro "material analizado =
+        roca total". Licencia CC BY 4.0. La base original tenía 2.318 columnas; se quitaron las de método, laboratorio y comentario,
+        se unieron los metadatos de cada muestra y se conservaron las variables químicas con datos en al menos el 5 % de las filas.
+        Las celdas vacías significan "no medido", no cero.</p></div>
+    <div class="fuentes">
+      <a class="fuente rev" href="reporte_base_datos.pdf"><div class="t">PDF · 5 páginas</div><h3>Reporte de la base</h3><p>Qué es, de dónde salió, cómo se preparó y sus limitaciones.</p></a>
+      <a class="fuente rev" href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz"><div class="t">CSV comprimido · 26 MB</div><h3>Base limpia</h3><p>159.760 filas × 75 columnas, lista para R, Python o Excel.</p></a>
+      <a class="fuente rev" href="https://github.com/DalemberV/geoquimica-earthchem-ml"><div class="t">GitHub</div><h3>Código del proyecto</h3><p>Scripts de limpieza, mapa, tabla de variables y esta web.</p></a>
     </div>
-    <p class="k" style="margin-top:1rem">Docente: Dr. Christian Mejía E., Ph.D. · Estadística y Probabilidades · FIGEMPA – Universidad Central del Ecuador</p>
   </section>
 
-  <footer>Datos: Astromaterials Data Synthesis / EarthChem PetDB (<a href="https://search.astromat.org/">search.astromat.org</a>), descargados el 13 de octubre de 2026, CC BY 4.0.</footer>
+  <section class="cap" id="equipo">
+    <div class="cab rev"><span class="num">09</span><h2>Equipo</h2>
+      <p>Estudiantes de Ingeniería en Minas, Facultad de Ingeniería en Geología, Minas, Petróleos y Ambiental.</p></div>
+    <div class="equipo">
+      <article class="persona rev"><div class="retrato"><img src="img/cristoffer.jpg" alt="Cristoffer Joel Rumiguano Chariguaman" loading="lazy"></div>
+        <div class="datos"><h3>Cristoffer Joel Rumiguano Chariguaman</h3><span>Ingeniería en Minas</span></div></article>
+      <article class="persona rev"><div class="retrato"><img src="img/gabriela.jpg" alt="Ana Gabriela Fernández Chuquimarca" loading="lazy"></div>
+        <div class="datos"><h3>Ana Gabriela Fernández Chuquimarca</h3><span>Ingeniería en Minas</span></div></article>
+      <article class="persona rev"><div class="retrato"><img src="img/evelyn.jpg" alt="Evelyn Maritza Bustamante Armijos" loading="lazy"></div>
+        <div class="datos"><h3>Evelyn Maritza Bustamante Armijos</h3><span>Ingeniería en Minas</span></div></article>
+      <article class="persona rev"><div class="retrato"><img src="img/jessica.jpg" alt="Jessica Jaqueline Haro Simba" loading="lazy"></div>
+        <div class="datos"><h3>Jessica Jaqueline Haro Simba</h3><span>Ingeniería en Minas</span></div></article>
+    </div>
+    <p class="docente rev">Docente: <b>Dr. Christian Mejía E., Ph.D.</b> · Estadística y Probabilidades · FIGEMPA – Universidad Central del Ecuador</p>
+  </section>
 </main>
+
+<footer>
+  <span>Datos: Astromaterials Data Synthesis / EarthChem PetDB (<a href="https://search.astromat.org/">search.astromat.org</a>), 13/10/2026, CC BY 4.0.</span>
+  <span>Imágenes ilustrativas generadas con IA (Google Flow).</span>
+</footer>
 
 <script>
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const fmt = n => n.toLocaleString("es");
+const esc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
+// Navegación: fondo sólido al bajar y capítulo activo resaltado
+const nav = document.getElementById("nav");
+addEventListener("scroll", () => nav.classList.toggle("solid", scrollY > 40), { passive: true });
+const enlaces = [...document.querySelectorAll(".nav ul a")];
+const capObs = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) enlaces.forEach(a => a.classList.toggle("activo", a.hash === "#" + e.target.id));
+}), { rootMargin: "-45% 0px -50% 0px" });
+document.querySelectorAll("section.cap").forEach(s => capObs.observe(s));
+
+// Aparición al hacer scroll
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add("ver"); io.unobserve(e.target); }
+}), { threshold: .12 });
+document.querySelectorAll(".rev").forEach(el => io.observe(el));
+
+// Pestañas del mapa
+const tabs = [...document.querySelectorAll(".pestanas button")];
+tabs.forEach(b => b.addEventListener("click", () => {
+  tabs.forEach(t => { t.setAttribute("aria-selected", t === b); document.getElementById(t.dataset.panel).hidden = t !== b; });
+  if (b.dataset.panel === "p-int" && window.datos && window.Plotly) mapa(window.datos);
+}));
+
+// Gráficos (Plotly)
 function base(extra = {}) {
   const axis = { gridcolor: css("--grid"), linecolor: css("--axis"), zeroline: false,
                  tickfont: { color: css("--muted") }, title: { font: { color: css("--text-secondary") } } };
   return Object.assign({
     paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
-    font: { family: 'system-ui, -apple-system, "Segoe UI", sans-serif', color: css("--text-secondary"), size: 12 },
+    font: { family: '"Instrument Sans", "Segoe UI", sans-serif', color: css("--text-secondary"), size: 12 },
     margin: { l: 56, r: 16, t: 8, b: 44 }, bargap: 0.15, showlegend: false,
-    hoverlabel: { bgcolor: css("--surface-1"), bordercolor: css("--axis"), font: { color: css("--text-primary") } },
+    hoverlabel: { bgcolor: css("--surface-2"), bordercolor: css("--axis"), font: { color: css("--text-primary") } },
     xaxis: { ...axis }, yaxis: { ...axis },
   }, extra);
 }
 const cfg = { displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
 const bar = (x, y, extra = {}) => ({ type: "bar", x, y, marker: { color: css("--series-1"), line: { color: css("--surface-1"), width: 2 } }, ...extra });
+const rampa = ["#86b6ef", "#6da7ec", "#5598e7", "#3987e5", "#2a78d6", "#256abf"]; // ordinales: azul claro -> oscuro
 
-function dibujar(d) {
-  document.getElementById("tiles").innerHTML = [
-    [fmt(d.filas), "análisis (filas)"], [d.columnas, "variables (columnas)"],
-    [fmt(d.articulos), "artículos de origen"], [`${d.anios[0]}–${d.anios[1]}`, "años de publicación"],
-  ].map(([v, k]) => `<div class="tile"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("");
+function mapa(d) {
+  Plotly.react("g-mapa", [{ type: "scattergeo", lat: d.mapa.lat, lon: d.mapa.lon, text: d.mapa.tec, mode: "markers",
+    marker: { size: 4, opacity: .75, color: css("--magma") }, hovertemplate: "%{text}<br>%{lat}°, %{lon}°<extra></extra>" }],
+    base({ margin: { l: 0, r: 0, t: 0, b: 0 }, geo: { projection: { type: "robinson" }, bgcolor: "rgba(0,0,0,0)",
+      showland: true, landcolor: "#2a2724", showocean: true, oceancolor: css("--surface-1"), coastlinecolor: "#3d3a36",
+      showcountries: true, countrycolor: "#34312d", showframe: false,
+      lataxis: { showgrid: true, gridcolor: "#24221f" }, lonaxis: { showgrid: true, gridcolor: "#24221f" } } }), cfg);
+}
 
-
+function graficos(d) {
   const t = d.tectonica;
   Plotly.react("g-tec", [bar(t.values.slice().reverse(), t.labels.slice().reverse(),
     { orientation: "h", hovertemplate: "%{y}: %{x:,} muestras<extra></extra>" })],
     base({ margin: { l: 190, r: 16, t: 8, b: 40 }, xaxis: { ...base().xaxis, title: { text: "muestras" } } }), cfg);
-
   Plotly.react("g-sio2", [bar(d.hist_sio2.x.map(x => x + 0.5), d.hist_sio2.y,
-    { width: 1, customdata: d.hist_sio2.x.map(x => `${x}–${x + 1}`), hovertemplate: "%{customdata} wt%: %{y:,} muestras<extra></extra>" })],
-    base({ bargap: 0, xaxis: { ...base().xaxis, title: { text: "SiO₂ (wt%)" } }, yaxis: { ...base().yaxis, title: { text: "muestras" } } }), cfg);
-
+    { width: 1, customdata: d.hist_sio2.x.map(x => `${x}–${x + 1}`), hovertemplate: "%{customdata} wt%: %{y:,} análisis<extra></extra>" })],
+    base({ bargap: 0, xaxis: { ...base().xaxis, title: { text: "SiO₂ (wt%)" } }, yaxis: { ...base().yaxis, title: { text: "análisis" } } }), cfg);
   Plotly.react("g-clase", [bar(d.clase_sio2.labels, d.clase_sio2.values, { hovertemplate: "%{x}: %{y:,}<extra></extra>",
-    marker: { color: ["#86b6ef", "#5598e7", "#256abf", "#104281"], line: { color: css("--surface-1"), width: 2 } } })],
-    base({ yaxis: { ...base().yaxis, title: { text: "muestras" } } }), cfg);
-
+    marker: { color: rampa.slice(0, 4), line: { color: css("--surface-1"), width: 2 } } })],
+    base({ yaxis: { ...base().yaxis, title: { text: "análisis" } } }), cfg);
   Plotly.react("g-alt", [bar(d.alteracion.labels, d.alteracion.values, { hovertemplate: "grado %{x}: %{y:,}<extra></extra>",
-    marker: { color: ["#86b6ef", "#6da7ec", "#5598e7", "#2a78d6", "#1c5cab", "#104281"], line: { color: css("--surface-1"), width: 2 } } })],
-    base({ xaxis: { ...base().xaxis, title: { text: "grado de alteración" }, dtick: 1 }, yaxis: { ...base().yaxis, title: { text: "muestras" } } }), cfg);
-
+    marker: { color: rampa, line: { color: css("--surface-1"), width: 2 } } })],
+    base({ xaxis: { ...base().xaxis, title: { text: "grado de alteración" }, dtick: 1 }, yaxis: { ...base().yaxis, title: { text: "análisis" } } }), cfg);
   const nombres = { "igneous:volcanic:mafic": "máfica", "igneous:volcanic:intermediate": "intermedia", "igneous:volcanic:felsic": "félsica" };
   const colores = { "igneous:volcanic:mafic": "--series-1", "igneous:volcanic:intermediate": "--series-2", "igneous:volcanic:felsic": "--series-3" };
   Plotly.react("g-tas", Object.keys(nombres).filter(k => d.tas[k]).map(k => ({
     type: "scattergl", mode: "markers", name: nombres[k], x: d.tas[k].x, y: d.tas[k].y,
-    marker: { size: 6, opacity: 0.6, color: css(colores[k]), line: { color: css("--surface-1"), width: 1 } },
+    marker: { size: 6, opacity: .65, color: css(colores[k]), line: { color: css("--surface-1"), width: 1 } },
     hovertemplate: `${nombres[k]}<br>SiO₂ %{x} wt%<br>Na₂O+K₂O %{y} wt%<extra></extra>` })),
-    base({ showlegend: true, legend: { orientation: "h", y: 1.08 }, margin: { l: 56, r: 16, t: 32, b: 44 },
+    base({ showlegend: true, legend: { orientation: "h", y: 1.1, font: { color: css("--text-secondary") } }, margin: { l: 56, r: 16, t: 32, b: 44 },
            xaxis: { ...base().xaxis, title: { text: "SiO₂ (wt%)" } }, yaxis: { ...base().yaxis, range: [0, 16], title: { text: "Na₂O + K₂O (wt%)" } } }), cfg);
-
-  Plotly.react("g-mapa", [{ type: "scattergeo", lat: d.mapa.lat, lon: d.mapa.lon, text: d.mapa.tec, mode: "markers",
-    marker: { size: 5, opacity: 0.6, color: css("--series-1") }, hovertemplate: "%{text}<br>%{lat}, %{lon}<extra></extra>" }],
-    base({ margin: { l: 0, r: 0, t: 0, b: 0 }, geo: { projection: { type: "natural earth" }, bgcolor: "rgba(0,0,0,0)",
-      showland: true, landcolor: css("--grid"), showocean: true, oceancolor: css("--surface-1"),
-      coastlinecolor: css("--axis"), showcountries: false, showframe: false } }), cfg);
-
   const anios = Object.keys(d.anio_pub);
   Plotly.react("g-anio", [bar(anios, anios.map(a => d.anio_pub[a]), { hovertemplate: "%{x}: %{y:,} análisis<extra></extra>" })],
     base({ xaxis: { ...base().xaxis, title: { text: "año" } }, yaxis: { ...base().yaxis, title: { text: "análisis" } } }), cfg);
 }
 
+// Cifras de portada con estilo de tabla periódica + conteo animado
+function cifras(d) {
+  const items = [["An", 1, d.filas, "análisis de roca"], ["Va", 2, d.columnas, "variables"],
+                 ["Ar", 3, d.articulos, "artículos de origen"], ["Añ", 4, d.anios[1] - d.anios[0], `años de ciencia (${d.anios[0]}–${d.anios[1]})`]];
+  const cont = document.getElementById("cifras");
+  cont.innerHTML = items.map(([s, z, v, k]) => `<div class="el"><span class="z">${z}</span><div class="s">${s}</div><div class="v" data-v="${v}">0</div><div class="k">${k}</div></div>`).join("");
+  const dur = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 1600;
+  cont.querySelectorAll(".v").forEach(el => {
+    const fin = +el.dataset.v, t0 = performance.now();
+    const paso = t => { const p = dur ? Math.min(1, (t - t0) / dur) : 1; el.textContent = fmt(Math.round(fin * (1 - Math.pow(1 - p, 3)))); if (p < 1) requestAnimationFrame(paso); };
+    requestAnimationFrame(paso);
+  });
+}
+
+// Tabla de variables con filtros y búsqueda
 fetch("data/variables.json").then(r => r.json()).then(v => {
-  const esc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const ex = { nominal: "tipo de roca, ambiente tectónico", ordinal: "grado de alteración, clase de sílice",
+               discreta: "año de publicación, número de analitos", continua: "concentraciones, coordenadas, edades" };
+  const def = { nominal: ["Cualitativa", "Categorías sin orden"], ordinal: ["Cualitativa", "Categorías con jerarquía"],
+                discreta: ["Cuantitativa", "Valores puntuales, sin intermedios"], continua: ["Cuantitativa", "Cualquier valor de un intervalo"] };
+  const sub = r => r.Subtipo.split(" ")[0];
+  document.getElementById("clases").innerHTML = Object.keys(def).map(k =>
+    `<div class="clase"><div class="n">${v.filter(r => r.Tipo !== "identificador" && sub(r) === k).length}</div><div class="t">${def[k][0]}</div>
+     <h3>${k[0].toUpperCase() + k.slice(1)}</h3><p>${def[k][1]}. Ej.: ${ex[k]}.</p></div>`).join("");
   const cols = ["Variable", "Descripción", "Tipo", "Subtipo", "Escala de medición", "Instrumento / método", "Unidad", "Dominio", "% con dato"];
-  document.querySelector("#vars tbody").innerHTML = v.map(r => `<tr>${cols.map(k => `<td>${esc(r[k])}</td>`).join("")}</tr>`).join("");
-  const c = {};
-  v.filter(r => r.Tipo !== "identificador").forEach(r => { const k = `${r.Tipo} ${r.Subtipo.split(" ")[0]}`; c[k] = (c[k] || 0) + 1; });
-  document.getElementById("tipos").innerHTML = Object.entries(c).map(([k, n]) =>
-    `<div class="tile"><div class="v">${n}</div><div class="k">${k}</div></div>`).join("");
+  const cuerpo = document.querySelector("#vars tbody");
+  let filtro = "", texto = "";
+  const pintar = () => {
+    cuerpo.innerHTML = v.filter(r => (!filtro || sub(r) === filtro) &&
+      (!texto || (r.Variable + " " + r.Descripción).toLowerCase().includes(texto)))
+      .map(r => `<tr>${cols.map(k => k === "Tipo" ? `<td><span class="tag ${r[k]}">${esc(r[k])}</span></td>` : `<td>${esc(r[k])}</td>`).join("")}</tr>`).join("");
+  };
+  document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => {
+    document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === c));
+    filtro = c.dataset.f; pintar();
+  }));
+  document.querySelector(".buscar").addEventListener("input", e => { texto = e.target.value.toLowerCase(); pintar(); });
+  pintar();
 });
 
 fetch("data/resumen.json").then(r => r.json()).then(d => {
-  dibujar(d);
-  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => dibujar(d));
+  window.datos = d;
+  cifras(d);
+  const listo = () => window.Plotly ? graficos(d) : setTimeout(listo, 100);
+  listo();
 });
 </script>
 </body>
