@@ -61,6 +61,7 @@ OTRAS = {
     "Geologic Age Max (Ma)": ("Edad máxima", "cuantitativa", "continua", "razón", "geocronología", "millones de años (Ma)"),
     "Geologic Age Min (Ma)": ("Edad mínima", "cuantitativa", "continua", "razón", "geocronología", "millones de años (Ma)"),
     "Expedition": ("Expedición o campaña de muestreo", "cualitativa", "nominal", "nominal", "registro PetDB", "—"),
+    "Tectonic Group": ("Ambiente tectónico agrupado en tres clases (o mixto)", "cualitativa", "nominal", "nominal", "derivada de Tectonic Setting", "—"),
     "Alteration Grade": ("Grado de alteración: 0 fresca, 1 leve, 2 moderada, 3 extensa, 4 casi total, 5 total", "cualitativa", "ordinal", "ordinal", "derivada de Sample Alteration", "—"),
     "SiO2 Class": ("Clase por sílice: ultrabásica < 45 ≤ básica < 52 ≤ intermedia < 63 ≤ ácida", "cualitativa", "ordinal", "ordinal", "derivada de SiO2 (wt%)", "—"),
     "N Analytes": ("Número de analitos químicos medidos en la muestra", "cuantitativa", "discreta", "razón", "conteo", "analitos"),

@@ -19,7 +19,7 @@ TIPOS = {  # tipo estadístico de cada columna no química (las químicas son co
     "Elevation Min (m)": "continua", "Elevation Max (m)": "continua",
     "Geologic Age": "nominal", "Geologic Age Max (Ma)": "continua",
     "Geologic Age Min (Ma)": "continua", "Expedition": "nominal",
-    "Alteration Grade": "ordinal", "SiO2 Class": "ordinal", "N Analytes": "discreta",
+    "Tectonic Group": "nominal", "Alteration Grade": "ordinal", "SiO2 Class": "ordinal", "N Analytes": "discreta",
 }
 ORDEN_SIO2 = ["ultrabasica", "basica", "intermedia", "acida"]
 
