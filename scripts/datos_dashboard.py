@@ -15,9 +15,9 @@ TIPOS = {  # tipo estadístico de cada columna no química (las químicas son co
     "Publication Year": "discreta", "Analyzed Material": "nominal (binaria)",
     "Sample Type": "nominal", "Sample SubType": "nominal", "Latitude": "continua",
     "Longitude": "continua", "Geographic Features": "nominal", "Tectonic Setting": "nominal",
-    "Rock Texture": "nominal", "Sample Alteration": "nominal (texto original)",
+    "Rock Texture": "nominal", "Sample Alteration": "ordinal (texto original)",
     "Elevation Min (m)": "continua", "Elevation Max (m)": "continua",
-    "Geologic Age": "nominal", "Geologic Age Max (Ma)": "continua",
+    "Geologic Age": "ordinal", "Geologic Age Max (Ma)": "continua",
     "Geologic Age Min (Ma)": "continua", "Expedition": "nominal",
     "Tectonic Group": "nominal", "Alteration Grade": "ordinal", "SiO2 Class": "ordinal", "N Analytes": "discreta",
 }

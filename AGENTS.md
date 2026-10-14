@@ -26,7 +26,7 @@ Regresión (lineal, exponencial, polinómica, potencial, logarítmica, múltiple
 | Lección | Tema | Evidencia que va a la web |
 |---|---|---|
 | L2 | Población, individuo, muestra | definición textual y simbólica (hecha) |
-| L3 | Muestreo probabilístico + QGIS | mapa de ubicación en QGIS + informe de muestreo (**pendiente**) |
+| L3 | Muestreo probabilístico + QGIS | mapa de ubicación en QGIS y Python (hecho); informe de muestreo estratificado (**pendiente**) |
 | L4 | Variable y escalas de medición | tabla de variables: tipo, subtipo, instrumento, unidad, dominio (hecha) |
 | L5 | TDF cualitativas, discretas, continuas | TDF + histograma, ojiva, barras (pendiente) |
 | L6 | Indicadores | tabla de indicadores + boxplots (pendiente) |
@@ -39,9 +39,9 @@ El docente demuestra en R/RStudio, QGIS y Python/Colab.
 | Requisito | Estado |
 |---|---|
 | ≥ 10 000 filas | 159 760 filas (cada fila = un análisis de una muestra) |
-| ≥ 30 columnas | 74 columnas |
-| Variables nominales | `Sample Type`, `Sample SubType`, `Tectonic Setting`, `Geographic Features`, `Rock Texture`, `Geologic Age`, `Expedition`, `Citation`; binaria: `Analyzed Material` |
-| Variables ordinales | `SiO2 Class` (ultrabasica < basica < intermedia < acida), `Alteration Grade` (0 fresca … 5 totalmente alterada) |
+| ≥ 30 columnas | 75 columnas |
+| Variables nominales | `Sample Type`, `Sample SubType`, `Tectonic Setting`, `Geographic Features`, `Rock Texture`, `Expedition`, `Citation`, `Tectonic Group` (3 grupos + mixto); binaria: `Analyzed Material` |
+| Variables ordinales | `SiO2 Class` (ultrabasica < basica < intermedia < acida), `Alteration Grade` (0 fresca … 5 totalmente alterada), `Geologic Age` (período), `Sample Alteration` (texto original) |
 | Numéricas discretas | `Publication Year`, `N Analytes` (cuántos analitos se midieron en la muestra) |
 | Numéricas continuas | 52 químicas (wt% y ppm), `Latitude`, `Longitude`, elevaciones, edades en Ma |
 
@@ -54,9 +54,15 @@ scripts/limpiar.py                              crudo -> base limpia
 scripts/datos_dashboard.py                      base limpia -> docs/data/resumen.json
 scripts/reporte_pdf.py                          base limpia -> docs/reporte_base_datos.pdf
 scripts/tabla_variables.py                      crudo + limpia -> data/tabla_variables.xlsx y docs/data/variables.json
+scripts/mapa.py                                 limpia -> data/gis/mapa_ubicacion.gpkg + docs/img/mapa_ubicacion.png
+scripts/proyecto_qgis.py                        gpkg -> data/gis/mapa_ubicacion.qgz + docs/img/mapa_qgis.png (PyQGIS)
+data/gis/                                       capas GIS (WGS84) y proyecto QGIS con composición A4
 docs/reporte_base_datos.pdf                     reporte de la base para el equipo
-docs/index.html                                 la web (HTML + Plotly por CDN, sin build)
-docs/data/resumen.json                          agregados que consume el dashboard
+docs/index.html                                 la web (HTML + CSS + Plotly por CDN, sin build)
+docs/data/                                      resumen.json (dashboard) y variables.json (tabla de variables)
+docs/img/                                       fotos del equipo, mapas e imágenes generadas con Google Flow
+openwiki/                                       documentación explicativa (ver sección OpenWiki)
+.claude/skills/                                 skills de agentes: diseño web, openwiki, graphify, gflow-cli
 ```
 
 ```python
@@ -74,9 +80,10 @@ Pesan ~600 MB (GitHub no acepta archivos > 100 MB). Están en la PC del usuario 
 - `earthchem_export_oct13_26_142339_sample_metadata.csv` — misma cantidad de filas y **mismo orden**;
   trae ubicación, ambiente tectónico, textura, alteración, edad.
 
-Para regenerar: `python scripts/limpiar.py "C:\Users\dalem\Downloads\quimica"` y luego
-`python scripts/datos_dashboard.py`, `python scripts/tabla_variables.py "C:\Users\dalem\Downloads\quimica"`
-y `python scripts/reporte_pdf.py`. Para re-descargar, la URL de la consulta está en `data/raw/*.txt`.
+Para regenerar todo, en este orden: `limpiar.py` → `datos_dashboard.py` → `tabla_variables.py` →
+`reporte_pdf.py` → `mapa.py` → `proyecto_qgis.py` (este último con el Python de QGIS). Comandos exactos en
+[openwiki/workflows/regenerar-y-publicar.md](openwiki/workflows/regenerar-y-publicar.md). Para re-descargar,
+la URL de la consulta está en `data/raw/*.txt`.
 
 ## Decisiones de limpieza (no deshacer sin motivo)
 
@@ -102,8 +109,8 @@ y `python scripts/reporte_pdf.py`. Para re-descargar, la URL de la consulta est�
   (FeOT = FeO + 0.8998·Fe2O3).
 - Solo ~35 % de las filas tiene los mayores completos: filtrar filas completas por análisis, no imputar a ciegas.
 - Datos de miles de papers desde 1932: hay sesgo por publicación y por método analítico.
-- `Tectonic Setting` tiene 60 valores, algunos combinados ("FRACTURE ZONE,SPREADING CENTER"):
-  agrupar antes de usarlo como clase en ML.
+- `Tectonic Setting` tiene 59 valores, algunos combinados ("FRACTURE ZONE,SPREADING CENTER"). Para ML y
+  mapas usar `Tectonic Group` (`GRUPO_TECTONICO` en `limpiar.py`): combinaciones con grupos distintos = "mixto".
 
 ## Web (GitHub Pages)
 
@@ -113,12 +120,28 @@ y `python scripts/reporte_pdf.py`. Para re-descargar, la URL de la consulta est�
   `docs/data/variables.json`: para cambiar descripciones, editar `OTRAS`/`NOMBRES` en `scripts/tabla_variables.py`.
 - Población/individuo/muestra: la muestra es la compilación PetDB (n = 159 760), **no probabilística**; la
   web dice que la inferencia usará submuestras aleatorias estratificadas por ambiente tectónico (L3).
-- Colores del dashboard: paleta validada (azul/naranja/aqua para ≤ 3 series, rampa azul para ordinales).
-  No agregar más de 3 colores categóricos en un mismo gráfico; si hace falta más, agrupar en "Otros".
+- Diseño "basalto": tema oscuro editorial, acento magma `#ff6b2c`, Fraunces (títulos) + Instrument Sans
+  (texto) + JetBrains Mono (cifras). Tokens en `:root` de `docs/index.html`; no meter colores sueltos.
+- Colores de datos: paleta validada (azul/naranja/aqua para ≤ 3 series, rampa azul para ordinales). Los mismos
+  en la web, `mapa.py` y `proyecto_qgis.py`. No más de 3 colores categóricos por gráfico; el resto, "mixto"/"Otros".
+- Imágenes ilustrativas (`hero`, `andes`, `barco`, `nucleos`) generadas con `gflow image t2i` (skill
+  `gflow-cli`); la web lo aclara en los pies. Las fotos del equipo son reales: no regenerarlas con IA.
 
 ## Convenciones
 
 - Código y comentarios en español; nombres de columnas originales de PetDB en inglés.
 - Python 3.13, pandas, numpy, scikit-learn (`requirements.txt`).
-- Leer los CSV con `python -I` si vienen de una descarga nueva.
+- Leer los CSV con `python -I` si vienen de una descarga nueva. Los scripts que importan a sus vecinos
+  (`tabla_variables.py`, `reporte_pdf.py`) se corren sin `-I`.
 - La licencia de los datos es CC BY 4.0: citar EarthChem/PetDB y la fecha de descarga en cualquier gráfico o informe.
+
+## OpenWiki
+
+This repository has documentation located in the /openwiki directory.
+
+Start here:
+- [OpenWiki quickstart](openwiki/quickstart.md)
+
+OpenWiki includes repository overview, architecture notes, workflows, domain concepts, operations, integrations, testing guidance, and source maps.
+
+When working in this repository, read the OpenWiki quickstart first, then follow its links to the relevant architecture, workflow, domain, operation, and testing notes.

@@ -126,13 +126,15 @@ def main():
         f"La base final tiene <b>{miles(n)} filas y {ncol} columnas</b>. Las variables cubren todos los tipos "
         "que se usan en estadística:"), tabla([
         ["Tipo", "Variables", "Comentario"],
-        ["Nominales", "Sample Type, Sample SubType, Tectonic Setting, Geographic Features, Rock Texture, "
-                      "Geologic Age, Expedition, Citation, Sample Alteration",
+        ["Nominales", "Sample Type, Sample SubType, Tectonic Setting, Tectonic Group, Geographic Features, "
+                      "Rock Texture, Expedition, Citation",
          f"Categorías sin orden. Por ejemplo, el ambiente tectónico tiene {df['Tectonic Setting'].nunique()} "
-         f"valores y el subtipo de roca {df['Sample SubType'].nunique()}."],
+         f"valores y el subtipo de roca {df['Sample SubType'].nunique()}. Tectonic Group los resume en tres "
+         "grandes ambientes (dorsal y corteza oceánica, margen convergente, intraplaca y rift) más los mixtos."],
         ["Nominal binaria", "Analyzed Material", "Solo dos valores: roca total y roca total o vidrio sin especificar."],
-        ["Ordinales", "SiO2 Class, Alteration Grade",
-         "Construidas para el proyecto. SiO2 Class clasifica la roca por su contenido de sílice: ultrabásica "
+        ["Ordinales", "SiO2 Class, Alteration Grade, Geologic Age, Sample Alteration",
+         "Geologic Age (período) y Sample Alteration (texto) vienen de PetDB y tienen un orden natural. "
+         "Las otras dos se construyeron para el proyecto. SiO2 Class clasifica la roca por su contenido de sílice: ultrabásica "
          "(menos de 45 %), básica (45–52 %), intermedia (52–63 %) y ácida (63 % o más). Alteration Grade "
          "traduce la alteración informada a una escala de 0 (fresca) a 5 (totalmente alterada)."],
         ["Numéricas discretas", "Publication Year, N Analytes",
