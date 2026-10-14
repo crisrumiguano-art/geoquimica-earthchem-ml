@@ -31,6 +31,8 @@ data/raw/earthchem_export_oct13_26_142339.txt   parámetros de la consulta + té
 data/earthchem_limpio.csv.gz                    base limpia (pandas la lee directo)
 scripts/limpiar.py                              crudo -> base limpia
 scripts/datos_dashboard.py                      base limpia -> docs/data/resumen.json
+scripts/reporte_pdf.py                          base limpia -> docs/reporte_base_datos.pdf
+docs/reporte_base_datos.pdf                     reporte de la base para el equipo
 docs/index.html                                 la web (HTML + Plotly por CDN, sin build)
 docs/data/resumen.json                          agregados que consume el dashboard
 ```
@@ -51,7 +53,7 @@ Pesan ~600 MB (GitHub no acepta archivos > 100 MB). Están en la PC del usuario 
   trae ubicación, ambiente tectónico, textura, alteración, edad.
 
 Para regenerar: `python scripts/limpiar.py "C:\Users\dalem\Downloads\quimica"` y luego
-`python scripts/datos_dashboard.py`. Para re-descargar, la URL de la consulta está en `data/raw/*.txt`.
+`python scripts/datos_dashboard.py` y `python scripts/reporte_pdf.py`. Para re-descargar, la URL de la consulta está en `data/raw/*.txt`.
 
 ## Decisiones de limpieza (no deshacer sin motivo)
 

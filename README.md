@@ -4,6 +4,7 @@ Análisis estadístico y de machine learning sobre 159 760 análisis químicos d
 
 - **Web y dashboard:** https://dalemberv.github.io/geoquimica-earthchem-ml/
 - **Base limpia:** [`data/earthchem_limpio.csv.gz`](data/earthchem_limpio.csv.gz) (74 columnas)
+- **Reporte de la base (PDF):** [`docs/reporte_base_datos.pdf`](docs/reporte_base_datos.pdf)
 - **Detalles, decisiones y trampas de los datos:** [AGENTS.md](AGENTS.md)
 
 ```bash
