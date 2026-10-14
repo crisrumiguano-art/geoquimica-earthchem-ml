@@ -4,3 +4,5 @@ __pycache__/
 # datos crudos: ~600 MB, no caben en GitHub
 data/raw/*.csv
 data/raw/*.zip
+.Rhistory
+.RData
