@@ -45,64 +45,156 @@
   .scroll { max-height: 420px; overflow: auto; }
   .tag { display: inline-block; padding: 0 .5rem; border-radius: 999px; border: 1px solid var(--border); font-size: .8rem; }
   details summary { cursor: pointer; color: var(--text-secondary); margin: .5rem 0; }
+  .k { color: var(--muted); font-size: .9rem; }
+  h3 { font-size: 1.05rem; margin: 1rem 0 .4rem; }
+  .formula { font-family: "Cambria Math", Cambria, Georgia, serif; color: var(--text-primary); background: var(--page); padding: .5rem .75rem; border-radius: 8px; }
+  #vars td { vertical-align: top; }
   footer { color: var(--muted); font-size: .85rem; padding: 2rem 0; }
   a { color: var(--series-1); }
 </style>
 </head>
 <body>
 <nav>
-  <a href="#inicio">Inicio</a><a href="#datos">Datos</a><a href="#dashboard">Dashboard</a>
-  <a href="#metodologia">Metodología</a><a href="#autores">Autores</a>
+  <a href="#inicio">Inicio</a><a href="#introduccion">Introducción</a><a href="#problema">Problema</a>
+  <a href="#mapa">Mapa</a><a href="#objetivos">Objetivos</a><a href="#poblacion">Población y muestra</a>
+  <a href="#variables">Variables</a><a href="#dashboard">Exploración</a><a href="#datos">Datos</a><a href="#autores">Autores</a>
 </nav>
 <main>
   <section id="inicio">
-    <h1>Geoquímica de rocas: estadística y machine learning</h1>
-    <p>Análisis estadístico y modelos de machine learning sobre composiciones químicas de roca total
-       (elementos mayores, trazas y tierras raras) compiladas por EarthChem / PetDB a partir de miles de artículos científicos.</p>
+    <p class="k">Universidad Central del Ecuador · Facultad de Ingeniería en Geología, Minas, Petróleos y Ambiental (FIGEMPA) · Carrera de Ingeniería en Minas</p>
+    <h1>Análisis estadístico y machine learning de la geoquímica de rocas a escala mundial</h1>
+    <p>Proyecto semestral de la asignatura <b>Estadística y Probabilidades</b> · Docente: Dr. Christian Mejía E., Ph.D.</p>
+    <p>Estudio de 159.760 análisis químicos de roca total —elementos mayores, trazas y tierras raras— recopilados por
+       EarthChem / PetDB a partir de más de dos mil artículos científicos publicados entre 1932 y 2025.</p>
     <div class="tiles" id="tiles"></div>
   </section>
 
-  <section id="datos">
-    <h2>Datos</h2>
-    <p>Fuente: exportación de <a href="https://www.earthchem.org/petdb">EarthChem PetDB</a> (13-oct-2026), material analizado
-       <em>whole rock</em>. Cada fila es un análisis de una muestra. Licencia CC BY 4.0.
-       Las celdas vacías significan "no medido", no cero.</p>
-    <p><a href="reporte_base_datos.pdf">Reporte de la base de datos (PDF)</a> · <a href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz">Descargar la base (.csv.gz)</a></p>
-    <details open><summary>Diccionario de variables</summary>
-      <div class="scroll card"><table id="dic"><thead><tr><th>Columna</th><th>Tipo</th><th>% con dato</th></tr></thead><tbody></tbody></table></div>
-    </details>
+  <section id="introduccion">
+    <h2>Introducción</h2>
+    <p>La geoquímica de rocas estudia la composición química de los materiales que forman la corteza y el manto de la Tierra.
+       Para la ingeniería en minas es una herramienta de todos los días: la concentración de elementos como el níquel, el cromo,
+       el cobalto, el cobre o las tierras raras orienta la exploración de yacimientos, y la proporción de los elementos mayores
+       permite clasificar las rocas y reconocer los procesos que las formaron. Las rocas ultramáficas, por ejemplo, alojan depósitos
+       de cromita y de níquel; los arcos volcánicos, como el de los Andes ecuatorianos, concentran pórfidos de cobre como Mirador y
+       depósitos epitermales de oro como Fruta del Norte.</p>
+    <p>Durante casi un siglo, miles de investigaciones han analizado muestras de roca en todo el planeta, desde afloramientos en los
+       continentes hasta testigos de perforación en el fondo del océano. La base de datos <b>PetDB</b>, parte de la infraestructura
+       <b>EarthChem</b>, reúne esos resultados en un formato común y los pone a disposición de cualquier usuario. Este proyecto toma esa
+       compilación como caso de estudio y le aplica, paso a paso, las herramientas de la asignatura: estadística descriptiva,
+       estadística inferencial, modelos de regresión y machine learning.</p>
+  </section>
+
+  <section id="problema">
+    <h2>Planteamiento del problema</h2>
+    <p>La información geoquímica existe, pero está dispersa en miles de publicaciones, fue producida con métodos de laboratorio
+       distintos y rara vez se analiza en conjunto. Un ingeniero que evalúa una muestra necesita saber si su composición es
+       "normal" para ese tipo de roca o si se aparta de lo esperado, y para eso hacen falta valores de referencia construidos con
+       muchos datos. Además, las concentraciones químicas no se comportan como una campana simétrica: suelen tener colas largas,
+       valores atípicos y muchos datos faltantes, lo que obliga a elegir con cuidado los indicadores y los modelos.</p>
+    <p>Con estos antecedentes, el proyecto busca responder: <b>¿cómo se distribuyen las concentraciones de los elementos mayores,
+       traza y tierras raras en las rocas del planeta, en qué medida dependen del tipo de roca y del ambiente tectónico en que se
+       formaron, y es posible predecir ese tipo de roca o ese ambiente a partir de la composición química?</b></p>
+  </section>
+
+  <section id="mapa">
+    <h2>Mapa de ubicación</h2>
+    <p>Las muestras cubren todos los continentes y océanos. Cerca de dos tercios provienen del fondo oceánico (dorsales, islas
+       oceánicas, arcos y cuencas), porque PetDB nació para reunir los datos de los programas internacionales de perforación
+       oceánica. El mapa muestra una selección aleatoria de 6.000 puntos.</p>
+    <div class="card"><div class="plot" id="g-mapa" style="height:460px"></div></div>
+    <p class="k">El mapa de ubicación elaborado en QGIS se incorporará con la lección 3.</p>
+  </section>
+
+  <section id="objetivos">
+    <h2>Objetivos</h2>
+    <h3>Objetivo general</h3>
+    <p>Aplicar métodos de estadística descriptiva, estadística inferencial, regresión y machine learning a los análisis geoquímicos
+       de roca total de la base EarthChem PetDB, para caracterizar la composición química de las rocas según su tipo y su ambiente
+       tectónico y evaluar si esa composición permite predecirlos.</p>
+    <h3>Objetivos específicos</h3>
+    <ol>
+      <li>Describir la distribución de los elementos mayores, traza y tierras raras mediante tablas de frecuencia, gráficas e
+          indicadores de posición, dispersión y forma, por tipo de roca y por ambiente tectónico.</li>
+      <li>Ajustar modelos de probabilidad a las variables seleccionadas y estimar sus parámetros con intervalos de confianza,
+          para extender a la población los resultados obtenidos en la muestra.</li>
+      <li>Cuantificar la relación entre variables químicas, como la sílice frente a los álcalis o el magnesio frente al níquel,
+          mediante modelos de regresión simple, no lineal y múltiple.</li>
+      <li>Entrenar y evaluar una red neuronal que clasifique el ambiente tectónico o el tipo de roca a partir de la composición química.</li>
+    </ol>
+  </section>
+
+  <section id="poblacion">
+    <h2>Población, individuo y muestra</h2>
+    <div class="grid">
+      <div class="card"><h3>Población (U)</h3>
+        <p>Todas las porciones de roca total de la corteza y del manto superior de la Tierra, en continentes y fondos oceánicos.
+           Es una población <b>infinita</b>: no es posible enumerar todas las porciones de roca del planeta.</p>
+        <p class="formula">U = { x / x es una porción de roca total de la corteza o del manto superior terrestre }</p></div>
+      <div class="card"><h3>Individuo (X<sub>i</sub>)</h3>
+        <p>Cada porción de roca —muestra de mano, testigo de perforación o fragmento dragado del fondo marino— que se muele y se
+           analiza químicamente en su totalidad.</p>
+        <p class="formula">X<sub>i</sub>, i = 1, 2, 3, …</p></div>
+      <div class="card wide"><h3>Muestra (M)</h3>
+        <p>Los análisis de roca total registrados en EarthChem PetDB y descargados el 13 de octubre de 2026. Cada análisis es un
+           <b>caso</b> de estudio.</p>
+        <p class="formula">M = { x / x ∈ U ∧ x está registrada en EarthChem PetDB (descarga del 13/10/2026) } &nbsp;·&nbsp; M ⊂ U &nbsp;·&nbsp;
+           Card(M) = n = 159.760 &nbsp;·&nbsp; casos x<sub>i</sub>, i = 1, 2, …, 159.760</p>
+        <p>Dos aclaraciones. En geología se llama "muestra" a cada trozo de roca; aquí ese trozo es el <b>individuo</b>, y la
+           <b>muestra estadística</b> es el conjunto de todos ellos. Además, esta muestra no se obtuvo por sorteo: es una
+           compilación de lo que los investigadores decidieron estudiar, con más rocas oceánicas que continentales. Por eso, para
+           la inferencia se trabajará con submuestras aleatorias estratificadas por ambiente tectónico.</p></div>
+    </div>
+  </section>
+
+  <section id="variables">
+    <h2>Tabla de variables</h2>
+    <p>Una <b>variable cualitativa</b> describe una cualidad que no se expresa con números: es <b>nominal</b> si sus categorías no
+       tienen orden (tipo de roca, ambiente tectónico) y <b>ordinal</b> si lo tienen (grado de alteración, clase de sílice). Una
+       <b>variable cuantitativa</b> se mide con números: es <b>discreta</b> si solo toma valores puntuales, sin intermedios
+       (año de publicación, número de analitos), y <b>continua</b> si puede tomar cualquier valor de un intervalo (concentraciones,
+       coordenadas, edades).</p>
+    <div class="tiles" id="tipos"></div>
+    <p><a href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/data/tabla_variables.xlsx">Descargar la tabla de variables (Excel)</a></p>
+    <div class="scroll card" style="max-height:560px"><table id="vars"><thead><tr>
+      <th>Variable</th><th>Descripción</th><th>Tipo</th><th>Subtipo</th><th>Escala</th><th>Instrumento / método</th><th>Unidad</th><th>Dominio</th><th>% con dato</th>
+    </tr></thead><tbody></tbody></table></div>
   </section>
 
   <section id="dashboard">
-    <h2>Dashboard</h2>
+    <h2>Exploración preliminar</h2>
+    <p>Primer vistazo a los datos, antes de la estadística descriptiva formal.</p>
     <div class="grid">
       <div class="card"><h3>Muestras por ambiente tectónico</h3><p>12 ambientes más frecuentes</p><div class="plot" id="g-tec"></div></div>
       <div class="card"><h3>Distribución de SiO<sub>2</sub></h3><p>Muestras con SiO<sub>2</sub> entre 30 y 85 wt%, bins de 1 wt%</p><div class="plot" id="g-sio2"></div></div>
       <div class="card"><h3>Clase de SiO<sub>2</sub> (ordinal)</h3><p>Ultrabásica &lt; 45 ≤ básica &lt; 52 ≤ intermedia &lt; 63 ≤ ácida</p><div class="plot" id="g-clase"></div></div>
       <div class="card"><h3>Grado de alteración (ordinal)</h3><p>0 = fresca … 5 = totalmente alterada</p><div class="plot" id="g-alt"></div></div>
       <div class="card wide"><h3>Diagrama TAS: álcalis totales vs. sílice</h3><p>Rocas volcánicas, muestra aleatoria de 6 000 análisis</p><div class="plot" id="g-tas"></div></div>
-      <div class="card wide"><h3>Ubicación de las muestras</h3><p>Muestra aleatoria de 6 000 análisis</p><div class="plot" id="g-mapa"></div></div>
       <div class="card wide"><h3>Análisis por año de publicación</h3><p>Variable discreta derivada de la cita</p><div class="plot" id="g-anio"></div></div>
     </div>
   </section>
 
-  <section id="metodologia">
-    <h2>Metodología</h2>
-    <ol>
-      <li><b>Limpieza</b> (<code>scripts/limpiar.py</code>): se quitan las columnas de método, laboratorio y comentario; se cruzan los metadatos
-          de cada muestra; se conservan las variables químicas con dato en ≥ 5 % de las filas; las coordenadas pasan a grados decimales.</li>
-      <li><b>Variables derivadas</b>: año de publicación y número de analitos (discretas), grado de alteración y clase de SiO<sub>2</sub> (ordinales).</li>
-      <li><b>Análisis exploratorio y estadístico</b>: <em>pendiente</em>.</li>
-      <li><b>Machine learning</b>: <em>pendiente</em> (p. ej. clasificar el ambiente tectónico a partir de la química).</li>
-    </ol>
+  <section id="datos">
+    <h2>Datos</h2>
+    <p>Fuente: <a href="https://www.earthchem.org/petdb">EarthChem PetDB</a> / Astromaterials Data Synthesis, descarga del 13 de octubre
+       de 2026 con el filtro "material analizado = roca total". Licencia CC BY 4.0. La base original traía 2.318 columnas; se
+       quitaron las de método, laboratorio y comentario, se unieron los metadatos de cada muestra y se conservaron las variables
+       químicas con datos en al menos el 5 % de las filas. Las celdas vacías significan "no medido", no cero.</p>
+    <ul>
+      <li><a href="reporte_base_datos.pdf">Reporte de la base de datos (PDF)</a></li>
+      <li><a href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz">Base limpia (.csv.gz, 159.760 filas × 74 columnas)</a></li>
+      <li><a href="https://github.com/DalemberV/geoquimica-earthchem-ml">Repositorio con el código</a></li>
+    </ul>
   </section>
 
   <section id="autores">
     <h2>Autores</h2>
     <div class="tiles">
-      <div class="tile"><div class="v" style="font-size:1.1rem">Nombre Apellido</div><div class="k">Rol · correo</div></div>
-      <div class="tile"><div class="v" style="font-size:1.1rem">Nombre Apellido</div><div class="k">Rol · correo</div></div>
+      <div class="tile"><div class="v" style="font-size:1.05rem">Cristoffer Joel Rumiguano Chariguaman</div><div class="k">Ingeniería en Minas</div></div>
+      <div class="tile"><div class="v" style="font-size:1.05rem">Ana Gabriela Fernández Chuquimarca</div><div class="k">Ingeniería en Minas</div></div>
+      <div class="tile"><div class="v" style="font-size:1.05rem">Evelyn Maritza Bustamante Armijos</div><div class="k">Ingeniería en Minas</div></div>
+      <div class="tile"><div class="v" style="font-size:1.05rem">Jessica Jaqueline Haro Simba</div><div class="k">Ingeniería en Minas</div></div>
     </div>
+    <p class="k" style="margin-top:1rem">Docente: Dr. Christian Mejía E., Ph.D. · Estadística y Probabilidades · FIGEMPA – Universidad Central del Ecuador</p>
   </section>
 
   <footer>Datos: Astromaterials Data Synthesis / EarthChem PetDB (<a href="https://search.astromat.org/">search.astromat.org</a>), descargados el 13 de octubre de 2026, CC BY 4.0.</footer>
@@ -132,8 +224,6 @@ function dibujar(d) {
     [fmt(d.articulos), "artículos de origen"], [`${d.anios[0]}–${d.anios[1]}`, "años de publicación"],
   ].map(([v, k]) => `<div class="tile"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("");
 
-  document.querySelector("#dic tbody").innerHTML = d.diccionario.map(r =>
-    `<tr><td>${r.columna}</td><td><span class="tag">${r.tipo}</span></td><td>${r.llenado}</td></tr>`).join("");
 
   const t = d.tectonica;
   Plotly.react("g-tec", [bar(t.values.slice().reverse(), t.labels.slice().reverse(),
@@ -171,6 +261,16 @@ function dibujar(d) {
   Plotly.react("g-anio", [bar(anios, anios.map(a => d.anio_pub[a]), { hovertemplate: "%{x}: %{y:,} análisis<extra></extra>" })],
     base({ xaxis: { ...base().xaxis, title: { text: "año" } }, yaxis: { ...base().yaxis, title: { text: "análisis" } } }), cfg);
 }
+
+fetch("data/variables.json").then(r => r.json()).then(v => {
+  const esc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const cols = ["Variable", "Descripción", "Tipo", "Subtipo", "Escala de medición", "Instrumento / método", "Unidad", "Dominio", "% con dato"];
+  document.querySelector("#vars tbody").innerHTML = v.map(r => `<tr>${cols.map(k => `<td>${esc(r[k])}</td>`).join("")}</tr>`).join("");
+  const c = {};
+  v.filter(r => r.Tipo !== "identificador").forEach(r => { const k = `${r.Tipo} ${r.Subtipo.split(" ")[0]}`; c[k] = (c[k] || 0) + 1; });
+  document.getElementById("tipos").innerHTML = Object.entries(c).map(([k, n]) =>
+    `<div class="tile"><div class="v">${n}</div><div class="k">${k}</div></div>`).join("");
+});
 
 fetch("data/resumen.json").then(r => r.json()).then(d => {
   dibujar(d);

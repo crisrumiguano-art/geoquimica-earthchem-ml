@@ -44,6 +44,22 @@ def es_numero(v):
     return bool(v) and NUMERO.fullmatch(v) is not None
 
 
+def valor_quimico(v, columna):
+    """Concentraciones negativas son lecturas bajo el límite de detección: quedan vacías.
+    LOI sí puede ser negativa (la roca gana peso al oxidarse el hierro)."""
+    if not es_numero(v) or (float(v) < 0 and not columna.startswith("LOI")):
+        return ""
+    return v
+
+
+def lat_lon(lat, lon):
+    """Unas pocas muestras (dorsal de Gakkel) vienen con latitud y longitud invertidas en PetDB."""
+    lat, lon = coordenada(lat), coordenada(lon)
+    if lat != "" and abs(lat) > 90 and lon != "" and abs(lon) <= 90:
+        lat, lon = lon, lat
+    return [lat, lon]
+
+
 def clase_sio2(v):
     """Clasificación por SiO2 (wt%): ultrabásica < 45 <= básica < 52 <= intermedia < 63 <= ácida."""
     if not es_numero(v) or not 0 < float(v) <= 100:
@@ -97,18 +113,20 @@ def main(cruda, salida):
         w.writerow(cab)
         for fila, m in zip(r, filas_meta):
             w.writerow(
-                [sin_formula(fila[0]), fila[1], fila[2], anio(fila[2]), fila[4], fila[7], fila[8],
-                 coordenada(fila[5]), coordenada(fila[6])]
+                [sin_formula(fila[0]), fila[1], fila[2], anio(fila[2]), fila[4], fila[7], fila[8]]
+                + lat_lon(fila[5], fila[6])
                 + [m[i] for i in mi]
                 + [ALTERACION.get(m[mh.index("Sample Alteration")], ""), clase_sio2(fila[isio2]),
                    sum(es_numero(fila[i]) for i in valor)]
-                + [fila[i] if es_numero(fila[i]) else "" for i in quimica])
+                + [valor_quimico(fila[i], h[i]) for i in quimica])
     print(f"{n} filas, {len(cab)} columnas ({len(quimica)} químicas) -> {salida}")
 
 
 if __name__ == "__main__":
     assert coordenada("39.244°N") == 39.244 and coordenada("34.414°W") == -34.414
     assert clase_sio2("44.9") == "ultrabasica" and clase_sio2("52") == "intermedia" and clase_sio2("x") == ""
+    assert lat_lon("99.850°N", "84.900°E") == [84.9, 99.85] and lat_lon("10°S", "20°W") == [-10, -20]
+    assert valor_quimico("-0.03", "Na2O (wt%)") == "" and valor_quimico("-0.5", "LOI (wt%)") == "-0.5"
     assert anio("Liu, J. (2011). TITLE") == "2011" and sin_formula('="FS-42"') == "FS-42"
     if len(sys.argv) < 2:
         sys.exit(__doc__)
