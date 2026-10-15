@@ -2,7 +2,7 @@
 
 Análisis estadístico y de machine learning sobre 159 760 análisis químicos de roca total (EarthChem / PetDB).
 
-- **Web y dashboard:** https://dalemberv.github.io/geoquimica-earthchem-ml/
+- **Web y dashboard:** https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
 - **Base limpia:** [`data/earthchem_limpio.csv.gz`](data/earthchem_limpio.csv.gz) (75 columnas)
 - **Informe del proyecto** (base de datos, estadística y documentación técnica): [PDF](docs/informe_proyecto.pdf) · [Word](docs/informe_proyecto.docx)
 - **Estadística descriptiva en R:** [`R/`](R/) · por qué así: [`R/analisis_agrupacion_outliers.md`](R/analisis_agrupacion_outliers.md)

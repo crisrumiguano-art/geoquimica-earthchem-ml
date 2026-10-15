@@ -23,8 +23,8 @@ from datos_dashboard import TIPOS
 RAIZ = Path(__file__).resolve().parent.parent
 DOCX = RAIZ / "docs" / "informe_proyecto.docx"
 PDF = RAIZ / "docs" / "informe_proyecto.pdf"
-WEB = "https://dalemberv.github.io/geoquimica-earthchem-ml/"
-REPO = "https://github.com/DalemberV/geoquimica-earthchem-ml"
+WEB = "https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/"
+REPO = "https://github.com/crisrumiguano-art/geoquimica-earthchem-ml"
 AZUL = RGBColor(0x1C, 0x5C, 0xAB)
 GRIS = RGBColor(0x52, 0x51, 0x4E)
 

@@ -70,7 +70,7 @@ paralelo con el mismo perfil.
 ## Publicar
 
 GitHub Pages sirve `main:/docs`. Un `git push` que toque `docs/` actualiza la web en 1–3 minutos; el estado se
-ve con `gh api repos/DalemberV/geoquimica-earthchem-ml/pages/builds/latest --jq .status`.
+ve con `gh api repos/crisrumiguano-art/geoquimica-earthchem-ml/pages/builds/latest --jq .status`.
 
 Para revisar localmente antes de publicar: `python -m http.server 8765 -d docs` y abrir `http://localhost:8765/`
 (abrir `index.html` con doble clic no funciona: la página carga sus datos con `fetch`).

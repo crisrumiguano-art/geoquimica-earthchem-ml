@@ -8,8 +8,8 @@ descriptiva, inferencial, regresión y machine learning (ver `AGENTS.md`, secci�
 El producto final es una **web en GitHub Pages** (`docs/`) que crece una sección por lección, más la base
 limpia y los scripts que la generan.
 
-- Web: https://dalemberv.github.io/geoquimica-earthchem-ml/
-- Repo: https://github.com/DalemberV/geoquimica-earthchem-ml
+- Web: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
+- Repo: https://github.com/crisrumiguano-art/geoquimica-earthchem-ml
 
 ## Cómo está organizado
 
