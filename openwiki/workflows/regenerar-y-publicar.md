@@ -8,16 +8,14 @@ CRUDA="C:/Users/dalem/Downloads/quimica"          # CSV crudos de EarthChem (no 
 python -I scripts/limpiar.py "$CRUDA"            # -> data/earthchem_limpio.csv.gz
 python -I scripts/datos_dashboard.py             # -> docs/data/resumen.json
 python scripts/tabla_variables.py "$CRUDA"       # -> data/tabla_variables.xlsx, docs/data/variables.json
-python scripts/reporte_pdf.py                    # -> docs/reporte_base_datos.pdf
 python -I scripts/mapa.py                        # -> data/gis/mapa_ubicacion.gpkg, docs/img/mapa_ubicacion.png
 "/c/Program Files/QGIS 3.44.8/bin/python-qgis-ltr.bat" scripts/proyecto_qgis.py
                                                  # -> data/gis/mapa_ubicacion.qgz, docs/img/mapa_qgis.png
 ```
 
-- `tabla_variables.py` y `reporte_pdf.py` importan a sus vecinos (`limpiar`, `datos_dashboard`): correrlos
+- `tabla_variables.py` e `informe.py` importan a sus vecinos (`limpiar`, `datos_dashboard`): correrlos
   **sin** `-I`, que quita la carpeta del script del `sys.path`.
 - `tabla_variables.py` necesita los crudos porque saca el instrumento de las columnas `Method`.
-- `reporte_pdf.py` usa las fuentes Arial de `C:/Windows/Fonts`: solo corre en Windows tal como está.
 - `mapa.py` descarga los países de Natural Earth (`PAISES_URL`) en cada corrida: necesita internet.
 
 ## Estadística en R
@@ -39,6 +37,13 @@ argumentos reproduce la plantilla del curso y con `lim = limites_iqr(x)` arma la
 - `Rscript -e` con código de varias líneas también falló: escribir el código en un archivo `.R`.
 - Para agregar una variable continua: sumarla a `VARIABLES` en `03_continuas.R` (`log = TRUE` si es traza) y
   agregar su pestaña y su texto de lectura en `docs/descriptiva/index.html` (objeto `CONT`).
+
+## Informe del proyecto
+
+`python scripts/informe.py` (al final, después de R: usa sus gráficas) genera `docs/informe_proyecto.docx` con
+python-docx y luego abre Word por COM (PowerShell) para actualizar el índice y exportar `docs/informe_proyecto.pdf`.
+Sin Microsoft Word queda solo el .docx con el índice vacío. Tiene tres partes: la base de datos (cifras calculadas
+de la base), la estadística descriptiva y la documentación técnica (texto fijo: actualizarlo si cambia el stack).
 
 ## El mapa y QGIS
 

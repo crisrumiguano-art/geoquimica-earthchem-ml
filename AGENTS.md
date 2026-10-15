@@ -55,12 +55,12 @@ data/raw/earthchem_export_oct13_26_142339.txt   parámetros de la consulta + té
 data/earthchem_limpio.csv.gz                    base limpia (pandas la lee directo)
 scripts/limpiar.py                              crudo -> base limpia
 scripts/datos_dashboard.py                      base limpia -> docs/data/resumen.json
-scripts/reporte_pdf.py                          base limpia -> docs/reporte_base_datos.pdf
+scripts/informe.py                              informe del proyecto -> docs/informe_proyecto.docx + .pdf (vía Word)
 scripts/tabla_variables.py                      crudo + limpia -> data/tabla_variables.xlsx y docs/data/variables.json
 scripts/mapa.py                                 limpia -> data/gis/mapa_ubicacion.gpkg + docs/img/mapa_ubicacion.png
 scripts/proyecto_qgis.py                        gpkg -> data/gis/mapa_ubicacion.qgz + docs/img/mapa_qgis.png (PyQGIS)
 data/gis/                                       capas GIS (WGS84) y proyecto QGIS con composición A4
-docs/reporte_base_datos.pdf                     reporte de la base para el equipo
+docs/informe_proyecto.docx / .pdf               informe: base de datos, estadística y documentación técnica
 R/funciones.R + 01/02/03_*.R                    estadística descriptiva (TDF, gráficas, outliers, indicadores)
 R/analisis_agrupacion_outliers.md               por qué y cómo se agrupó y se trataron los outliers
 R/salidas/                                      Excel con todas las TDF
@@ -89,7 +89,7 @@ Pesan ~600 MB (GitHub no acepta archivos > 100 MB). Están en la PC del usuario 
   trae ubicación, ambiente tectónico, textura, alteración, edad.
 
 Para regenerar todo, en este orden: `limpiar.py` → `datos_dashboard.py` → `tabla_variables.py` →
-`reporte_pdf.py` → `mapa.py` → `proyecto_qgis.py` (este último con el Python de QGIS). Comandos exactos en
+`mapa.py` → `proyecto_qgis.py` (con el Python de QGIS) → scripts de `R/` → `informe.py`. Comandos exactos en
 [openwiki/workflows/regenerar-y-publicar.md](openwiki/workflows/regenerar-y-publicar.md). Para re-descargar,
 la URL de la consulta está en `data/raw/*.txt`.
 
@@ -145,7 +145,9 @@ la URL de la consulta está en `data/raw/*.txt`.
 - Código y comentarios en español; nombres de columnas originales de PetDB en inglés.
 - Python 3.13, pandas, numpy, scikit-learn (`requirements.txt`).
 - Leer los CSV con `python -I` si vienen de una descarga nueva. Los scripts que importan a sus vecinos
-  (`tabla_variables.py`, `reporte_pdf.py`) se corren sin `-I`.
+  (`tabla_variables.py`, `informe.py`) se corren sin `-I`.
+- El informe se edita en `scripts/informe.py` (python-docx), no en el .docx: el .docx y el .pdf se regeneran. La
+  parte técnica (sección 11, librerías y versiones) hay que actualizarla a mano si cambia el stack.
 - La licencia de los datos es CC BY 4.0: citar EarthChem/PetDB y la fecha de descarga en cualquier gráfico o informe.
 
 ## OpenWiki
