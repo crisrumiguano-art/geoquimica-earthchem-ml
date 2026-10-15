@@ -29,6 +29,8 @@ for (c in CASOS) {
   print(ind, digits = 6)
   graficos_continua(x, tdf, c$nombre, c$unidad, paste0("disc_", c$archivo, ".png"), n_graf)
   n_graf <- n_graf + 3
+  tabla_web(cbind(intervalo = etiquetas(tdf, 0), tdf), paste0("disc_", c$archivo))
+  tabla_web(ind, paste0("disc_", c$archivo, "_indicadores"))
   addWorksheet(libro, c$archivo)
   writeData(libro, c$archivo, cbind(intervalo = etiquetas(tdf, 0), tdf))
   writeData(libro, c$archivo, ind, startRow = nrow(tdf) + 4)

@@ -1,8 +1,18 @@
 # La web: estructura, diseño y cómo agregar una sección
 
-`docs/index.html` es un único archivo HTML estático: CSS en `<style>`, JS en `<script>`, Plotly desde CDN y
-las fuentes desde Google Fonts. No hay framework ni paso de compilación, a propósito: GitHub Pages lo sirve
-tal cual y cualquier integrante del equipo puede editarlo.
+La web son páginas HTML estáticas, una por unidad del curso, que comparten `docs/assets/estilo.css` y
+`docs/assets/app.js`. Plotly y las fuentes vienen de CDN. No hay framework ni paso de compilación, a propósito:
+GitHub Pages lo sirve tal cual y cualquier integrante del equipo puede editarlo.
+
+| Página | Contenido |
+|---|---|
+| `docs/index.html` | portada, introducción, problema, mapa, objetivos, recorrido |
+| `docs/descriptiva/` | Unidad 1: población y muestra, tabla de variables, TDF y gráficas de R, exploración |
+| `docs/datos/` | origen, preparación, descargas |
+| `docs/equipo/` | integrantes y docente |
+
+El menú está **repetido en cada HTML**: al agregar una página, actualizarlo en todas. Las subpáginas usan rutas
+relativas (`../assets/`, `../img/`, `../data/`). `app.js` marca la página actual con `<body data-pagina="…">`.
 
 ## Datos que consume
 
@@ -10,23 +20,20 @@ tal cual y cualquier integrante del equipo puede editarlo.
 |---|---|---|
 | `docs/data/resumen.json` | `scripts/datos_dashboard.py` | cifras de la portada, gráficos de "Exploración", mapa interactivo |
 | `docs/data/variables.json` | `scripts/tabla_variables.py` | tarjetas de clases y tabla filtrable de variables |
+| `docs/data/tdf/*.csv`, `docs/img/r/*.png` | scripts de `R/` | tablas y gráficas de `/descriptiva/` (`leerCSV()` + `tabla()` de `app.js`) |
 | `docs/img/*` | fotos reales, `mapa.py`, `proyecto_qgis.py`, Google Flow | imágenes |
 
 `resumen.json` trae agregados (conteos, histograma, muestras de 6 000 puntos), no la base: así la web pesa
 poco. Si un gráfico nuevo necesita otro agregado, agregarlo en `datos_dashboard.py`, no calcularlo en el navegador.
 
-## Secciones (orden del curso)
+## Agregar una página o una sección
 
-`#inicio` (portada) → `01 #introduccion` → `02 #problema` → `03 #mapa` → `04 #objetivos` → `05 #poblacion`
-→ `06 #variables` → `07 #exploracion` → `08 #datos` → `09 #equipo`. El orden replica la estructura que pide
-el docente (ver `AGENTS.md`).
-
-Para agregar una sección (por ejemplo, las TDF de la lección 5):
-
-1. Copiar el patrón `<section class="cap" id="..."><div class="cab rev"><span class="num">NN</span><h2>…</h2></div>…</section>`
-   y ubicarla en el orden del curso; renumerar los `num` siguientes.
-2. Agregar el enlace en `<nav>` con el mismo número.
-3. Si tiene gráficos, usar `base()`, `bar()` y `cfg` del script para heredar colores y tipografía.
+- **Página nueva** (p. ej. `/inferencial/`): copiar `docs/datos/index.html` como esqueleto, cambiar
+  `data-pagina`, la cabecera y el contenido, y reemplazar el `<span class="pronto">` del menú por un enlace en
+  todas las páginas. Agregar la tarjeta en "Recorrido del proyecto" de la portada.
+- **Sección dentro de una página**: patrón `<section class="cap" id="..."><div class="cab rev"><span class="num">NN</span><h2>…</h2></div>…</section>`.
+- **Gráfica de R + tabla**: en `/descriptiva/`, la función `bloque()` arma figura + tabla CSV + lectura.
+- **Gráficos interactivos**: usar `base()`, `bar()` y `cfg` de `app.js` para heredar colores y tipografía.
 
 ## Sistema de diseño
 

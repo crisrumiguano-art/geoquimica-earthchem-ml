@@ -37,5 +37,6 @@ for (c in CASOS) {
   n_graf <- n_graf + 2
   addWorksheet(libro, c$hoja)
   writeData(libro, c$hoja, tdf)
+  tabla_web(tdf, paste0("cual_", gsub(" ", "_", tolower(c$hoja))))
 }
 saveWorkbook(libro, file.path(SALIDAS, "TDF_cualitativas.xlsx"), overwrite = TRUE)

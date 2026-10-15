@@ -17,7 +17,8 @@ limpia y los scripts que la generan.
 |---|---|---|
 | `data/` | base limpia (`earthchem_limpio.csv.gz`), tabla de variables (`.xlsx`), capas GIS y proyecto QGIS | [Base de datos](data-models/base-limpia.md) |
 | `scripts/` | un script por producto, todos en Python | [Regenerar y publicar](workflows/regenerar-y-publicar.md) |
-| `docs/` | la web estática, el reporte PDF, datos agregados e imágenes | [La web](architecture/web.md) |
+| `R/` | estadística descriptiva en R (exigencia del docente) | [Estadística en R](workflows/regenerar-y-publicar.md#estadística-en-r) |
+| `docs/` | la web estática (una página por unidad), el reporte PDF, datos agregados e imágenes | [La web](architecture/web.md) |
 | `.claude/skills/` | skills de agentes (diseño web, openwiki, graphify, gflow-cli) | — |
 
 Los datos crudos (~600 MB) **no están en el repo**: viven en `C:\Users\dalem\Downloads\quimica\` en la PC del
@@ -40,10 +41,12 @@ Antes de analizar, leer las trampas de los datos en `AGENTS.md` (falta TiO2, uni
 | L1–L2 | introducción, problema, objetivos, población/individuo/muestra | hecho (web) |
 | L3 | mapa de ubicación QGIS + Python | hecho; falta el informe de muestreo estratificado |
 | L4 | tabla de variables (tipo, subtipo, escala, instrumento, unidad, dominio) | hecho (web + Excel) |
-| L5–L7 | TDF, gráficas, tabla de indicadores, conclusiones descriptivas | pendiente |
+| L5–L6 | TDF, gráficas, indicadores, outliers (R) | hecho para cualitativas, discretas y SiO2/MgO/Cr |
+| L7 | conclusiones descriptivas, exposición | pendiente |
 | U2–U4 | inferencia, regresión, red neuronal | pendiente |
 
-La sección "Exploración preliminar" de la web es un adelanto, no la descriptiva formal de L5–L6.
+Antes de tocar histogramas o outliers, leer `R/analisis_agrupacion_outliers.md`: la agrupación por defecto y la
+eliminación de outliers de las plantillas del curso **no** sirven en esta base, y ahí está el porqué.
 
 ## Páginas
 

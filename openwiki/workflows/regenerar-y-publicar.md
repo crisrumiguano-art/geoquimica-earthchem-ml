@@ -20,6 +20,26 @@ python -I scripts/mapa.py                        # -> data/gis/mapa_ubicacion.gp
 - `reporte_pdf.py` usa las fuentes Arial de `C:/Windows/Fonts`: solo corre en Windows tal como está.
 - `mapa.py` descarga los países de Natural Earth (`PAISES_URL`) en cada corrida: necesita internet.
 
+## Estadística en R
+
+El docente exige la estadística en R. Desde la raíz, con R 4.6 y los paquetes `e1071` y `openxlsx`:
+
+```bash
+Rscript R/01_cualitativas.R    # TDF nominales y ordinales, barras y circular
+Rscript R/02_discretas.R       # año de publicación y número de analitos
+Rscript R/03_continuas.R       # SiO2, MgO, Cr: agrupación, outliers, estrato, error de agrupación
+```
+
+Cada script escribe tres cosas: PNG en `docs/img/r/`, CSV en `docs/data/tdf/` (las tablas que muestra
+`/descriptiva/`) y un Excel en `R/salidas/`. Las funciones comunes están en `R/funciones.R`; `tdf_continua()` sin
+argumentos reproduce la plantilla del curso y con `lim = limites_iqr(x)` arma la TDF con clases abiertas.
+
+- `read.csv()` directo sobre el `.gz` se cae (segfault) con R 4.6 en Windows: usar `leer_base()`, que abre con
+  `gzfile(..., encoding = "UTF-8")`.
+- `Rscript -e` con código de varias líneas también falló: escribir el código en un archivo `.R`.
+- Para agregar una variable continua: sumarla a `VARIABLES` en `03_continuas.R` (`log = TRUE` si es traza) y
+  agregar su pestaña y su texto de lectura en `docs/descriptiva/index.html` (objeto `CONT`).
+
 ## El mapa y QGIS
 
 `mapa.py` escribe un GeoPackage en WGS84 con cuatro capas para QGIS (`contorno`, `paises`, `graticula`,

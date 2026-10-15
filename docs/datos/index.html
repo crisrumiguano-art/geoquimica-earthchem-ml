@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Datos y fuente — Geoquímica de rocas PetDB</title>
+<meta name="description" content="Origen de los datos (EarthChem PetDB), preparación de la base, reporte y descargas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/estilo.css">
+<script src="../assets/app.js" defer></script>
+</head>
+<body data-pagina="datos">
+
+<nav class="nav" id="nav" aria-label="Páginas del proyecto">
+  <a class="marca" href="../"><b>Pt</b>Geoquímica PetDB</a>
+  <ul>
+    <li><a data-p="inicio" href="../">Inicio</a></li>
+    <li><a data-p="descriptiva" href="../descriptiva/"><span class="u">U1</span>Descriptiva</a></li>
+    <li><span class="pronto"><span class="u">U2</span>Inferencial</span></li>
+    <li><span class="pronto"><span class="u">U3</span>Regresión</span></li>
+    <li><span class="pronto"><span class="u">U4</span>Machine learning</span></li>
+    <li><a data-p="datos" href="./">Datos</a></li>
+    <li><a data-p="equipo" href="../equipo/">Equipo</a></li>
+  </ul>
+</nav>
+
+<header class="cabecera">
+  <img src="../img/barco.jpg" alt="" aria-hidden="true">
+  <div class="hero-in">
+    <div class="ojo rev" style="--d:0">Base de datos</div>
+    <h1 class="rev" style="--d:1">Datos y <em>fuente</em></h1>
+    <p class="lead rev" style="--d:2">De dónde salieron los 159.760 análisis, cómo se prepararon y dónde descargarlos.</p>
+  </div>
+</header>
+
+<main>
+  <section class="cap" id="origen">
+    <div class="cab rev"><span class="num">01</span><h2>Origen</h2></div>
+    <div class="columnas rev" style="margin-top:0">
+      <p>Los datos provienen de <b>PetDB</b> (<i>Petrological Database</i>), una de las bases de <b>EarthChem</b>, la infraestructura de
+        datos geoquímicos financiada por la National Science Foundation de Estados Unidos. Hoy se consulta a través de la
+        <a href="https://search.astromat.org/">Astromaterials Data Synthesis</a> y del portal <a href="https://www.earthchem.org/petdb">earthchem.org/petdb</a>.</p>
+      <p>PetDB no genera datos propios: su equipo los transcribe de artículos científicos revisados por pares. La descarga se hizo el
+        <b>13 de octubre de 2026</b> con un único filtro, material analizado igual a roca total, y reúne datos de 2.348 artículos
+        publicados entre 1932 y 2025. Licencia <b>CC BY 4.0</b>: se puede usar y redistribuir citando la fuente.</p>
+    </div>
+  </section>
+
+  <section class="cap" id="preparacion">
+    <div class="cab rev"><span class="num">02</span><h2>Preparación</h2>
+      <p>La exportación original tenía 2.318 columnas en dos archivos de unos 600 MB. La base limpia tiene 75.</p></div>
+    <div class="tres">
+      <div class="conj rev"><h3>Se quitó</h3><p>Las columnas de método, comentario y laboratorio que acompañan a cada variable química, y las
+        variables químicas con datos en menos del 5 % de las filas (entre ellas, los isótopos).</p></div>
+      <div class="conj rev"><h3>Se corrigió</h3><p>Concentraciones negativas (lecturas bajo el límite de detección) pasan a vacío, salvo la pérdida
+        por calcinación, que puede ser negativa de verdad. Cinco muestras del Ártico venían con latitud y longitud invertidas.</p></div>
+      <div class="conj rev"><h3>Se agregó</h3><p>Cinco variables derivadas: año de publicación y número de analitos (discretas), clase de sílice y
+        grado de alteración (ordinales) y ambiente tectónico agrupado (nominal).</p></div>
+    </div>
+    <p class="callout rev" style="margin-top:1.6rem">Una celda vacía significa <b>"no medido"</b>, nunca cero. Solo el 29 % de las filas tiene
+      completos los seis óxidos principales, y el TiO<sub>2</sub> prácticamente no vino en la exportación.</p>
+  </section>
+
+  <section class="cap" id="descargas">
+    <div class="cab rev"><span class="num">03</span><h2>Descargas</h2></div>
+    <div class="fuentes">
+      <a class="fuente rev" href="../reporte_base_datos.pdf"><div class="t">PDF · 5 páginas</div><h3>Reporte de la base</h3><p>Qué es, de dónde salió, cómo se preparó y sus limitaciones.</p></a>
+      <a class="fuente rev" href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz"><div class="t">CSV comprimido · 26 MB</div><h3>Base limpia</h3><p>159.760 filas × 75 columnas, lista para R, Python o Excel.</p></a>
+      <a class="fuente rev" href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/data/tabla_variables.xlsx"><div class="t">Excel</div><h3>Tabla de variables</h3><p>Tipo, subtipo, escala, instrumento, unidad y dominio de las 75 variables.</p></a>
+      <a class="fuente rev" href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/data/gis/mapa_ubicacion.qgz"><div class="t">QGIS</div><h3>Proyecto del mapa</h3><p>Abrir junto con las capas <code>mapa_ubicacion.gpkg</code> de la misma carpeta.</p></a>
+      <a class="fuente rev" href="https://github.com/DalemberV/geoquimica-earthchem-ml/tree/main/R"><div class="t">R 4.6</div><h3>Código de la estadística</h3><p>Tablas de frecuencia, gráficas, outliers e indicadores.</p></a>
+      <a class="fuente rev" href="https://github.com/DalemberV/geoquimica-earthchem-ml"><div class="t">GitHub</div><h3>Repositorio completo</h3><p>Limpieza en Python, mapa, reporte y esta web.</p></a>
+    </div>
+    <p class="docente rev">Cita sugerida: <i>Datos descargados de EarthChem PetDB / Astromaterials Data Synthesis (https://search.astromat.org/)
+      el 13 de octubre de 2026; material analizado = roca total. Licencia CC BY 4.0.</i></p>
+  </section>
+</main>
+
+<footer>
+  <span>Datos: Astromaterials Data Synthesis / EarthChem PetDB (<a href="https://search.astromat.org/">search.astromat.org</a>), 13/10/2026, CC BY 4.0.</span>
+  <span>Imágenes ilustrativas generadas con IA (Google Flow).</span>
+</footer>
+</body>
+</html>

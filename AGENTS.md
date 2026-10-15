@@ -28,11 +28,14 @@ Regresión (lineal, exponencial, polinómica, potencial, logarítmica, múltiple
 | L2 | Población, individuo, muestra | definición textual y simbólica (hecha) |
 | L3 | Muestreo probabilístico + QGIS | mapa de ubicación en QGIS y Python (hecho); informe de muestreo estratificado (**pendiente**) |
 | L4 | Variable y escalas de medición | tabla de variables: tipo, subtipo, instrumento, unidad, dominio (hecha) |
-| L5 | TDF cualitativas, discretas, continuas | TDF + histograma, ojiva, barras (pendiente) |
-| L6 | Indicadores | tabla de indicadores + boxplots (pendiente) |
+| L5 | TDF cualitativas, discretas, continuas | TDF + histograma, ojiva, barras en R (hecho, `/descriptiva/`) |
+| L6 | Indicadores | indicadores, boxplots y error de agrupación en R (hecho para SiO2, MgO, Cr; ampliar a más variables) |
 | L7 | Exposición etapa I | sitio con descriptiva completa |
 
-El docente demuestra en R/RStudio, QGIS y Python/Colab.
+El docente demuestra en R/RStudio, QGIS y Python/Colab. **La estadística se entrega en R** (exigencia del docente):
+la carpeta `R/` sigue la estructura de sus plantillas (TDF con Li, Ls, MC, ni, hi, Ni/Hi ascendentes y descendentes;
+histograma con `barplot(space = 0)`, polígono, ojiva, boxplot; `e1071` para asimetría y curtosis). Python queda
+para limpieza, mapa y web.
 
 ## Requisitos del curso y cómo se cumplen
 
@@ -58,8 +61,13 @@ scripts/mapa.py                                 limpia -> data/gis/mapa_ubicacio
 scripts/proyecto_qgis.py                        gpkg -> data/gis/mapa_ubicacion.qgz + docs/img/mapa_qgis.png (PyQGIS)
 data/gis/                                       capas GIS (WGS84) y proyecto QGIS con composición A4
 docs/reporte_base_datos.pdf                     reporte de la base para el equipo
-docs/index.html                                 la web (HTML + CSS + Plotly por CDN, sin build)
-docs/data/                                      resumen.json (dashboard) y variables.json (tabla de variables)
+R/funciones.R + 01/02/03_*.R                    estadística descriptiva (TDF, gráficas, outliers, indicadores)
+R/analisis_agrupacion_outliers.md               por qué y cómo se agrupó y se trataron los outliers
+R/salidas/                                      Excel con todas las TDF
+docs/index.html, descriptiva/, datos/, equipo/  la web: una página por unidad (HTML + CSS + Plotly, sin build)
+docs/assets/                                    estilo.css y app.js compartidos por todas las páginas
+docs/data/                                      resumen.json, variables.json y tdf/*.csv (tablas que exporta R)
+docs/img/r/                                     gráficas PNG que genera R
 docs/img/                                       fotos del equipo, mapas e imágenes generadas con Google Flow
 openwiki/                                       documentación explicativa (ver sección OpenWiki)
 .claude/skills/                                 skills de agentes: diseño web, openwiki, graphify, gflow-cli
@@ -116,12 +124,17 @@ la URL de la consulta está en `data/raw/*.txt`.
 
 - Se publica desde la rama `main`, carpeta `/docs`. Cualquier push a `docs/` actualiza la web en ~1 min.
 - Repo público: GitHub Pages gratis no funciona en repos privados.
-- Secciones de `docs/index.html` en el orden del curso (ver arriba). La tabla de variables se dibuja desde
-  `docs/data/variables.json`: para cambiar descripciones, editar `OTRAS`/`NOMBRES` en `scripts/tabla_variables.py`.
+- Una página por unidad: `/` (introducción, problema, mapa, objetivos), `/descriptiva/` (U1), `/datos/`, `/equipo/`.
+  Inferencial, regresión y ML figuran como "pronto" en el menú: al crearlas, copiar el `<nav>` y cambiar el
+  `<span class="pronto">` por un enlace en **todas** las páginas (el menú está repetido en cada HTML).
+- La tabla de variables se dibuja desde `docs/data/variables.json`: para cambiar descripciones, editar
+  `OTRAS`/`NOMBRES` en `scripts/tabla_variables.py`.
+- Agrupación y outliers: **no eliminar outliers**; son otras rocas, no errores. TDF = intervalos de Sturges sobre el
+  rango IQR con amplitud redonda + clases abiertas; trazas en log10; repetir por estrato. Ver `R/analisis_agrupacion_outliers.md`.
 - Población/individuo/muestra: la muestra es la compilación PetDB (n = 159 760), **no probabilística**; la
   web dice que la inferencia usará submuestras aleatorias estratificadas por ambiente tectónico (L3).
 - Diseño "basalto": tema oscuro editorial, acento magma `#ff6b2c`, Fraunces (títulos) + Instrument Sans
-  (texto) + JetBrains Mono (cifras). Tokens en `:root` de `docs/index.html`; no meter colores sueltos.
+  (texto) + JetBrains Mono (cifras). Tokens en `:root` de `docs/assets/estilo.css`; no meter colores sueltos.
 - Colores de datos: paleta validada (azul/naranja/aqua para ≤ 3 series, rampa azul para ordinales). Los mismos
   en la web, `mapa.py` y `proyecto_qgis.py`. No más de 3 colores categóricos por gráfico; el resto, "mixto"/"Otros".
 - Imágenes ilustrativas (`hero`, `andes`, `barco`, `nucleos`) generadas con `gflow image t2i` (skill

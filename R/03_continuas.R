@@ -83,6 +83,13 @@ for (v in VARIABLES) {
                     paste0(v$nombre, "_estrato_mafico.png"), n_graf + 3)
   n_graf <- n_graf + 6
 
+  # Tablas para la web
+  tabla_web(cbind(intervalo = etiquetas(tdf_todo), tdf_todo), paste0("cont_", v$nombre))
+  tabla_web(cbind(intervalo = etiquetas(tdf_est), tdf_est), paste0("cont_", v$nombre, "_estrato"))
+  tabla_web(rbind(cbind(muestra = "toda", err_todo), cbind(muestra = "volcanicas maficas", err_est)),
+            paste0("cont_", v$nombre, "_error"))
+  tabla_web(ind, paste0("cont_", v$nombre, "_indicadores"))
+
   # Excel: una hoja por variable con las tablas apiladas
   hoja <- v$nombre
   addWorksheet(libro, hoja)

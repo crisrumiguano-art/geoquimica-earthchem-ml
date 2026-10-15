@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estadística descriptiva — Geoquímica de rocas PetDB</title>
+<meta name="description" content="Unidad 1: población y muestra, tabla de variables, tablas de distribución de frecuencias, gráficas, indicadores y outliers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/estilo.css">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8" defer></script>
+<script src="../assets/app.js" defer></script>
+</head>
+<body data-pagina="descriptiva">
+
+<nav class="nav" id="nav" aria-label="Páginas del proyecto">
+  <a class="marca" href="../"><b>Pt</b>Geoquímica PetDB</a>
+  <ul>
+    <li><a data-p="inicio" href="../">Inicio</a></li>
+    <li><a data-p="descriptiva" href="./"><span class="u">U1</span>Descriptiva</a></li>
+    <li><span class="pronto"><span class="u">U2</span>Inferencial</span></li>
+    <li><span class="pronto"><span class="u">U3</span>Regresión</span></li>
+    <li><span class="pronto"><span class="u">U4</span>Machine learning</span></li>
+    <li><a data-p="datos" href="../datos/">Datos</a></li>
+    <li><a data-p="equipo" href="../equipo/">Equipo</a></li>
+  </ul>
+</nav>
+
+<header class="cabecera">
+  <img src="../img/nucleos.jpg" alt="" aria-hidden="true">
+  <div class="hero-in">
+    <div class="ojo rev" style="--d:0">Unidad 1 · Lecciones 2 a 7</div>
+    <h1 class="rev" style="--d:1">Estadística <em>descriptiva</em></h1>
+    <p class="lead rev" style="--d:2">Qué se estudia, cómo se mide y cómo se distribuye. Las tablas y gráficas de esta página se
+      calcularon en R siguiendo los procedimientos del curso; el código está en la carpeta <code>R/</code> del repositorio.</p>
+    <nav class="indice rev" style="--d:3" aria-label="Secciones de la página">
+      <a href="#poblacion">01 Población y muestra</a><a href="#variables">02 Variables</a>
+      <a href="#cualitativas">03 Cualitativas</a><a href="#discretas">04 Discretas</a>
+      <a href="#continuas">05 Continuas</a><a href="#exploracion">06 Exploración</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="cap" id="poblacion">
+    <div class="cab rev"><span class="num">01</span><h2>Población, individuo y muestra</h2></div>
+    <div class="conjuntos">
+      <div class="conj rev"><div class="letra">U</div><h3>Población</h3>
+        <p>Todas las porciones de roca total de la corteza y del manto superior de la Tierra, en continentes y fondos oceánicos. Es
+          <b>infinita</b>: no es posible enumerar todas las porciones de roca del planeta.</p>
+        <div class="formula">U = { x / x es una porción de roca total de la corteza o del manto superior terrestre }</div></div>
+      <div class="conj rev"><div class="letra">X<sub>i</sub></div><h3>Individuo</h3>
+        <p>Cada porción de roca —muestra de mano, testigo de perforación o fragmento dragado del fondo marino— que se muele y se
+          analiza químicamente en su totalidad.</p>
+        <div class="formula">X<sub>i</sub>, i = 1, 2, 3, …</div></div>
+      <div class="conj rev"><div class="letra">M</div><h3>Muestra</h3>
+        <p>Los análisis de roca total registrados en EarthChem PetDB, descargados el 13 de octubre de 2026. Cada análisis es un
+          <b>caso</b> de estudio.</p>
+        <div class="formula">M = { x / x ∈ U ∧ x está registrada en EarthChem PetDB (13/10/2026) }<br>M ⊂ U · Card(M) = n = 159.760<br>casos x<sub>i</sub>, i = 1, 2, …, 159.760</div></div>
+    </div>
+    <div class="callout rev" style="margin-top:2rem">
+      <p><b>Dos aclaraciones.</b> En geología se llama "muestra" a cada trozo de roca; aquí ese trozo es el <b>individuo</b>, y la
+        <b>muestra estadística</b> es el conjunto de todos ellos. Además, esta muestra no se obtuvo por sorteo: es una compilación de
+        lo que los investigadores decidieron estudiar, con más rocas oceánicas que continentales. Por eso, para la inferencia se
+        trabajará con submuestras aleatorias estratificadas por ambiente tectónico.</p>
+    </div>
+  </section>
+
+  <section class="cap" id="variables">
+    <div class="cab rev"><span class="num">02</span><h2>Tabla de variables</h2>
+      <p>Cada columna de la base es una variable. Se clasifican según lo que miden y la escala en que se expresan.</p></div>
+    <div class="clases rev" id="clases"></div>
+    <div class="filtros rev">
+      <button class="chip" aria-pressed="true" data-f="">Todas</button>
+      <button class="chip" aria-pressed="false" data-f="nominal">Nominales</button>
+      <button class="chip" aria-pressed="false" data-f="ordinal">Ordinales</button>
+      <button class="chip" aria-pressed="false" data-f="discreta">Discretas</button>
+      <button class="chip" aria-pressed="false" data-f="continua">Continuas</button>
+      <input class="buscar" type="search" placeholder="Buscar variable o elemento…" aria-label="Buscar variable">
+    </div>
+    <div class="tabla rev"><table id="vars"><thead><tr>
+      <th>Variable</th><th>Descripción</th><th>Tipo</th><th>Subtipo</th><th>Escala</th><th>Instrumento / método</th><th>Unidad</th><th>Dominio</th><th class="n">% dato</th>
+    </tr></thead><tbody></tbody></table></div>
+    <div class="descargas"><a href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/data/tabla_variables.xlsx">Descargar la tabla de variables (Excel)</a></div>
+  </section>
+
+  <section class="cap" id="cualitativas">
+    <div class="cab rev"><span class="num">03</span><h2>Variables cualitativas</h2>
+      <p>Las nominales llevan frecuencia absoluta (ni) y relativa (hi); las acumuladas no tienen sentido porque las categorías no
+        tienen orden. Las ordinales llevan además las acumuladas, y su mediana es la categoría donde Hi alcanza el 50 %.</p></div>
+    <div id="bloques-cual"></div>
+  </section>
+
+  <section class="cap" id="discretas">
+    <div class="cab rev"><span class="num">04</span><h2>Variables discretas</h2>
+      <p>Las dos variables discretas tienen más de 70 valores distintos, así que se agrupan en intervalos como una continua: k por
+        Sturges y amplitud redonda.</p></div>
+    <div id="bloques-disc"></div>
+  </section>
+
+  <section class="cap" id="continuas">
+    <div class="cab rev"><span class="num">05</span><h2>Variables continuas</h2>
+      <p>Tres variables que muestran los tres casos típicos de esta base: la sílice mezcla tipos de roca, el magnesio es asimétrico
+        y el cromo tiene una cola extrema.</p></div>
+
+    <div class="callout rev">
+      <h3>Cómo se agruparon los datos y qué se hizo con los outliers</h3>
+      <ol>
+        <li><b>La agrupación por defecto no sirve.</b> Con Sturges sobre el recorrido completo (a = R / k), el cromo, que va de
+          0,002 a 295.000 ppm, queda con intervalos de 18.437 ppm y el primero se lleva el 99,9 % de los datos. Las reglas √n y
+          2√n dan más de 190 intervalos, demasiados para leer.</li>
+        <li><b>Los outliers no son errores, son otras rocas.</b> La regla intercuartílica marca entre el 8 y el 17 % de los datos, y
+          casi todos son rocas reales: tefras y rocas ácidas en la sílice, peridotitas en el magnesio, cromititas en el cromo. Quitarlos
+          borraría poblaciones enteras, así que <b>no se elimina ningún dato</b>.</li>
+        <li><b>Solución: rango típico + clases abiertas.</b> Los intervalos cerrados se calculan con Sturges entre los límites
+          intercuartílicos, con amplitud redonda; los valores de afuera se cuentan en dos clases abiertas ("&lt; Li" y "≥ Ls",
+          en dorado en las tablas). El error de agrupación queda por debajo del 5 % en todos los casos.</li>
+        <li><b>Elementos traza en escala logarítmica.</b> La asimetría del cromo baja de 39,4 a −0,84 en log10, y aparecen dos
+          poblaciones: basaltos (~300 ppm) y ultramáficas (~3.000 ppm).</li>
+        <li><b>Estratificar.</b> El análisis se repite en un grupo homogéneo, las rocas volcánicas máficas, donde la dispersión cae
+          a menos de la mitad.</li>
+      </ol>
+      <p style="margin:1rem 0 0">Análisis completo: <a href="https://github.com/DalemberV/geoquimica-earthchem-ml/blob/main/R/analisis_agrupacion_outliers.md">R/analisis_agrupacion_outliers.md</a></p>
+    </div>
+
+    <div class="pestanas rev" role="tablist" id="tabs-cont">
+      <button role="tab" aria-selected="true" data-panel="p-SiO2">SiO<sub>2</sub> (wt%)</button>
+      <button role="tab" aria-selected="false" data-panel="p-MgO">MgO (wt%)</button>
+      <button role="tab" aria-selected="false" data-panel="p-Cr">Cr (ppm, log10)</button>
+    </div>
+    <div id="paneles-cont"></div>
+    <div class="descargas"><a href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/R/salidas/TDF_continuas.xlsx">Todas las TDF continuas (Excel)</a>
+      <a href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/R/salidas/TDF_cualitativas.xlsx">TDF cualitativas (Excel)</a>
+      <a href="https://github.com/DalemberV/geoquimica-earthchem-ml/raw/main/R/salidas/TDF_discretas.xlsx">TDF discretas (Excel)</a>
+      <a href="https://github.com/DalemberV/geoquimica-earthchem-ml/tree/main/R">Código R</a></div>
+  </section>
+
+  <section class="cap" id="exploracion">
+    <div class="cab rev"><span class="num">06</span><h2>Exploración interactiva</h2>
+      <p>Dos vistas que se pueden recorrer con el cursor.</p></div>
+    <div class="graficos">
+      <div class="g rev"><h3>Muestras por ambiente tectónico</h3><p>12 ambientes más frecuentes de PetDB</p><div class="plot" id="g-tec"></div></div>
+      <div class="g rev"><h3>Diagrama TAS: álcalis totales frente a sílice</h3><p>Rocas volcánicas, selección aleatoria de 6.000 análisis</p><div class="plot" id="g-tas"></div></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>Datos: Astromaterials Data Synthesis / EarthChem PetDB (<a href="https://search.astromat.org/">search.astromat.org</a>), 13/10/2026, CC BY 4.0.</span>
+  <span>Gráficas estadísticas generadas con R 4.6.</span>
+</footer>
+
+<script>
+addEventListener("DOMContentLoaded", () => {
+  const T = "../data/tdf/", I = "../img/r/";
+  const COLS_CUAL = [["categoria", "Categoría"], ["ni", "ni", 0], ["hi", "hi (%)", 2]];
+  const COLS_ORD = [...COLS_CUAL, ["Ni_asc", "Ni", 0], ["Hi_asc", "Hi (%)", 2]];
+  const COLS_TDF = [["intervalo", "Intervalo"], ["MC", "MC", 3], ["ni", "ni", 0], ["hi", "hi (%)", 2],
+                    ["Ni_asc", "Ni ↑", 0], ["Ni_dsc", "Ni ↓", 0], ["Hi_asc", "Hi ↑ (%)", 2], ["Hi_dsc", "Hi ↓ (%)", 2]];
+
+  // Bloque = gráfica de R a la izquierda, tabla y lectura a la derecha
+  async function bloque(destino, { titulo, img, alt, csv, cols, lectura, extra }) {
+    const div = document.createElement("div");
+    div.className = "bloque rev";
+    div.innerHTML = `<figure class="grafica"><a href="${I}${img}" target="_blank" title="Ver en tamaño completo"><img src="${I}${img}" alt="${alt}" loading="lazy"></a></figure>
+      <div><h4>${titulo}</h4><div class="tabla corta"></div>${extra ? '<div class="tabla corta" style="margin-top:.8rem"></div>' : ""}
+      <p class="lectura">${lectura}</p></div>`;
+    destino.appendChild(div);
+    io.observe(div);
+    const [t1, t2] = div.querySelectorAll(".tabla");
+    tabla(t1, await leerCSV(T + csv), cols);
+    if (extra) tabla(t2, await leerCSV(T + extra.csv), extra.cols);
+  }
+
+  const cual = document.getElementById("bloques-cual");
+  [
+    { titulo: "Ambiente tectónico agrupado · nominal", img: "cual_grupo_tectonico.png", csv: "cual_grupo_tectonico.csv", cols: COLS_CUAL,
+      alt: "Diagrama de barras y circular del ambiente tectónico agrupado",
+      lectura: "La moda es <b>dorsal y corteza oceánica</b> (41,8 %), seguida de intraplaca y rift (35,6 %) y margen convergente (21,2 %). Solo el 1,3 % combina ambientes de grupos distintos." },
+    { titulo: "Tipo de roca · nominal", img: "cual_tipo_de_roca.png", csv: "cual_tipo_de_roca.csv", cols: COLS_CUAL,
+      alt: "Diagrama de barras y circular del tipo de roca",
+      lectura: "Más de la mitad de los análisis son <b>rocas volcánicas máficas</b> (55,3 %), sobre todo basaltos; le siguen las ultramáficas plutónicas (17,4 %). Las categorías con menos del 1 % se agruparon en «otros»." },
+    { titulo: "Clase de roca según SiO₂ · ordinal", img: "cual_clase_sio2.png", csv: "cual_clase_sio2.csv", cols: COLS_ORD,
+      alt: "Diagrama de barras y circular de la clase de SiO2",
+      lectura: "La moda y la mediana coinciden en <b>básica</b>: el 52,1 % de los análisis tiene entre 45 y 52 % de sílice, y hasta esa clase se acumula el 68,6 %. Las tres clases restantes pesan parecido (15–16 % cada una)." },
+    { titulo: "Grado de alteración · ordinal", img: "cual_alteracion.png", csv: "cual_alteracion.csv", cols: COLS_ORD,
+      alt: "Diagrama de barras y circular del grado de alteración",
+      lectura: "Con dato en 33.248 análisis. La moda es <b>fresca</b> (46,9 %) y la mediana <b>leve</b>: el 60,5 % de las rocas está fresca o levemente alterada, y el 86 % no pasa de moderada." },
+  ].forEach(b => bloque(cual, b));
+
+  const disc = document.getElementById("bloques-disc");
+  const COLS_IND = [["indicador", "Indicador"], ["valor", "Valor", 2]];
+  [
+    { titulo: "Año de publicación", img: "disc_anio.png", csv: "disc_anio.csv", cols: COLS_TDF,
+      alt: "Histograma, ojiva y diagrama de caja del año de publicación", extra: { csv: "disc_anio_indicadores.csv", cols: COLS_IND },
+      lectura: "Agrupado en décadas. Mediana 2004 y moda 2015: la mitad de los análisis se publicó en los últimos veinte años. La asimetría es negativa (−0,29), con una cola corta de trabajos antiguos; prácticamente sin outliers (40 de 159.760)." },
+    { titulo: "Número de analitos por muestra", img: "disc_analitos.png", csv: "disc_analitos.csv", cols: COLS_TDF,
+      alt: "Histograma, ojiva y diagrama de caja del número de analitos", extra: { csv: "disc_analitos_indicadores.csv", cols: COLS_IND },
+      lectura: "Muy asimétrica a la derecha (1,58): la mediana es 9 analitos, pero la moda es 1 y el coeficiente de variación supera el 100 %. Un 6,4 % de las muestras tiene más de 34 analitos medidos; se dejan en la tabla porque no deforman los intervalos." },
+  ].forEach(b => bloque(disc, b));
+
+  // Variables continuas: un panel por variable
+  const CONT = {
+    SiO2: { u: "wt%", lectura: "Toda la muestra: mediana 50,0 %, rango intercuartílico 7,3 y coeficiente de variación 19,6 %. La clase abierta superior (≥ 66 %) reúne al 12,7 %: son las rocas ácidas. En las volcánicas máficas la distribución es mucho más compacta (rango intercuartílico 2,5; CV 8,7 %)." },
+    MgO: { u: "wt%", lectura: "Asimétrica a la derecha (1,67). La media (11,3 %) supera con holgura a la mediana (7,1 %) por las peridotitas: la clase abierta ≥ 20 % reúne al 16,6 % de los análisis, una segunda población, no un error. En las volcánicas máficas la mediana es 7,3 %." },
+    Cr: { u: "ppm, log10", lectura: "En escala original la asimetría es 39,4 y la media (730 ppm) triplica a la mediana (235 ppm). En log10 aparecen dos modas: una en [2,4-2,6[ (unos 300 ppm, basaltos) y otra en [3,4-3,6[ (unos 3.000 ppm, rocas ultramáficas). Anticipa un ajuste log-normal en la Unidad 2." },
+  };
+  const COLS_ERR = [["muestra", "Muestra"], ["medida", "Medida"], ["datos_totales", "Datos totales", 3], ["datos_agrupados", "Agrupados", 3], ["error_pct", "Error (%)", 2]];
+  const paneles = document.getElementById("paneles-cont");
+  Object.entries(CONT).forEach(([v, c], i) => {
+    const p = document.createElement("div");
+    p.className = "panel"; p.id = "p-" + v; p.hidden = i > 0;
+    p.innerHTML = `
+      <div class="bloque vertical"><h4>¿Por qué no sirve la agrupación por defecto?</h4>
+        <figure class="grafica"><a href="${I}${v}_agrupacion.png" target="_blank" title="Ver en tamaño completo"><img src="${I}${v}_agrupacion.png" alt="Histograma por defecto frente al corregido de ${v}" loading="lazy"></a></figure></div>
+      <div class="bloque"><figure class="grafica"><a href="${I}${v}_toda_la_muestra.png" target="_blank" title="Ver en tamaño completo"><img src="${I}${v}_toda_la_muestra.png" alt="Histograma, polígono, ojiva y diagrama de caja de ${v}" loading="lazy"></a></figure>
+        <div><h4>TDF · toda la muestra (${c.u})</h4><div class="tabla corta" data-csv="cont_${v}.csv"></div>
+          <h4 style="margin-top:1.2rem">Error de agrupación</h4><div class="tabla corta" data-csv="cont_${v}_error.csv"></div></div></div>
+      <div class="bloque"><figure class="grafica"><a href="${I}${v}_estrato_mafico.png" target="_blank" title="Ver en tamaño completo"><img src="${I}${v}_estrato_mafico.png" alt="Gráficas de ${v} en rocas volcánicas máficas" loading="lazy"></a></figure>
+        <div><h4>TDF · rocas volcánicas máficas</h4><div class="tabla corta" data-csv="cont_${v}_estrato.csv"></div></div></div>
+      <div class="bloque vertical"><h4>Indicadores de posición, dispersión y forma (escala original)</h4>
+        <div class="tabla corta" data-csv="cont_${v}_indicadores.csv"></div><p class="lectura">${c.lectura}</p></div>`;
+    paneles.appendChild(p);
+    p.querySelectorAll("[data-csv]").forEach(async t => {
+      const filas = await leerCSV(T + t.dataset.csv);
+      const f = t.dataset.csv;
+      const cols = f.endsWith("_error.csv") ? COLS_ERR
+        : f.endsWith("_indicadores.csv") ? Object.keys(filas[0]).map((k, j) => [k, k.replaceAll("_", " "), j ? 3 : undefined])
+        : COLS_TDF;
+      tabla(t, filas, cols);
+    });
+  });
+  pestanas(document.getElementById("tabs-cont"));
+
+  // Tabla de variables con filtros y búsqueda
+  fetch("../data/variables.json").then(r => r.json()).then(v => {
+    const ex = { nominal: "tipo de roca, ambiente tectónico", ordinal: "grado de alteración, clase de sílice",
+                 discreta: "año de publicación, número de analitos", continua: "concentraciones, coordenadas, edades" };
+    const def = { nominal: ["Cualitativa", "Categorías sin orden"], ordinal: ["Cualitativa", "Categorías con jerarquía"],
+                  discreta: ["Cuantitativa", "Valores puntuales, sin intermedios"], continua: ["Cuantitativa", "Cualquier valor de un intervalo"] };
+    const sub = r => r.Subtipo.split(" ")[0];
+    document.getElementById("clases").innerHTML = Object.keys(def).map(k =>
+      `<div class="clase"><div class="n">${v.filter(r => r.Tipo !== "identificador" && sub(r) === k).length}</div><div class="t">${def[k][0]}</div>
+       <h3>${k[0].toUpperCase() + k.slice(1)}</h3><p>${def[k][1]}. Ej.: ${ex[k]}.</p></div>`).join("");
+    const cols = ["Variable", "Descripción", "Tipo", "Subtipo", "Escala de medición", "Instrumento / método", "Unidad", "Dominio", "% con dato"];
+    const cuerpo = document.querySelector("#vars tbody");
+    let filtro = "", texto = "";
+    const pintar = () => {
+      cuerpo.innerHTML = v.filter(r => (!filtro || sub(r) === filtro) &&
+        (!texto || (r.Variable + " " + r.Descripción).toLowerCase().includes(texto)))
+        .map(r => `<tr>${cols.map(k => k === "Tipo" ? `<td><span class="tag ${r[k]}">${esc(r[k])}</span></td>`
+          : `<td${k === "% con dato" ? ' class="n"' : ""}>${esc(r[k])}</td>`).join("")}</tr>`).join("");
+    };
+    document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => {
+      document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === c));
+      filtro = c.dataset.f; pintar();
+    }));
+    document.querySelector(".buscar").addEventListener("input", e => { texto = e.target.value.toLowerCase(); pintar(); });
+    pintar();
+  });
+
+  // Exploración interactiva
+  fetch("../data/resumen.json").then(r => r.json()).then(d => conPlotly(() => {
+    const t = d.tectonica;
+    Plotly.react("g-tec", [bar(t.values.slice().reverse(), t.labels.slice().reverse(),
+      { orientation: "h", hovertemplate: "%{y}: %{x:,} muestras<extra></extra>" })],
+      base({ margin: { l: 190, r: 16, t: 8, b: 40 }, xaxis: { ...base().xaxis, title: { text: "muestras" } } }), cfg);
+    const nombres = { "igneous:volcanic:mafic": "máfica", "igneous:volcanic:intermediate": "intermedia", "igneous:volcanic:felsic": "félsica" };
+    const colores = { "igneous:volcanic:mafic": "--series-1", "igneous:volcanic:intermediate": "--series-2", "igneous:volcanic:felsic": "--series-3" };
+    Plotly.react("g-tas", Object.keys(nombres).filter(k => d.tas[k]).map(k => ({
+      type: "scattergl", mode: "markers", name: nombres[k], x: d.tas[k].x, y: d.tas[k].y,
+      marker: { size: 5, opacity: .65, color: css(colores[k]), line: { color: css("--surface-1"), width: 1 } },
+      hovertemplate: `${nombres[k]}<br>SiO₂ %{x} wt%<br>Na₂O+K₂O %{y} wt%<extra></extra>` })),
+      base({ showlegend: true, legend: { orientation: "h", y: 1.12, font: { color: css("--text-secondary") } }, margin: { l: 56, r: 16, t: 32, b: 44 },
+             xaxis: { ...base().xaxis, title: { text: "SiO₂ (wt%)" } }, yaxis: { ...base().yaxis, range: [0, 16], title: { text: "Na₂O + K₂O (wt%)" } } }), cfg);
+  }));
+});
+</script>
+</body>
+</html>

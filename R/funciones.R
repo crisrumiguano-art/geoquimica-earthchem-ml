@@ -7,8 +7,15 @@
 library(e1071)     # skewness() y kurtosis(), como en las plantillas
 library(openxlsx)  # exportar las TDF a Excel
 
-SALIDAS <- "R/salidas"
-dir.create(SALIDAS, showWarnings = FALSE, recursive = TRUE)
+SALIDAS <- "R/salidas"     # Excel con todas las tablas
+GRAFICOS <- "docs/img/r"   # PNG: van directo a la web
+TABLAS_WEB <- "docs/data/tdf"
+for (d in c(SALIDAS, GRAFICOS, TABLAS_WEB)) dir.create(d, showWarnings = FALSE, recursive = TRUE)
+
+tabla_web <- function(tabla, nombre) {
+  # CSV que la página /descriptiva/ muestra como tabla.
+  write.csv(tabla, file.path(TABLAS_WEB, paste0(nombre, ".csv")), row.names = FALSE, fileEncoding = "UTF-8")
+}
 
 leer_base <- function(ruta = "data/earthchem_limpio.csv.gz") {
   # gzfile() con encoding explícito: read.csv directo sobre el .gz se cae en Windows con R 4.6.
@@ -31,7 +38,7 @@ tdf_cualitativa <- function(x, orden = NULL) {
 }
 
 graficos_cualitativa <- function(tdf, titulo, archivo, n_graf = 1) {
-  png(file.path(SALIDAS, archivo), width = 1600, height = 700, res = 130)
+  png(file.path(GRAFICOS, archivo), width = 1600, height = 700, res = 130)
   par(mfrow = c(1, 2), mar = c(9, 5, 4, 1))
   colores <- gray.colors(nrow(tdf), start = .25, end = .85)
   barplot(tdf$ni, names.arg = tdf$categoria, las = 2, col = colores, ylab = "Cantidad",
@@ -94,7 +101,7 @@ tdf_continua <- function(x, k = NULL, a = NULL, desde = NULL, redondear = TRUE, 
 }
 
 etiquetas <- function(tdf, dec = 2) {
-  f <- function(v) formatC(round(v, dec), format = "fg", digits = 6, big.mark = "")
+  f <- function(v) trimws(formatC(round(v, dec), format = "fg", digits = 6, big.mark = ""))
   ifelse(is.infinite(tdf$Li), paste0("< ", f(tdf$Ls)),
          ifelse(is.infinite(tdf$Ls), paste0("≥ ", f(tdf$Li)), paste0("[", f(tdf$Li), "-", f(tdf$Ls), "[")))
 }
@@ -131,7 +138,7 @@ nota_abiertas <- function(tdf) {
 graficos_continua <- function(x, tdf, nombre, unidad, archivo, n_graf = 1) {
   # Gráficas de la Lección 5: histograma + polígono (clases cerradas), ojiva combinada y diagrama de caja.
   t <- tdf[!is.na(tdf$MC), ]
-  png(file.path(SALIDAS, archivo), width = 1800, height = 1200, res = 130)
+  png(file.path(GRAFICOS, archivo), width = 1800, height = 1200, res = 130)
   layout(matrix(c(1, 1, 2, 3), 2, 2, byrow = TRUE), heights = c(1.15, 1))
   par(mar = c(8, 5, 4, 1))
   h <- barplot(t$hi, names.arg = etiquetas(t), space = 0, las = 2, col = "#3987e5", border = "white",
@@ -154,7 +161,7 @@ graficos_continua <- function(x, tdf, nombre, unidad, archivo, n_graf = 1) {
 comparar_agrupacion <- function(tdf_defecto, tdf_final, nombre, unidad, archivo) {
   # La gráfica que justifica la decisión: histograma "por defecto" frente al corregido.
   t <- tdf_final[!is.na(tdf_final$MC), ]
-  png(file.path(SALIDAS, archivo), width = 1800, height = 780, res = 130)
+  png(file.path(GRAFICOS, archivo), width = 1800, height = 780, res = 130)
   par(mfrow = c(1, 2), mar = c(8, 5, 4, 1))
   barplot(tdf_defecto$hi, names.arg = etiquetas(tdf_defecto, 1), space = 0, las = 2, cex.names = .65,
           col = "gray60", border = "white", ylab = "Porcentaje (%)",
