@@ -23,7 +23,7 @@ relativas (`../assets/`, `../img/`, `../data/`). `app.js` marca la página actua
 | `docs/data/tdf/*.csv`, `docs/img/r/*.png` | scripts de `R/` | tablas y gráficas de `/descriptiva/` (`leerCSV()` + `tabla()` de `app.js`) |
 | `docs/img/*` | fotos reales, `mapa.py`, `proyecto_qgis.py`, Google Flow | imágenes |
 
-`resumen.json` trae agregados (conteos, histograma, muestras de 6 000 puntos), no la base: así la web pesa
+`resumen.json` trae agregados (conteos y muestras de 6 000 puntos para el mapa y el TAS), no la base: así la web pesa
 poco. Si un gráfico nuevo necesita otro agregado, agregarlo en `datos_dashboard.py`, no calcularlo en el navegador.
 
 ## Agregar una página o una sección
