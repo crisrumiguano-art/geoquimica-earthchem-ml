@@ -27,7 +27,7 @@ Regresión (lineal, exponencial, polinómica, potencial, logarítmica, múltiple
 |---|---|---|
 | L2 | Población, individuo, muestra | definición textual y simbólica (hecha) |
 | L3 | Muestreo probabilístico + QGIS | mapa de ubicación en QGIS y Python (hecho); informe de muestreo estratificado (**pendiente**) |
-| L4 | Variable y escalas de medición | tabla de variables: tipo, subtipo, instrumento, unidad, dominio (hecha) |
+| L4 | Variable y escalas de medición | tabla de variables con el formato del curso: dominio (definición y conjunto) y rango (hecha) |
 | L5 | TDF cualitativas, discretas, continuas | TDF + histograma, ojiva, barras en R (hecho, `/descriptiva/`) |
 | L6 | Indicadores | indicadores, boxplots y error de agrupación en R (hecho para SiO2, MgO, Cr; ampliar a más variables) |
 | L7 | Exposición etapa I | sitio con descriptiva completa |
@@ -80,8 +80,11 @@ df = pd.read_csv("data/earthchem_limpio.csv.gz", low_memory=False)
 
 ## Datos crudos (no están en el repo)
 
-Pesan ~600 MB (GitHub no acepta archivos > 100 MB). Están en la PC del usuario en
-`C:\Users\dalem\Downloads\quimica\`:
+Pesan ~600 MB (GitHub no acepta archivos > 100 MB). Respaldados en Google Drive del usuario:
+`G:\Mi unidad\2.- Archivos\Geología\Estadística y probabilidades\TRABAJOS ESTADISTICA\10-26 GDRIVE GEOQUIMICA ROCAS\datos_crudos_earthchem\`. En la PC del usuario, `data/raw/crudos` es una **junction** a esa carpeta
+(ignorada por git) y `limpiar.py` / `tabla_variables.py` la usan por defecto (sin argumentos). Las junctions se crean con
+PowerShell (`New-Item -ItemType Junction`) desde un .ps1 guardado en UTF-8 **con BOM** (si no, rompe los acentos de la
+ruta); los symlinks piden permisos de administrador. Los archivos son:
 
 - `earthchem_export_oct13_26_142339.csv` — 159 760 filas × 2 318 columnas. Cada elemento trae 4
   columnas: valor, `Method`, `Method (comment)`, `Lab`.
@@ -92,6 +95,10 @@ Para regenerar todo, en este orden: `limpiar.py` → `datos_dashboard.py` → `t
 `mapa.py` → `proyecto_qgis.py` (con el Python de QGIS) → scripts de `R/` → `informe.py`. Comandos exactos en
 [openwiki/workflows/regenerar-y-publicar.md](openwiki/workflows/regenerar-y-publicar.md). Para re-descargar,
 la URL de la consulta está en `data/raw/*.txt`.
+
+Material de referencia del curso (plantillas de R de otros años, `BD_LITOGEOQUIMICA.xlsx` con el **formato de la tabla
+de variables** en la hoja `Hoja1`, material de QGIS): respaldado en `…\10-26 GDRIVE GEOQUIMICA ROCAS\plantillas_curso_proyecto2\`
+y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
 
 ## Decisiones de limpieza (no deshacer sin motivo)
 
@@ -131,6 +138,13 @@ la URL de la consulta está en `data/raw/*.txt`.
   `OTRAS`/`NOMBRES` en `scripts/tabla_variables.py`.
 - Agrupación y outliers: **no eliminar outliers**; son otras rocas, no errores. TDF = intervalos de Sturges sobre el
   rango IQR con amplitud redonda + clases abiertas; trazas en log10; repetir por estrato. Ver `R/analisis_agrupacion_outliers.md`.
+- Repo y web pertenecen a **crisrumiguano-art** (Cristoffer) desde el 15/10/2026; DalemberV tiene permiso Write.
+  URLs: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/ · https://github.com/crisrumiguano-art/geoquimica-earthchem-ml
+  Cristoffer usa Jules (agente de Google) y solo GitHub en el celular: revisar sus PR antes de asumir que algo cambió
+  (el PR #1 cambió el título al revés de lo pedido; se corrigió a "La geoquímica de la Tierra").
+- Regresiones (Unidad 3): alcanzan los datos (p. ej. La–Ce 31 690 pares, MgO–Ni 9 379, 6 óxidos completos 46 308),
+  pero usar log10 en trazas (Zr–Hf r = 0,15 lineal vs 0,97 en log), filas completas por par (sin imputar) y
+  estratificar por roca o `Tectonic Group`. Tabla en la sección 10 del informe.
 - Población/individuo/muestra: la muestra es la compilación PetDB (n = 159 760), **no probabilística**; la
   web dice que la inferencia usará submuestras aleatorias estratificadas por ambiente tectónico (L3).
 - Diseño "basalto": tema oscuro editorial, acento magma `#ff6b2c`, Fraunces (títulos) + Instrument Sans
@@ -147,7 +161,7 @@ la URL de la consulta está en `data/raw/*.txt`.
 - Leer los CSV con `python -I` si vienen de una descarga nueva. Los scripts que importan a sus vecinos
   (`tabla_variables.py`, `informe.py`) se corren sin `-I`.
 - El informe se edita en `scripts/informe.py` (python-docx), no en el .docx: el .docx y el .pdf se regeneran. La
-  parte técnica (sección 11, librerías y versiones) hay que actualizarla a mano si cambia el stack.
+  parte técnica (sección 12, librerías y versiones) hay que actualizarla a mano si cambia el stack.
 - La licencia de los datos es CC BY 4.0: citar EarthChem/PetDB y la fecha de descarga en cualquier gráfico o informe.
 
 ## OpenWiki

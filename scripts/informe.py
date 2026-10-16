@@ -7,9 +7,11 @@ Uso: python scripts/informe.py          (sin -I: importa TIPOS de datos_dashboar
 La conversión a PDF y la actualización del índice usan Microsoft Word por COM (PowerShell); si Word no
 está, queda solo el .docx.
 """
+import json
 import subprocess
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
@@ -162,6 +164,86 @@ def portada(I):
     c = I.p(("Contenido", "b"))  # no es título: si no, el índice se listaría a sí mismo
     c.runs[0].font.size, c.runs[0].font.color.rgb = Pt(17), AZUL
     campo(I.d.add_paragraph(), 'TOC \\o "1-2" \\h \\z \\u')
+
+
+def guia_equipo(I, df):
+    # Salto en el título, no como párrafo aparte: si el índice llena la página, un salto suelto deja una hoja en blanco.
+    I.h("Guía rápida para el equipo", 1).paragraph_format.page_break_before = True
+    I.p("Esta guía resume, en pocas páginas, qué está hecho, dónde está cada cosa y qué hay que saber para la exposición. "
+        "El resto del informe explica todo con detalle.")
+    I.h("Dónde está cada cosa", 2)
+    I.tabla([
+        ["Qué", "Dónde"],
+        ["Página web del proyecto", WEB],
+        ["Estadística descriptiva (tablas y gráficas)", WEB + "descriptiva/"],
+        ["Tabla de variables (dominio, rango, etc.)", WEB + "descriptiva/#variables  ·  data/tabla_variables.xlsx"],
+        ["Este informe (PDF y Word)", WEB + "informe_proyecto.pdf  ·  " + WEB + "informe_proyecto.docx"],
+        ["Base limpia (159.760 × 75)", "data/earthchem_limpio.csv.gz en el repositorio"],
+        ["Mapa en QGIS", "data/gis/mapa_ubicacion.qgz (abrir junto con mapa_ubicacion.gpkg)"],
+        ["Código en R", "carpeta R/ del repositorio"],
+        ["Repositorio (todo el código)", REPO],
+        ["Datos originales de EarthChem (~600 MB)", "Google Drive de Dalember: TRABAJOS ESTADISTICA › 10-26 GDRIVE "
+                                                   "GEOQUIMICA ROCAS › datos_crudos_earthchem (pedir acceso)"],
+    ], [6, 10.3])
+    I.h("Qué tiene la página web", 2)
+    I.lista([
+        (("Inicio: ", "b"), "introducción, planteamiento del problema, mapa de ubicación (QGIS, Python e interactivo) y objetivos."),
+        (("Descriptiva (Unidad 1): ", "b"), "población, individuo y muestra; tabla de variables; tablas de frecuencia y gráficas "
+         "de las variables cualitativas, discretas y continuas; tratamiento de outliers; gráficos interactivos."),
+        (("Datos: ", "b"), "de dónde salieron los datos, cómo se prepararon y todas las descargas."),
+        (("Equipo: ", "b"), "integrantes y docente."),
+        (("Inferencial, Regresión y Machine learning: ", "b"), "aparecen como «pronto»; se completan en las próximas unidades."),
+    ])
+    I.h("Estado por lección", 2)
+    I.tabla([
+        ["Lección", "Qué pide", "Estado"],
+        ["L1–L2", "introducción, problema, objetivos; población, individuo y muestra", "Hecho (web: Inicio y Descriptiva 01)"],
+        ["L3", "muestreo y mapa de ubicación en QGIS", "Mapa hecho (QGIS y Python). Falta el informe de muestreo estratificado"],
+        ["L4", "tabla de variables: tipo, subtipo, dominio, rango, instrumento, unidad", "Hecho (web y Excel, formato del curso)"],
+        ["L5", "tablas de frecuencia (TDF) y gráficas", "Hecho: 4 cualitativas, 2 discretas, 3 continuas (SiO2, MgO, Cr)"],
+        ["L6", "indicadores de posición, dispersión y forma", "Hecho para esas variables; se puede ampliar a más"],
+        ["L7", "exposición de la etapa descriptiva y conclusiones", "Pendiente: redactar conclusiones y preparar la exposición"],
+        ["Unidades 2–4", "inferencia, regresión, red neuronal", "Pendiente"],
+    ], [2.2, 7, 7.1])
+    I.h("Cinco ideas clave para la exposición", 2)
+    I.lista([
+        (("La muestra no es aleatoria. ", "b"), "PetDB reúne lo que los investigadores decidieron estudiar durante casi un siglo, "
+         "con más rocas del fondo del mar que de los continentes. Para la inferencia se usarán submuestras aleatorias por estrato."),
+        (("Una celda vacía significa «no se midió», no cero. ", "b"), "Por eso cada análisis usa solo las filas que tienen "
+         "medidas las variables de ese análisis, y siempre se informa cuántas son (n)."),
+        (("La agrupación por defecto no servía. ", "b"), "Con Sturges sobre el rango completo, el 99,9 % del cromo caía en un solo "
+         "intervalo. Se usaron intervalos sobre el rango típico y dos clases abiertas para los extremos."),
+        (("Los outliers no se borraron. ", "b"), "Casi todos son otras rocas (riolitas, peridotitas, cromititas), no errores. "
+         "Borrarlos habría eliminado poblaciones enteras."),
+        (("Los elementos traza se miran en escala logarítmica. ", "b"), "Así se ve su forma real y aparecen dos poblaciones en el "
+         "cromo: basaltos y rocas ultramáficas."),
+    ], numerada=True)
+    I.h("Cómo trabajar con los archivos en tu computadora", 2)
+    I.p(("Ver la base en Excel. ", "b"), "Descarga data/earthchem_limpio.csv.gz desde la página Datos, descomprímela con 7-Zip y "
+        "en Excel usa Datos › Desde texto/CSV, con origen UTF-8 y, en Transformar datos, configuración regional Inglés "
+        "(Estados Unidos) para que el punto sea el separador decimal.")
+    I.p(("Correr los scripts de R. ", "b"), "Instala R (4.4 o más nuevo) y RStudio. En GitHub, en el repositorio, usa Code › "
+        "Download ZIP y descomprime. Abre RStudio, ve a Session › Set Working Directory y elige la carpeta del repositorio. "
+        "La primera vez ejecuta install.packages(c(\"e1071\", \"openxlsx\")). Después, por ejemplo, source(\"R/03_continuas.R\"): "
+        "las gráficas quedan en docs/img/r/ y las tablas en R/salidas/.")
+    I.p(("Abrir el mapa en QGIS. ", "b"), "Descarga mapa_ubicacion.qgz y mapa_ubicacion.gpkg (página Datos) en la misma carpeta "
+        "y abre el .qgz. La composición de impresión se llama «Mapa de ubicación A4».")
+    I.h("Glosario", 2)
+    I.tabla([
+        ["Término", "Qué significa"],
+        ["TDF", "tabla de distribución de frecuencias: cuántos datos caen en cada clase o intervalo"],
+        ["Li, Ls, MC", "límite inferior y superior del intervalo, y su marca de clase (el punto medio)"],
+        ["ni, hi", "frecuencia absoluta (cuántos datos) y relativa (qué porcentaje)"],
+        ["Ni, Hi ↑ / ↓", "frecuencias acumuladas ascendentes y descendentes; con ellas se dibuja la ojiva"],
+        ["Sturges", "regla para el número de intervalos: k = 1 + 3,3 log n"],
+        ["IQR (rango intercuartílico)", "Q3 − Q1; un dato es atípico si cae fuera de Q1 − 1,5·IQR o de Q3 + 1,5·IQR"],
+        ["Clase abierta", "intervalo sin uno de sus límites («< 36» o «≥ 66») que agrupa los valores extremos"],
+        ["Error de agrupación", "diferencia entre la media (o desviación) calculada con la TDF y con los datos sin agrupar"],
+        ["Escala log10", "trabajar con el logaritmo del valor; separa bien datos que van de 0,01 a 100.000"],
+        ["Estrato", "subgrupo homogéneo de la muestra (por ejemplo, solo rocas volcánicas máficas)"],
+        ["Dominio / rango", "valores que la variable puede tomar en teoría / valores que tomó en la muestra (ver sección 4.1)"],
+        ["wt% / ppm", "porcentaje en peso / partes por millón (1 wt% = 10.000 ppm)"],
+    ], [4.5, 11.8])
     I.salto()
 
 
@@ -245,6 +327,20 @@ def parte_base(I, df):
         "medición. Está en la página web (Estadística descriptiva) y en ", ("data/tabla_variables.xlsx", "c"),
         ". El diccionario resumido está en el Anexo A.")
 
+    I.h("4.1 Dominio y rango: qué significan", 3)
+    I.p("La idea es la misma que con las funciones en matemáticas. El ", ("dominio", "b"), " son todos los valores que la "
+        "variable podría tomar en teoría, por cómo es la variable. El ", ("rango", "b"), " son los valores que tomó de verdad en "
+        "nuestros datos. La plantilla del curso escribe el dominio dos veces: en palabras (la definición) y como conjunto "
+        "numérico. Por ejemplo, una concentración puede ser cualquier número real desde cero hacia arriba (dominio R+ ∪ {0}), "
+        "pero en esta base el SiO2 va de 0,0011 % a 98,9 % (rango).")
+    vars_ = {v["Variable"]: v for v in json.loads((RAIZ / "docs" / "data" / "variables.json").read_text(encoding="utf-8"))}
+    I.tabla([["Variable", "Dominio (definición)", "Dominio (conjunto)", "Rango"]] + [
+        [c, vars_[c]["Dominio (definición)"], vars_[c]["Dominio (conjunto)"], vars_[c]["Rango"]]
+        for c in ("SiO2 (wt%)", "Publication Year", "Alteration Grade", "Sample Type") if c in vars_
+    ], [3, 5.6, 3.4, 4.3])
+    I.p("En las variables cualitativas el rango son las categorías que aparecen en la base; cuando son pocas se enumeran y "
+        "cuando son muchas se indica cuántas hay.")
+
     I.h("5. Requisitos del trabajo", 2)
     I.tabla([["Requisito", "Exigido", "Base"], ["Filas", "al menos 10.000", miles(n)], ["Columnas", "al menos 30", str(ncol)],
              ["Tipos de variables", "nominales, ordinales, discretas y continuas", "todos presentes"]], [5, 6, 5.3])
@@ -272,7 +368,7 @@ def parte_base(I, df):
     I.salto()
 
 
-def parte_descriptiva(I):
+def parte_descriptiva(I, df):
     I.h("Parte II. Estadística descriptiva", 1)
     I.p("La estadística se calcula en R, como exige la asignatura, siguiendo la estructura de las plantillas del curso: "
         "tablas de distribución de frecuencias (TDF) con límites, marca de clase, frecuencias absolutas y relativas y sus "
@@ -292,6 +388,33 @@ def parte_descriptiva(I):
         "elementos traza se analizan en log10 y todo el análisis se repite en un estrato homogéneo (rocas volcánicas máficas).")
     I.imagen(RAIZ / "docs" / "img" / "r" / "SiO2_toda_la_muestra.png", 16, "SiO2: histograma con polígono, ojiva y diagrama de caja de la TDF corregida.")
     I.p("El razonamiento completo, con todas las cifras, está en ", ("R/analisis_agrupacion_outliers.md", "c"), ".")
+    I.h("10. ¿Alcanzan los datos para las regresiones?", 2)
+    I.p("Sí. Aunque hay muchos huecos, en una regresión solo cuentan las filas que tienen medidas las dos variables, y "
+        "quedan miles. La tabla muestra algunos pares útiles para la Unidad 3, con el número de filas completas y la "
+        "correlación (r), en escala original y en escala logarítmica:")
+    d = df.copy()
+    d["Na2O+K2O"] = d["Na2O (wt%)"] + d["K2O (wt%)"]
+    filas = [["Variable X", "Variable Y", "Filas completas", "r", "r (log10)"]]
+    for x, y in [("MgO (wt%)", "Ni (ppm)"), ("La (ppm)", "Ce (ppm)"), ("Zr (ppm)", "Hf (ppm)"), ("Nb (ppm)", "Ta (ppm)"),
+                 ("Rb (ppm)", "K2O (wt%)"), ("Th (ppm)", "U (ppm)"), ("MgO (wt%)", "Cr (ppm)"), ("SiO2 (wt%)", "Na2O+K2O")]:
+        p = d[[x, y]].dropna()
+        p = p[(p[x] > 0) & (p[y] > 0)]
+        r = p[x].corr(p[y])
+        rl = np.log10(p[x]).corr(np.log10(p[y]))
+        filas.append([x, y, miles(len(p)), f"{r:.2f}".replace(".", ","), f"{rl:.2f}".replace(".", ",")])
+    I.tabla(filas, [3.3, 3.3, 3, 2.2, 2.2])
+    mayores = ["SiO2 (wt%)", "Al2O3 (wt%)", "MgO (wt%)", "CaO (wt%)", "Na2O (wt%)", "K2O (wt%)"]
+    I.p(f"Para una regresión múltiple con los seis óxidos mayores quedan {miles(int(df[mayores].notna().all(axis=1).sum()))} "
+        "filas completas. Tres precauciones:")
+    I.lista([
+        (("Usar escala logarítmica en los elementos traza. ", "b"), "Zr y Hf parecen no relacionarse en escala normal (r bajo), "
+         "pero en log10 la relación es casi perfecta: unos pocos valores extremos arruinan la regresión si no se transforma."),
+        (("No rellenar huecos con ceros ni promedios. ", "b"), "Trabajar con las filas completas de cada análisis e informar su n."),
+        (("Estratificar. ", "b"), "Mezclar basaltos con peridotitas puede inventar o esconder relaciones; conviene repetir cada "
+         "regresión por tipo de roca o por grupo tectónico."),
+    ])
+    I.p("Pares sugeridos por tipo de modelo: lineal simple, MgO frente a Ni; potencial o log-log, Zr frente a Hf y Nb frente a "
+        "Ta; múltiple, los óxidos mayores.")
     I.salto()
 
 
@@ -300,7 +423,7 @@ def parte_tecnica(I):
     I.p("Esta parte explica cómo se hizo cada producto del proyecto, con qué herramientas y por qué, para que cualquier "
         "integrante (o el docente) pueda entenderlo, reproducirlo y modificarlo. Todo el código está en el repositorio.")
 
-    I.h("10. Arquitectura general", 2)
+    I.h("11. Arquitectura general", 2)
     I.p("El proyecto es una cadena de pasos donde cada uno lee el resultado del anterior. No hay servidor ni base de datos "
         "en línea: todo se calcula en la computadora y el resultado se publica como archivos estáticos.")
     I.codigo("""
@@ -319,7 +442,7 @@ data/earthchem_limpio.csv.gz  ── base limpia: 159.760 × 75
 docs/  (la web estática) ── git push ──► GitHub Pages
 """)
 
-    I.h("11. Herramientas y librerías", 2)
+    I.h("12. Herramientas y librerías", 2)
     I.tabla([
         ["Herramienta", "Versión", "Para qué se usó"],
         ["Python", "3.13", "limpieza, tabla de variables, mapa, agregados de la web, informe"],
@@ -341,7 +464,7 @@ docs/  (la web estática) ── git push ──► GitHub Pages
         ["Git, GitHub, GitHub Pages, gh CLI", "—", "control de versiones y publicación de la web"],
     ], [5.2, 2.6, 8.5])
 
-    I.h("12. Limpieza de la base (scripts/limpiar.py)", 2)
+    I.h("13. Limpieza de la base (scripts/limpiar.py)", 2)
     I.p("El CSV crudo tiene 2.318 columnas y celdas con saltos de línea, así que no se carga entero con pandas: se recorre "
         "fila por fila con el módulo csv de la biblioteca estándar, en dos pasadas. La primera cuenta cuántos valores "
         "numéricos tiene cada columna química y comprueba que el nombre de cada muestra coincida con el del archivo de "
@@ -362,7 +485,7 @@ def grupo_tectonico(ambiente):
         "método analítico más frecuente de cada variable, leído de las columnas Method del archivo crudo (por ejemplo, el "
         "SiO2 se midió con fluorescencia de rayos X en el 64 % de los casos).")
 
-    I.h("13. Mapa de ubicación (Python y QGIS)", 2)
+    I.h("14. Mapa de ubicación (Python y QGIS)", 2)
     I.p(("scripts/mapa.py", "c"), " convierte las coordenadas en puntos con geopandas, descarga los límites de países de "
         "Natural Earth y genera una grilla de 30° y el contorno del globo. Todo se guarda en un GeoPackage (",
         ("data/gis/mapa_ubicacion.gpkg", "c"), ") en WGS84, con nombres de campo cortos para la tabla de atributos de QGIS. "
@@ -375,7 +498,7 @@ def grupo_tectonico(ambiente):
         "longitudes se rotulan sobre el ecuador.")
     I.imagen(RAIZ / "docs" / "img" / "mapa_qgis.png", 16, "Composición A4 generada con PyQGIS.")
 
-    I.h("14. Estadística en R (carpeta R/)", 2)
+    I.h("15. Estadística en R (carpeta R/)", 2)
     I.p(("R/funciones.R", "c"), " reúne las funciones comunes; los scripts ", ("01_cualitativas.R", "c"), ", ",
         ("02_discretas.R", "c"), " y ", ("03_continuas.R", "c"), " las aplican. La función central arma la TDF; sin "
         "argumentos reproduce exactamente la plantilla del curso, y con un rango típico agrega las clases abiertas:")
@@ -390,8 +513,8 @@ error_agrupacion(x, tdf_fin)                         # media y desviación agrup
         "R 4.6 para Windows, read.csv sobre el archivo .gz se cerraba con un error de segmentación; se resolvió abriéndolo "
         "con gzfile y codificación UTF-8 explícita (función leer_base).")
 
-    I.h("15. La página web", 2)
-    I.h("15.1 Estructura y tecnología", 3)
+    I.h("16. La página web", 2)
+    I.h("16.1 Estructura y tecnología", 3)
     I.p("La web es un sitio estático: archivos HTML, CSS y JavaScript que el navegador lee directamente, sin framework ni "
         "paso de compilación. Se eligió así para que GitHub Pages la sirva gratis tal cual y para que cualquier integrante "
         "pueda editarla con un editor de texto. Tiene una página por unidad del curso, que comparten un archivo de estilos "
@@ -407,7 +530,7 @@ error_agrupacion(x, tdf_fin)                         # media y desviación agrup
         ["docs/data/", "resumen.json, variables.json y las TDF en CSV"],
         ["docs/img/", "fotos, mapas, gráficas de R e imágenes ilustrativas"],
     ], [5.5, 10.8])
-    I.h("15.2 Cómo carga los datos", 3)
+    I.h("16.2 Cómo carga los datos", 3)
     I.p("La página no contiene los datos escritos en el HTML: los pide al cargarse con fetch y los dibuja. La tabla de "
         "variables viene de variables.json; los gráficos interactivos, de resumen.json (254 KB con agregados y muestras de "
         "6.000 puntos, en lugar de la base completa de 26 MB); y las TDF, de los CSV que exporta R. Para leer esos CSV sin "
@@ -423,7 +546,7 @@ async function leerCSV(url) {
 """)
     I.p("Por eso la web debe verse a través de un servidor (GitHub Pages, o localmente con ", ("python -m http.server", "c"),
         "): abriendo el archivo con doble clic, el navegador bloquea esas lecturas.")
-    I.h("15.3 Componentes y comportamiento", 3)
+    I.h("16.3 Componentes y comportamiento", 3)
     I.lista([
         (("Navegación entre páginas: ", "b"), "un menú fijo marca la página actual (atributo data-pagina del body); las "
          "unidades aún no hechas aparecen como «pronto»."),
@@ -435,7 +558,7 @@ async function leerCSV(url) {
         (("Gráficos interactivos: ", "b"), "Plotly.js dibuja el mapa mundial, las barras de ambientes tectónicos y el "
          "diagrama TAS, con información al pasar el cursor."),
     ])
-    I.h("15.4 Diseño", 3)
+    I.h("16.4 Diseño", 3)
     I.p("La dirección visual es la de una revista científica sobre un tema oscuro «basalto»: fondo casi negro cálido, texto "
         "color hueso y un acento color magma. Los colores se definen una sola vez como variables CSS y el resto del código "
         "las usa por nombre, de modo que cambiar un color se hace en un solo lugar:")
@@ -451,7 +574,7 @@ async function leerCSV(url) {
         "paleta validada para personas con daltonismo, y son los mismos en la web, en el mapa de Python y en el de QGIS. "
         "Nunca se usan más de tres colores de categoría en un mismo gráfico. La tipografía combina Fraunces para títulos, "
         "Instrument Sans para el texto y JetBrains Mono para cifras y fórmulas.")
-    I.h("15.5 Accesibilidad, celulares y rendimiento", 3)
+    I.h("16.5 Accesibilidad, celulares y rendimiento", 3)
     I.lista([
         "Todas las imágenes tienen texto alternativo; las pestañas y botones de filtro usan atributos ARIA.",
         "Si el sistema pide reducir el movimiento (prefers-reduced-motion), se desactivan las animaciones.",
@@ -460,7 +583,7 @@ async function leerCSV(url) {
         "Las imágenes fuera de pantalla se cargan recién al acercarse (loading=\"lazy\") y los scripts se cargan con defer.",
         "Las imágenes generadas se comprimieron a JPEG (unos 170–335 KB cada una).",
     ])
-    I.h("15.6 Imágenes", 3)
+    I.h("16.6 Imágenes", 3)
     I.p("Las fotos del equipo son reales: se recortaron a 400 × 400 px con Pillow. Las imágenes ilustrativas (lámina "
         "delgada de basalto, Andes ecuatorianos, buque de perforación, testigos de roca) se generaron con Google Flow desde "
         "la terminal con gflow-cli, por ejemplo:")
@@ -469,16 +592,19 @@ async function leerCSV(url) {
     I.p("La web indica en los pies y en el pie de página que esas imágenes son ilustrativas y fueron generadas con IA. El "
         "favicon (el logo «Pt») se dibujó en SVG y se exportó a ICO y PNG con Pillow.")
 
-    I.h("16. Publicación y control de versiones", 2)
+    I.h("17. Publicación y control de versiones", 2)
     I.p("El proyecto vive en un repositorio Git publicado en GitHub. Cada cambio se registra como un commit con un mensaje "
         "que explica qué se hizo, así que el historial documenta cómo evolucionó el trabajo. GitHub Pages está configurado "
         "para publicar la carpeta docs/ de la rama main: cada git push que modifica esa carpeta actualiza la web en uno a "
         "tres minutos. El repositorio es público porque GitHub Pages gratuito no funciona con repositorios privados; los "
         "datos tienen licencia CC BY 4.0, que permite publicarlos citando la fuente.")
+    I.p("El repositorio pertenece a la cuenta de Cristoffer Rumiguano (crisrumiguano-art), a quien se transfirió el 15 de "
+        "octubre de 2026; Dalember (cuenta DalemberV) colabora con permiso de escritura. Cualquier integrante con acceso puede proponer "
+        "cambios con un pull request.")
     I.p("Límites a tener en cuenta: GitHub rechaza archivos de más de 100 MB, por eso los datos crudos (~600 MB) no están en "
         "el repositorio. Los archivos más pesados que sí están son las capas GIS (~35 MB) y la base limpia (~26 MB).")
 
-    I.h("17. Documentación del proyecto", 2)
+    I.h("18. Documentación del proyecto", 2)
     I.lista([
         (("README.md: ", "b"), "la portada del repositorio en GitHub, con enlaces a todo."),
         (("AGENTS.md: ", "b"), "reglas y decisiones del proyecto (requisitos del curso, decisiones de limpieza, trampas de "
@@ -490,14 +616,16 @@ async function leerCSV(url) {
         (("Este informe: ", "b"), "se genera con scripts/informe.py, así que se actualiza solo si cambian los datos."),
     ])
 
-    I.h("18. Cómo reproducir todo", 2)
-    I.p("Con los dos CSV crudos en una carpeta (o volviendo a descargarlos con la consulta guardada), desde la raíz del "
+    I.h("19. Cómo reproducir todo", 2)
+    I.p("Los dos CSV crudos están respaldados en Google Drive (carpeta 10-26 GDRIVE GEOQUIMICA ROCAS › datos_crudos_earthchem). "
+        "En la computadora de Dalember, data/raw/crudos es un enlace (junction) a esa carpeta, y los scripts la usan por "
+        "defecto. En otra computadora, basta con copiar ahí los CSV o pasar su carpeta como argumento. Desde la raíz del "
         "repositorio y en este orden:")
     I.codigo("""
 pip install -r requirements.txt
-python -I scripts/limpiar.py "<carpeta con los CSV crudos>"
+python -I scripts/limpiar.py            # usa data/raw/crudos
 python -I scripts/datos_dashboard.py
-python scripts/tabla_variables.py "<carpeta con los CSV crudos>"
+python scripts/tabla_variables.py      # usa data/raw/crudos
 python -I scripts/mapa.py
 "C:\\Program Files\\QGIS 3.44.8\\bin\\python-qgis-ltr.bat" scripts/proyecto_qgis.py
 Rscript R/01_cualitativas.R
@@ -509,7 +637,7 @@ git add -A && git commit -m "..." && git push
     I.p("Para revisar la web antes de publicarla: ", ("python -m http.server 8765 -d docs", "c"), " y abrir "
         "http://localhost:8765/ en el navegador.")
 
-    I.h("19. Limitaciones técnicas y mantenimiento", 2)
+    I.h("20. Limitaciones técnicas y mantenimiento", 2)
     I.lista([
         "El menú de navegación está repetido en cada página: al agregar una página (por ejemplo, Inferencial) hay que "
         "actualizarlo en todas.",
@@ -566,8 +694,9 @@ def main():
     df = pd.read_csv(RAIZ / "data" / "earthchem_limpio.csv.gz", low_memory=False)
     I = Informe()
     portada(I)
+    guia_equipo(I, df)
     parte_base(I, df)
-    parte_descriptiva(I)
+    parte_descriptiva(I, df)
     parte_tecnica(I)
     anexos(I, df)
     I.d.core_properties.title = "Geoquímica de rocas a escala mundial — Informe del proyecto"

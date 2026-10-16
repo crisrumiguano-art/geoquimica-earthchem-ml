@@ -1,10 +1,11 @@
 """Limpia la exportación cruda de EarthChem/PetDB y genera data/earthchem_limpio.csv.gz.
 
 Uso:
-    python scripts/limpiar.py <carpeta_cruda> [salida]
+    python scripts/limpiar.py [carpeta_cruda] [salida]
 
 <carpeta_cruda> debe contener earthchem_export_oct13_26_142339.csv y
-earthchem_export_oct13_26_142339_sample_metadata.csv (no están en el repo: pesan ~600 MB).
+earthchem_export_oct13_26_142339_sample_metadata.csv (no están en el repo: pesan ~600 MB). Por defecto
+es data/raw/crudos, un enlace al respaldo en Google Drive (ver AGENTS.md).
 """
 import csv
 import gzip
@@ -149,7 +150,8 @@ if __name__ == "__main__":
     assert grupo_tectonico("FRACTURE ZONE,SPREADING CENTER") == "dorsal y corteza oceanica"
     assert grupo_tectonico("CONTINENTAL RIFT,OCEAN BASIN") == "mixto" and grupo_tectonico("Ophiolite") == "dorsal y corteza oceanica"
     assert anio("Liu, J. (2011). TITLE") == "2011" and sin_formula('="FS-42"') == "FS-42"
-    if len(sys.argv) < 2:
-        sys.exit(__doc__)
     raiz = Path(__file__).resolve().parent.parent
-    main(Path(sys.argv[1]), Path(sys.argv[2]) if len(sys.argv) > 2 else raiz / "data" / "earthchem_limpio.csv.gz")
+    cruda = Path(sys.argv[1]) if len(sys.argv) > 1 else raiz / "data" / "raw" / "crudos"
+    if not (cruda / f"{PREFIJO}.csv").exists():
+        sys.exit(f"No están los CSV crudos en {cruda}\n\n{__doc__}")
+    main(cruda, Path(sys.argv[2]) if len(sys.argv) > 2 else raiz / "data" / "earthchem_limpio.csv.gz")

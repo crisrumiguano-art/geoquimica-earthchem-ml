@@ -3,11 +3,10 @@
 Cada producto sale de un script. Todos leen la base limpia, así que el orden importa.
 
 ```bash
-CRUDA="C:/Users/dalem/Downloads/quimica"          # CSV crudos de EarthChem (no están en el repo)
-
-python -I scripts/limpiar.py "$CRUDA"            # -> data/earthchem_limpio.csv.gz
+# Los CSV crudos se leen de data/raw/crudos (junction al respaldo en Google Drive); se puede pasar otra carpeta.
+python -I scripts/limpiar.py                     # -> data/earthchem_limpio.csv.gz
 python -I scripts/datos_dashboard.py             # -> docs/data/resumen.json
-python scripts/tabla_variables.py "$CRUDA"       # -> data/tabla_variables.xlsx, docs/data/variables.json
+python scripts/tabla_variables.py                # -> data/tabla_variables.xlsx, docs/data/variables.json
 python -I scripts/mapa.py                        # -> data/gis/mapa_ubicacion.gpkg, docs/img/mapa_ubicacion.png
 "/c/Program Files/QGIS 3.44.8/bin/python-qgis-ltr.bat" scripts/proyecto_qgis.py
                                                  # -> data/gis/mapa_ubicacion.qgz, docs/img/mapa_qgis.png

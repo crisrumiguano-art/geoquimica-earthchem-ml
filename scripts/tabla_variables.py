@@ -2,7 +2,7 @@
 (BD_LITOGEOQUIMICA.xlsx): nombre, descripción, tipo, subtipo, dominio (definición y conjunto), rango,
 instrumento, sistema de unidades y escala de medición.
 
-Uso: python scripts/tabla_variables.py <carpeta_cruda>
+Uso: python scripts/tabla_variables.py [carpeta_cruda]   (por defecto data/raw/crudos)
 El instrumento (método analítico) solo está en el CSV crudo; el rango sale de la base limpia.
 Salidas: data/tabla_variables.xlsx y docs/data/variables.json
 """
@@ -172,6 +172,7 @@ def main(cruda):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        sys.exit(__doc__)
-    main(Path(sys.argv[1]))
+    cruda = Path(sys.argv[1]) if len(sys.argv) > 1 else RAIZ / "data" / "raw" / "crudos"
+    if not (cruda / f"{PREFIJO}.csv").exists():
+        sys.exit(f"No están los CSV crudos en {cruda}\n\n{__doc__}")
+    main(cruda)

@@ -21,8 +21,12 @@ limpia y los scripts que la generan.
 | `docs/` | la web estática (una página por unidad), el reporte PDF, datos agregados e imágenes | [La web](architecture/web.md) |
 | `.claude/skills/` | skills de agentes (diseño web, openwiki, graphify, gflow-cli) | — |
 
-Los datos crudos (~600 MB) **no están en el repo**: viven en `C:\Users\dalem\Downloads\quimica\` en la PC del
-usuario, y la consulta para volver a descargarlos está en `data/raw/earthchem_export_oct13_26_142339.txt`.
+Los datos crudos (~600 MB) **no están en el repo**: están respaldados en el Google Drive del usuario
+(`TRABAJOS ESTADISTICA › 10-26 GDRIVE GEOQUIMICA ROCAS › datos_crudos_earthchem`) y en su PC `data/raw/crudos` es un
+enlace a esa carpeta. La consulta para volver a descargarlos está en `data/raw/earthchem_export_oct13_26_142339.txt`.
+
+El informe del proyecto (`docs/informe_proyecto.pdf`, 18 páginas) empieza con una **guía rápida para el equipo**:
+enlaces, estado por lección, ideas clave para la exposición y glosario. Es lo primero que conviene leer.
 
 ## Empezar en 1 minuto
 
@@ -40,7 +44,7 @@ Antes de analizar, leer las trampas de los datos en `AGENTS.md` (falta TiO2, uni
 |---|---|---|
 | L1–L2 | introducción, problema, objetivos, población/individuo/muestra | hecho (web) |
 | L3 | mapa de ubicación QGIS + Python | hecho; falta el informe de muestreo estratificado |
-| L4 | tabla de variables (tipo, subtipo, escala, instrumento, unidad, dominio) | hecho (web + Excel) |
+| L4 | tabla de variables con el formato del curso (dominio como definición y conjunto, rango) | hecho (web + Excel) |
 | L5–L6 | TDF, gráficas, indicadores, outliers (R) | hecho para cualitativas, discretas y SiO2/MgO/Cr |
 | L7 | conclusiones descriptivas, exposición | pendiente |
 | U2–U4 | inferencia, regresión, red neuronal | pendiente |

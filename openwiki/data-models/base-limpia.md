@@ -61,8 +61,14 @@ frecuente** de cada variable desde las columnas `Method` del crudo.
 | Continua | 58 | 52 químicas (wt% y ppm), coordenadas, elevaciones, edades en Ma |
 | Identificador | 2 | `Sample Name`, `Sample URL` |
 
-Las descripciones en español viven en `OTRAS` y `NOMBRES` dentro de `scripts/tabla_variables.py`: si una
-variable nueva entra a la base, agregarla ahí o el script falla con `KeyError`.
+La tabla sigue el formato de la plantilla del curso (`referencias_curso/Litogeoquímica del Perú/BD_LITOGEOQUIMICA.xlsx`,
+hoja `Hoja1`): nombre, descripción, tipo, subtipo, **dominio** en dos versiones (definición, p. ej.
+`D={x/x es concentración ^ x ∈ R}`, y conjunto, p. ej. `D={x/x ∈ R+ ∪ {0}}`), **rango** observado
+(`R={y/ min ≤ y ≤ max}` o `R={y/y ∈ categorías}`), instrumento, unidad y escala. Dominio = valores posibles en teoría;
+rango = valores que aparecen en la muestra.
+
+Las descripciones viven en `OTRAS` y `NOMBRES`, y los dominios en `DOMINIOS` y `ENUMERADOS`, dentro de
+`scripts/tabla_variables.py`: si una variable nueva entra a la base, agregarla ahí o el script falla con `KeyError`.
 
 ## Población, individuo y muestra (marco del curso)
 
