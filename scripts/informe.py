@@ -239,8 +239,10 @@ def parte_base(I, df):
          "Óxidos mayores en % en peso; trazas y tierras raras en ppm."],
         ["Identificadores", "Sample Name, Sample URL", "No se analizan; sirven para rastrear cada muestra."],
     ], [3.2, 6.3, 7])
-    I.p("La tabla de variables completa, con tipo, subtipo, escala de medición, instrumento analítico, unidad, dominio "
-        "y porcentaje con dato, está en la página web (Estadística descriptiva) y en ", ("data/tabla_variables.xlsx", "c"),
+    I.p("La tabla de variables completa sigue el formato de la plantilla del curso: nombre, descripción, tipo, subtipo, "
+        "dominio (como definición y como conjunto, por ejemplo D={x/x es concentración ^ x ∈ R} y D={x/x ∈ R+ ∪ {0}}), "
+        "rango observado (por ejemplo R={y/ 0.0011 ≤ y ≤ 98.9} para el SiO2), instrumento analítico, unidad y escala de "
+        "medición. Está en la página web (Estadística descriptiva) y en ", ("data/tabla_variables.xlsx", "c"),
         ". El diccionario resumido está en el Anexo A.")
 
     I.h("5. Requisitos del trabajo", 2)

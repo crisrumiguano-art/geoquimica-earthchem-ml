@@ -72,7 +72,7 @@
 
   <section class="cap" id="variables">
     <div class="cab rev"><span class="num">02</span><h2>Tabla de variables</h2>
-      <p>Cada columna de la base es una variable. Se clasifican según lo que miden y la escala en que se expresan.</p></div>
+      <p>Cada columna de la base es una variable. Se clasifican según lo que miden y la escala en que se expresan. El <b>dominio</b> dice qué valores puede tomar la variable en teoría, primero como definición y después como conjunto; el <b>rango</b>, qué valores toma de verdad en la muestra (mínimo y máximo, o las categorías observadas).</p></div>
     <div class="clases rev" id="clases"></div>
     <div class="filtros rev">
       <button class="chip" aria-pressed="true" data-f="">Todas</button>
@@ -83,7 +83,7 @@
       <input class="buscar" type="search" placeholder="Buscar variable o elemento…" aria-label="Buscar variable">
     </div>
     <div class="tabla rev"><table id="vars"><thead><tr>
-      <th>Variable</th><th>Descripción</th><th>Tipo</th><th>Subtipo</th><th>Escala</th><th>Instrumento / método</th><th>Unidad</th><th>Dominio</th><th class="n">% dato</th>
+      <th>Nombre</th><th>Descripción</th><th>Tipo</th><th>Subtipo</th><th>Dominio</th><th>Dominio (conjunto)</th><th>Rango</th><th>Instrumento</th><th>Unidad</th><th>Escala</th><th class="n">% dato</th>
     </tr></thead><tbody></tbody></table></div>
     <div class="descargas"><a href="https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/tabla_variables.xlsx">Descargar la tabla de variables (Excel)</a></div>
   </section>
@@ -246,7 +246,7 @@ addEventListener("DOMContentLoaded", () => {
     document.getElementById("clases").innerHTML = Object.keys(def).map(k =>
       `<div class="clase"><div class="n">${v.filter(r => r.Tipo !== "identificador" && sub(r) === k).length}</div><div class="t">${def[k][0]}</div>
        <h3>${k[0].toUpperCase() + k.slice(1)}</h3><p>${def[k][1]}. Ej.: ${ex[k]}.</p></div>`).join("");
-    const cols = ["Variable", "Descripción", "Tipo", "Subtipo", "Escala de medición", "Instrumento / método", "Unidad", "Dominio", "% con dato"];
+    const cols = ["Variable", "Descripción", "Tipo", "Subtipo", "Dominio (definición)", "Dominio (conjunto)", "Rango", "Instrumento / método", "Unidad", "Escala de medición", "% con dato"];
     const cuerpo = document.querySelector("#vars tbody");
     let filtro = "", texto = "";
     const pintar = () => {
