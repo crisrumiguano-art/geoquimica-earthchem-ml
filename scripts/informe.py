@@ -154,7 +154,8 @@ def portada(I):
     I.d.add_paragraph()
     I.p(("Integrantes", "b"))
     for n in ("Cristoffer Joel Rumiguano Chariguaman", "Ana Gabriela Fernández Chuquimarca",
-              "Evelyn Maritza Bustamante Armijos", "Jessica Jaqueline Haro Simba"):
+              "Evelyn Maritza Bustamante Armijos", "Jessica Jaqueline Haro Simba",
+              "Jhonattan Sebastián Ligña Hernández"):
         I.p(n)
     I.d.add_paragraph()
     I.p("Sitio web: ", (WEB, "c"))
@@ -700,7 +701,7 @@ def main():
     parte_tecnica(I)
     anexos(I, df)
     I.d.core_properties.title = "Geoquímica de rocas a escala mundial — Informe del proyecto"
-    I.d.core_properties.author = "Rumiguano, Fernández, Bustamante, Haro"
+    I.d.core_properties.author = "Rumiguano, Fernández, Bustamante, Haro, Ligña"
     I.d.save(DOCX)
     print("Word:", DOCX)
     a_pdf()

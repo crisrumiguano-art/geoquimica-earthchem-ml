@@ -10,7 +10,7 @@ Ecuador; docente Dr. Christian Mejía E.; paralelo Geología–Minas) sobre comp
 (elementos mayores, trazas y tierras raras) de la base **EarthChem / PetDB**.
 
 Equipo (Ingeniería en Minas): Cristoffer Joel Rumiguano Chariguaman, Ana Gabriela Fernández Chuquimarca,
-Evelyn Maritza Bustamante Armijos, Jessica Jaqueline Haro Simba.
+Evelyn Maritza Bustamante Armijos, Jessica Jaqueline Haro Simba, Jhonattan Sebastián Ligña Hernández.
 
 ### El curso manda la estructura
 
