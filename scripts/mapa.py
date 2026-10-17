@@ -100,7 +100,7 @@ def mapa(muestras, paises, graticula, contorno):
             "Proyección Robinson (ESRI:54030) · Datum WGS84".replace(",", "."),
             transform=ax.transAxes, ha="center", fontsize=9.5, color="#52514e")
     ax.text(0.5, -0.07, "Fuente: EarthChem PetDB / Astromaterials Data Synthesis (descarga 13/10/2026, CC BY 4.0); "
-             "límites de países: Natural Earth. Elaboración: Rumiguano, Fernández, Bustamante y Haro — "
+             "límites de países: Natural Earth. Elaboración: Rumiguano, Fernández, Bustamante, Haro y Ligña — "
              "Estadística y Probabilidades, FIGEMPA-UCE, 2026.", transform=ax.transAxes, ha="center", fontsize=7.5, color="#52514e")
     ax.set_axis_off()
     ax.margins(0.03)
