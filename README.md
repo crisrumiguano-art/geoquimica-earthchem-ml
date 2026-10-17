@@ -7,6 +7,8 @@ Análisis estadístico y de machine learning sobre 159 760 análisis químicos d
 - **Informe del proyecto** (base de datos, estadística y documentación técnica): [PDF](docs/informe_proyecto.pdf) · [Word](docs/informe_proyecto.docx)
 - **Estadística descriptiva en R:** [`R/`](R/) · por qué así: [`R/analisis_agrupacion_outliers.md`](R/analisis_agrupacion_outliers.md)
 - **Mapa de ubicación:** proyecto QGIS [`data/gis/mapa_ubicacion.qgz`](data/gis/mapa_ubicacion.qgz)
+- **Base en Google Sheets** (la que el equipo subió para revisarla en Excel): https://docs.google.com/spreadsheets/d/1i8tvb2M3Sn-HuON0TFsDOkX02NfImvWHGwTLIBfBLwc/edit?usp=sharing
+- **Formatos del docente:** [plan de 20 lecciones](https://cimejia.github.io/proyectos-estadistica/Plan_20_Lecciones_Estadistica.html) · [galería de proyectos modelo](https://cimejia.github.io/proyectos-estadistica/)
 - **Documentación:** [openwiki/quickstart.md](openwiki/quickstart.md) · reglas para agentes en [AGENTS.md](AGENTS.md)
 
 ```bash

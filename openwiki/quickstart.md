@@ -10,6 +10,8 @@ limpia y los scripts que la generan.
 
 - Web: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
 - Repo: https://github.com/crisrumiguano-art/geoquimica-earthchem-ml
+- Base en Google Sheets (copia que el equipo subió para revisarla en Excel): https://docs.google.com/spreadsheets/d/1i8tvb2M3Sn-HuON0TFsDOkX02NfImvWHGwTLIBfBLwc/edit?usp=sharing
+- Formatos del docente: plan del curso https://cimejia.github.io/proyectos-estadistica/Plan_20_Lecciones_Estadistica.html y galería de proyectos modelo https://cimejia.github.io/proyectos-estadistica/
 
 ## Cómo está organizado
 

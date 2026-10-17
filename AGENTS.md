@@ -37,6 +37,14 @@ la carpeta `R/` sigue la estructura de sus plantillas (TDF con Li, Ls, MC, ni, h
 histograma con `barplot(space = 0)`, polígono, ojiva, boxplot; `e1071` para asimetría y curtosis). Python queda
 para limpieza, mapa y web.
 
+## Enlaces del proyecto
+
+- Web: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
+- Repo: https://github.com/crisrumiguano-art/geoquimica-earthchem-ml
+- Base en Google Sheets que el equipo subió para revisarla en Excel: https://docs.google.com/spreadsheets/d/1i8tvb2M3Sn-HuON0TFsDOkX02NfImvWHGwTLIBfBLwc/edit?usp=sharing
+  (copia de trabajo del equipo; la fuente de verdad es `data/earthchem_limpio.csv.gz`).
+- Formatos del docente: plan del curso https://cimejia.github.io/proyectos-estadistica/Plan_20_Lecciones_Estadistica.html · galería de proyectos modelo https://cimejia.github.io/proyectos-estadistica/
+
 ## Requisitos del curso y cómo se cumplen
 
 | Requisito | Estado |
