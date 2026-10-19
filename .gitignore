@@ -9,3 +9,4 @@ data/raw/*.zip
 # enlaces (junctions) al respaldo en Google Drive; solo existen en la PC de quien los cree
 data/raw/crudos
 referencias_curso
+.env
