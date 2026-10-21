@@ -12,6 +12,11 @@ document.querySelectorAll(".nav ul a[data-p]").forEach(a => { if (a.dataset.p ==
 if (pagina !== "inicio") nav.classList.add("fija");
 addEventListener("scroll", () => nav.classList.toggle("solid", scrollY > 40), { passive: true });
 
+// Aviso flotante de proyecto académico: se cierra con la X y vuelve a salir al recargar (no se guarda nada)
+document.body.insertAdjacentHTML("beforeend", `<div class="aviso" role="note"><span>Proyecto <b>estrictamente académico</b><span class="sec"> ·
+  Estadística y Probabilidades, FIGEMPA – UCE</span> · sin fines comerciales</span><button type="button" aria-label="Cerrar aviso">×</button></div>`);
+document.querySelector(".aviso button").addEventListener("click", e => e.currentTarget.parentElement.remove());
+
 // Aparición al hacer scroll
 const io = new IntersectionObserver(es => es.forEach(e => {
   if (e.isIntersecting) { e.target.classList.add("ver"); io.unobserve(e.target); }
