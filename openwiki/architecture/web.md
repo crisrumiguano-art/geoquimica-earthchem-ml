@@ -6,7 +6,7 @@ GitHub Pages lo sirve tal cual y cualquier integrante del equipo puede editarlo.
 
 | Página | Contenido |
 |---|---|
-| `docs/index.html` | portada, introducción, problema, mapa, objetivos, recorrido |
+| `docs/index.html` | portada, problema (importancia, uso de la estadística, caso de estudio), mapa, objetivos (general + 3 con imagen), recorrido |
 | `docs/descriptiva/` | Unidad 1: población y muestra, tabla de variables, TDF y gráficas de R, exploración |
 | `docs/datos/` | origen, preparación, descargas |
 | `docs/equipo/` | integrantes y docente |

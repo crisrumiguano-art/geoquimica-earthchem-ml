@@ -44,7 +44,7 @@ Antes de analizar, leer las trampas de los datos en `AGENTS.md` (falta TiO2, uni
 
 | Lección | Entregable | Estado |
 |---|---|---|
-| L1–L2 | introducción, problema, objetivos, población/individuo/muestra | hecho (web) |
+| L1–L2 | problema, objetivos, población/individuo/muestra | hecho (web) |
 | L3 | mapa de ubicación QGIS + Python | hecho; falta el informe de muestreo estratificado |
 | L4 | tabla de variables con el formato del curso (dominio como definición y conjunto, rango) | hecho (web + Excel) |
 | L5–L6 | TDF, gráficas, indicadores, outliers (R) | hecho para cualitativas, discretas y SiO2/MgO/Cr |

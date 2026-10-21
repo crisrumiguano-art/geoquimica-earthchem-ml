@@ -34,12 +34,12 @@
 <header class="hero" id="inicio">
   <div class="hero-img" style="background-image:url('img/hero.jpg')" role="img" aria-label="Lámina delgada de basalto vista al microscopio con luz polarizada"></div>
   <div class="hero-in">
-    <div class="ojo rev" style="--d:0">Universidad Central del Ecuador · FIGEMPA · Ingeniería en Minas</div>
+    <div class="ojo rev" style="--d:0">Universidad Central del Ecuador · FIGEMPA · Ingeniería en Minas · Proyecto académico</div>
     <h1 class="rev" style="--d:1">Análisis Estadístico de la Geoquímica de las Rocas <em>a Nivel Mundial</em></h1>
     <p class="lead rev" style="--d:2">Estadística y machine learning sobre 159.760 análisis geoquímicos de roca total, recopilados por
       EarthChem PetDB a partir de más de dos mil artículos científicos. Proyecto semestral de Estadística y Probabilidades.</p>
     <div class="botones rev" style="--d:3">
-      <a class="btn prim" href="#introduccion">Explorar el proyecto →</a>
+      <a class="btn prim" href="#problema">Explorar el proyecto →</a>
       <a class="btn" href="descriptiva/">Estadística descriptiva</a>
     </div>
     <div class="elementos rev" style="--d:4" id="cifras"></div>
@@ -47,54 +47,36 @@
 </header>
 
 <main>
-  <section class="cap" id="introduccion">
-    <div class="cab rev"><span class="num">01</span><h2>Introducción</h2></div>
-    <div class="duo">
-      <div class="texto rev">
-        <p>La geoquímica de rocas estudia la composición química de los materiales que forman la corteza y el manto de la Tierra.
-          Para la ingeniería en minas es una herramienta de todos los días: la concentración de elementos como el níquel, el cromo,
-          el cobalto, el cobre o las tierras raras orienta la exploración de yacimientos, y la proporción de los elementos mayores
-          permite clasificar las rocas y reconocer los procesos que las formaron.</p>
-        <p>Las rocas ultramáficas, por ejemplo, alojan depósitos de cromita y de níquel; los arcos volcánicos, como el de los Andes
-          ecuatorianos, concentran pórfidos de cobre como Mirador y depósitos epitermales de oro como Fruta del Norte.</p>
-        <p>Durante casi un siglo, miles de investigaciones han analizado muestras de roca en todo el planeta, desde afloramientos en
-          los continentes hasta testigos de perforación en el fondo del océano. La base de datos <b>PetDB</b>, parte de la
-          infraestructura <b>EarthChem</b>, reúne esos resultados en un formato común. Este proyecto toma esa compilación como caso
-          de estudio y le aplica, paso a paso, las herramientas de la asignatura: estadística descriptiva, inferencial, regresión y
-          machine learning.</p>
-      </div>
-      <figure class="foto rev">
-        <img src="img/andes.jpg" alt="Estratovolcán nevado de los Andes al amanecer, con afloramientos de roca volcánica en primer plano" loading="lazy">
-        <figcaption>Arco volcánico andino. Imagen ilustrativa generada con IA (Google Flow).</figcaption>
-      </figure>
-    </div>
-  </section>
-
   <section class="cap" id="problema">
-    <div class="cab rev"><span class="num">02</span><h2>Planteamiento del problema</h2></div>
+    <div class="cab rev"><span class="num">01</span><h2>Planteamiento del problema</h2></div>
     <div class="banda rev">
       <img src="img/barco.jpg" alt="Buque de perforación oceánica iluminado en alta mar, de noche" loading="lazy">
       <blockquote>
-        <p>Cómo se distribuyen las concentraciones de los elementos mayores, traza y tierras raras en las rocas del planeta, en qué
-          medida dependen del tipo de roca y del ambiente tectónico en que se formaron, y es posible predecir ese tipo o ese ambiente
-          a partir de la composición química?</p>
-        <cite>Pregunta de investigación</cite>
+        <p>Casi un siglo de análisis químicos de rocas de todo el planeta, reunidos en una sola base de datos, como caso de
+          estudio para aplicar la estadística a la geología.</p>
+        <cite>EarthChem PetDB · 159.760 análisis</cite>
       </blockquote>
     </div>
-    <div class="columnas rev">
-      <p>La información geoquímica existe, pero está dispersa en miles de publicaciones, fue producida con métodos de laboratorio
-        distintos y rara vez se analiza en conjunto. Un ingeniero que evalúa una muestra necesita saber si su composición es "normal"
-        para ese tipo de roca o si se aparta de lo esperado, y para eso hacen falta valores de referencia construidos con muchos datos.</p>
-      <p>Además, las concentraciones químicas no se comportan como una campana simétrica: suelen tener colas largas, valores
-        atípicos y muchos datos faltantes, lo que obliga a elegir con cuidado los indicadores y los modelos. Buena parte de las
-        muestras viene de los programas de perforación oceánica, lo que también sesga la base hacia las rocas del fondo marino.</p>
+    <div class="especificos trio rev">
+      <div class="esp"><div class="u">01</div><h3>Importancia</h3><p>La composición química de una roca dice qué es y cómo se
+        formó, y orienta la exploración minera: las rocas ultramáficas alojan cromita y níquel, y los arcos volcánicos, como el de
+        los Andes ecuatorianos, concentran pórfidos de cobre y depósitos de oro. Para saber si una muestra es "normal" o anómala
+        hacen falta valores de referencia construidos con muchos datos.</p></div>
+      <div class="esp"><div class="u">02</div><h3>Uso de la estadística</h3><p>Las concentraciones químicas no forman una campana
+        simétrica: tienen colas largas, valores atípicos y muchos datos faltantes. La estadística permite resumirlas con tablas
+        de frecuencia e indicadores, ajustarles modelos de probabilidad, medir la relación entre elementos con regresiones y
+        entrenar modelos que clasifiquen las rocas.</p></div>
+      <div class="esp"><div class="u">03</div><h3>Caso de estudio</h3><p>La base PetDB de EarthChem reúne 159.760 análisis de roca
+        total publicados en más de dos mil artículos desde 1932, con 75 variables: elementos mayores, traza y tierras raras,
+        ubicación, tipo de roca y ambiente tectónico. Dos tercios de las muestras vienen del fondo oceánico, lo que sesga la base
+        y se tiene en cuenta en el análisis.</p></div>
     </div>
   </section>
 
   <section class="cap" id="mapa">
-    <div class="cab rev"><span class="num">03</span><h2>Mapa de ubicación</h2>
+    <div class="cab rev"><span class="num">02</span><h2>Mapa de ubicación</h2>
       <p>Las muestras cubren todos los continentes y océanos; cerca de dos tercios vienen del fondo oceánico. El mapa se elaboró
-        en QGIS y en Python (geopandas), con proyección Robinson y datum WGS84.</p></div>
+        en QGIS (coordenadas geográficas, datum WGS84) y en Python (geopandas, proyección Robinson).</p></div>
     <div class="pestanas rev" role="tablist" id="tabs-mapa">
       <button role="tab" aria-selected="true" data-panel="p-qgis">Composición QGIS (A4)</button>
       <button role="tab" aria-selected="false" data-panel="p-py">Mapa en Python</button>
@@ -113,20 +95,24 @@
   </section>
 
   <section class="cap" id="objetivos">
-    <div class="cab rev"><span class="num">04</span><h2>Objetivos</h2></div>
-    <p class="general rev">Aplicar métodos de estadística descriptiva, inferencial, regresión y machine learning a los análisis
-      geoquímicos de roca total de EarthChem PetDB, para caracterizar la composición química de las rocas según su tipo y su
-      ambiente tectónico y evaluar si esa composición permite predecirlos.</p>
-    <div class="especificos rev">
-      <a class="esp" href="descriptiva/"><div class="u">UNIDAD 1</div><h3>Describir</h3><p>La distribución de los elementos mayores, traza y tierras raras mediante tablas de frecuencia, gráficas e indicadores de posición, dispersión y forma, por tipo de roca y ambiente tectónico.</p><span class="ir">Ver estadística descriptiva →</span></a>
-      <div class="esp"><div class="u">UNIDAD 2</div><h3>Inferir</h3><p>Ajustar modelos de probabilidad a las variables seleccionadas y estimar sus parámetros con intervalos de confianza, para extender a la población lo observado en la muestra.</p><span class="ir gris">Próximamente</span></div>
-      <div class="esp"><div class="u">UNIDAD 3</div><h3>Relacionar</h3><p>Cuantificar la relación entre variables químicas, como la sílice frente a los álcalis o el magnesio frente al níquel, con regresión simple, no lineal y múltiple.</p><span class="ir gris">Próximamente</span></div>
-      <div class="esp"><div class="u">UNIDAD 4</div><h3>Predecir</h3><p>Entrenar y evaluar una red neuronal que clasifique el ambiente tectónico o el tipo de roca a partir de la composición química.</p><span class="ir gris">Próximamente</span></div>
+    <div class="cab rev"><span class="num">03</span><h2>Objetivos</h2></div>
+    <p class="general rev">Analizar estadísticamente la composición geoquímica de las rocas a nivel mundial para caracterizarla
+      según el tipo de roca y el ambiente tectónico.</p>
+    <div class="especificos trio rev">
+      <a class="esp" href="descriptiva/"><img src="img/nucleos.jpg" alt="Testigos de perforación de roca ordenados en cajas" loading="lazy">
+        <div class="u">UNIDAD 1</div><h3>Describir</h3><p>Describir la distribución de los elementos mayores, traza y tierras raras
+        con tablas de frecuencia, gráficas e indicadores estadísticos.</p><span class="ir">Ver estadística descriptiva →</span></a>
+      <div class="esp"><img src="img/hero.jpg" alt="Lámina delgada de basalto vista al microscopio con luz polarizada" loading="lazy">
+        <div class="u">UNIDADES 2 Y 3</div><h3>Modelar</h3><p>Ajustar modelos de probabilidad e intervalos de confianza a las
+        variables químicas y medir la relación entre elementos mediante regresión.</p><span class="ir gris">Próximamente</span></div>
+      <div class="esp"><img src="img/andes.jpg" alt="Estratovolcán nevado de los Andes al amanecer" loading="lazy">
+        <div class="u">UNIDAD 4</div><h3>Predecir</h3><p>Predecir el ambiente tectónico de una roca a partir de su composición
+        química con una red neuronal.</p><span class="ir gris">Próximamente</span></div>
     </div>
   </section>
 
   <section class="cap" id="recorrido">
-    <div class="cab rev"><span class="num">05</span><h2>Recorrido del proyecto</h2>
+    <div class="cab rev"><span class="num">04</span><h2>Recorrido del proyecto</h2>
       <p>Cada unidad del curso tiene su propia página, que se completa a medida que avanzan las lecciones.</p></div>
     <div class="fuentes">
       <a class="fuente rev" href="descriptiva/"><div class="t">Unidad 1 · Lecciones 2–7</div><h3>Estadística descriptiva</h3><p>Población y muestra, tabla de variables, tablas de frecuencia, gráficas, indicadores y tratamiento de outliers.</p></a>
@@ -137,6 +123,7 @@
 </main>
 
 <footer>
+  <span class="academico">Proyecto <b>estrictamente académico</b>, sin fines comerciales, desarrollado para la asignatura Estadística y Probabilidades (FIGEMPA – Universidad Central del Ecuador).</span>
   <span>Datos: Astromaterials Data Synthesis / EarthChem PetDB (<a href="https://search.astromat.org/">search.astromat.org</a>), 13/10/2026, CC BY 4.0.</span>
   <span>Imágenes ilustrativas generadas con IA (Google Flow).</span>
 </footer>

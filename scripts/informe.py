@@ -188,7 +188,7 @@ def guia_equipo(I, df):
     ], [6, 10.3])
     I.h("Qué tiene la página web", 2)
     I.lista([
-        (("Inicio: ", "b"), "introducción, planteamiento del problema, mapa de ubicación (QGIS, Python e interactivo) y objetivos."),
+        (("Inicio: ", "b"), "planteamiento del problema (importancia, uso de la estadística y caso de estudio), mapa de ubicación (QGIS, Python e interactivo) y objetivos (general y tres específicos)."),
         (("Descriptiva (Unidad 1): ", "b"), "población, individuo y muestra; tabla de variables; tablas de frecuencia y gráficas "
          "de las variables cualitativas, discretas y continuas; tratamiento de outliers; gráficos interactivos."),
         (("Datos: ", "b"), "de dónde salieron los datos, cómo se prepararon y todas las descargas."),
@@ -198,7 +198,7 @@ def guia_equipo(I, df):
     I.h("Estado por lección", 2)
     I.tabla([
         ["Lección", "Qué pide", "Estado"],
-        ["L1–L2", "introducción, problema, objetivos; población, individuo y muestra", "Hecho (web: Inicio y Descriptiva 01)"],
+        ["L1–L2", "problema, objetivos; población, individuo y muestra", "Hecho (web: Inicio y Descriptiva 01)"],
         ["L3", "muestreo y mapa de ubicación en QGIS", "Mapa hecho (QGIS y Python). Falta el informe de muestreo estratificado"],
         ["L4", "tabla de variables: tipo, subtipo, dominio, rango, instrumento, unidad", "Hecho (web y Excel, formato del curso)"],
         ["L5", "tablas de frecuencia (TDF) y gráficas", "Hecho: 4 cualitativas, 2 discretas, 3 continuas (SiO2, MgO, Cr)"],
@@ -493,10 +493,12 @@ def grupo_tectonico(ambiente):
         "Luego dibuja el mapa en proyección Robinson (ESRI:54030) con matplotlib: título, leyenda con el número de "
         "análisis por ambiente tectónico, escala gráfica, flecha de norte, coordenadas y fuente.")
     I.p(("scripts/proyecto_qgis.py", "c"), " se ejecuta con el Python que trae QGIS (PyQGIS). Carga las mismas capas, aplica "
-        "una simbología categorizada con los mismos colores, arma una composición de impresión A4 y la exporta a PNG. El "
-        "proyecto se guarda con rutas relativas, así que el .qgz funciona en cualquier computadora si está junto al .gpkg. "
-        "Un detalle técnico: QGIS no logra ubicar etiquetas junto a los polos en la proyección Robinson, por eso las "
-        "longitudes se rotulan sobre el ecuador.")
+        "una simbología categorizada con los mismos colores, arma una composición de impresión A4 con el formato de la "
+        "plantilla del docente y la exporta a PNG: marco, cuadrícula de 30° con las coordenadas en el borde, leyenda, norte, "
+        "escala gráfica y membrete (logo UCE, facultad y carrera, proyección, datum, título, autores, fecha y escala). La "
+        "composición usa coordenadas geográficas (EPSG:4326) para que la cuadrícula toque el marco en los cuatro lados. El "
+        "proyecto se guarda con rutas relativas, así que el .qgz funciona en cualquier computadora si está junto al .gpkg "
+        "y al logo.")
     I.imagen(RAIZ / "docs" / "img" / "mapa_qgis.png", 16, "Composición A4 generada con PyQGIS.")
 
     I.h("15. Estadística en R (carpeta R/)", 2)
@@ -522,7 +524,7 @@ error_agrupacion(x, tdf_fin)                         # media y desviación agrup
         "y uno de código:")
     I.tabla([
         ["Archivo", "Contenido"],
-        ["docs/index.html", "portada, introducción, problema, mapa (con pestañas QGIS / Python / interactivo), objetivos"],
+        ["docs/index.html", "portada, problema, mapa (con pestañas QGIS / Python / interactivo), objetivos"],
         ["docs/descriptiva/index.html", "Unidad 1: población y muestra, tabla de variables, TDF y gráficas de R"],
         ["docs/datos/index.html", "origen de los datos, preparación y descargas"],
         ["docs/equipo/index.html", "integrantes y docente"],

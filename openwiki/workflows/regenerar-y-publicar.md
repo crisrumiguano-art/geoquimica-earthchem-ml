@@ -55,8 +55,11 @@ misma simbología (colores en `GRUPOS`), una composición A4 (título, leyenda, 
 fuente) y la exporta a `docs/img/mapa_qgis.png`. Guarda rutas relativas: el `.qgz` debe viajar junto al `.gpkg`.
 
 Detalles que costaron:
-- QGIS no logra colocar etiquetas junto a los polos en Robinson; por eso las longitudes se rotulan sobre el
-  ecuador (`cuad = 8` en `etiquetas_grilla`).
+- La composición sigue la plantilla del docente (`referencias_curso/QGIS/1.- Mapa de Ubicacion/Plantilla1.qpt`):
+  cuadrícula con coordenadas en el borde, leyenda, norte, escala gráfica y membrete con el logo `data/gis/UCE.png`.
+  Usa EPSG:4326 (no Robinson) porque en Robinson los meridianos no tocan el marco y la cuadrícula queda sin rótulos.
+- La escala gráfica en un mapa en grados: no fijar elipsoide ni `setMapUnitsPerScaleBarUnit`; QGIS ya convierte
+  grados a km sobre el ecuador.
 - El aviso `ERROR 6: The PNG driver does not support update access` al exportar es inofensivo.
 
 ## Imágenes ilustrativas

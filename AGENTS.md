@@ -139,20 +139,28 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
 
 - Se publica desde la rama `main`, carpeta `/docs`. Cualquier push a `docs/` actualiza la web en ~1 min.
 - Repo público: GitHub Pages gratis no funciona en repos privados.
-- Una página por unidad: `/` (introducción, problema, mapa, objetivos), `/descriptiva/` (U1), `/datos/`, `/equipo/`.
+- Una página por unidad: `/` (problema, mapa, objetivos), `/descriptiva/` (U1), `/datos/`, `/equipo/`.
   Inferencial, regresión y ML figuran como "pronto" en el menú: al crearlas, copiar el `<nav>` y cambiar el
   `<span class="pronto">` por un enlace en **todas** las páginas (el menú está repetido en cada HTML).
 - La tabla de variables se dibuja desde `docs/data/variables.json`: para cambiar descripciones, editar
   `OTRAS`/`NOMBRES` en `scripts/tabla_variables.py`.
 - Agrupación y outliers: **no eliminar outliers**; son otras rocas, no errores. TDF = intervalos de Sturges sobre el
   rango IQR con amplitud redonda + clases abiertas; trazas en log10; repetir por estrato. Ver `R/analisis_agrupacion_outliers.md`.
-- Repo y web pertenecen a **crisrumiguano-art** (Cristoffer) desde el 15/10/2026; DalemberV tiene permiso Write.
+- Repo y web pertenecen a **crisrumiguano-art** (Cristoffer) desde el 15/10/2026. Desde el 18/10/2026 los cambios se
+  hacen con la cuenta **rosemeri1492-lgtm** (Write); DalemberV ya no es colaborador y su autoría se reescribió en el
+  historial. En la PC del usuario, este repo hace push con el token de `.env` (`GH_ROSEMERI_TOKEN`, ignorado por git)
+  mediante un `credential.helper` local, y firma los commits como rosemeri (`git config` local).
   URLs: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/ · https://github.com/crisrumiguano-art/geoquimica-earthchem-ml
   Cristoffer usa Jules (agente de Google) y solo GitHub en el celular: revisar sus PR antes de asumir que algo cambió
   (el PR #1 cambió el título al revés de lo pedido; se corrigió a "La geoquímica de la Tierra").
 - Regresiones (Unidad 3): alcanzan los datos (p. ej. La–Ce 31 690 pares, MgO–Ni 9 379, 6 óxidos completos 46 308),
   pero usar log10 en trazas (Zr–Hf r = 0,15 lineal vs 0,97 en log), filas completas por par (sin imputar) y
   estratificar por roca o `Tectonic Group`. Tabla en la sección 10 del informe.
+- Correcciones del docente (21/10/2026): sin sección de introducción; el planteamiento no lleva pregunta sino
+  **importancia, uso de la estadística y caso de estudio**; objetivo general corto; **3 objetivos específicos** que
+  cubren todo el proyecto, cada uno con imagen; aviso de proyecto **estrictamente académico** en el pie de todas las
+  páginas; mapa QGIS con **cuadrícula con coordenadas y membrete** (formato de `referencias_curso/QGIS/1.- Mapa de
+  Ubicacion/Plantilla1.qpt`, logo `data/gis/UCE.png`).
 - Población/individuo/muestra: la muestra es la compilación PetDB (n = 159 760), **no probabilística**; la
   web dice que la inferencia usará submuestras aleatorias estratificadas por ambiente tectónico (L3).
 - Diseño "basalto": tema oscuro editorial, acento magma `#ff6b2c`, Fraunces (títulos) + Instrument Sans
