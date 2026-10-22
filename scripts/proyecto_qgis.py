@@ -209,6 +209,12 @@ def main(exportar_png=None):
     if exportar_png:
         r = QgsLayoutExporter(layout).exportToImage(exportar_png, QgsLayoutExporter.ImageExportSettings())
         print("export", r, exportar_png)
+        # PDF vectorial A4 para imprimir a escala (tamaño real, sin "ajustar a la página").
+        pdf = RAIZ / "docs" / "mapa_ubicacion_A4.pdf"
+        ajustes = QgsLayoutExporter.PdfExportSettings()
+        ajustes.dpi = 300
+        r = QgsLayoutExporter(layout).exportToPdf(str(pdf), ajustes)
+        print("export", r, pdf)
 
 
 if __name__ == "__main__":

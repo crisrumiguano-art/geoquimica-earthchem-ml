@@ -676,21 +676,21 @@ README.md        portada del repositorio
 """)
 
 
-def a_pdf():
+def a_pdf(docx=DOCX, pdf=PDF):
     """Abre el .docx en Word, actualiza índice y campos, guarda y exporta a PDF."""
     ps = f"""
 $w = New-Object -ComObject Word.Application; $w.Visible = $false
 try {{
-  $d = $w.Documents.Open('{DOCX}')
+  $d = $w.Documents.Open('{docx}')
   foreach ($t in $d.TablesOfContents) {{ $t.Update() }}
   $d.Fields.Update() | Out-Null
   $d.Save()
-  $d.ExportAsFixedFormat('{PDF}', 17)
+  $d.ExportAsFixedFormat('{pdf}', 17)
   $d.Close()
 }} finally {{ $w.Quit() }}
 """
     r = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True)
-    print("PDF:", PDF if r.returncode == 0 and PDF.exists() else f"no generado ({r.stderr.strip()[:200]})")
+    print("PDF:", pdf if r.returncode == 0 and pdf.exists() else f"no generado ({r.stderr.strip()[:200]})")
 
 
 def main():

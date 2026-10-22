@@ -1,0 +1,4 @@
+"metodo","media_de_las_medias","error_estandar","sesgo"
+"aleatoria",52.192,0.528,-0.0563
+"sistematica",52.254,0.6047,0.0061
+"estratificada",52.259,0.4796,0.0107

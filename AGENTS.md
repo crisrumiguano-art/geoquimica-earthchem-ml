@@ -26,7 +26,7 @@ Regresión (lineal, exponencial, polinómica, potencial, logarítmica, múltiple
 | Lección | Tema | Evidencia que va a la web |
 |---|---|---|
 | L2 | Población, individuo, muestra | definición textual y simbólica (hecha) |
-| L3 | Muestreo probabilístico + QGIS | mapa de ubicación en QGIS y Python (hecho); informe de muestreo estratificado (**pendiente**) |
+| L3 | Muestreo probabilístico + QGIS | mapa de ubicación en QGIS y Python (hecho); muestreo aleatorio, sistemático y estratificado en `R/04_muestreo.R` + `docs/informe_muestreo.pdf` (hecho; n = 1 061, estratos = `Tectonic Group`; la estratificada es la que va a la Unidad 2) |
 | L4 | Variable y escalas de medición | tabla de variables con el formato del curso: dominio (definición y conjunto) y rango (hecha) |
 | L5 | TDF cualitativas, discretas, continuas | TDF + histograma, ojiva, barras en R (hecho, `/descriptiva/`) |
 | L6 | Indicadores | indicadores, boxplots y error de agrupación en R (hecho para SiO2, MgO, Cr; ampliar a más variables) |
@@ -64,12 +64,15 @@ data/earthchem_limpio.csv.gz                    base limpia (pandas la lee direc
 scripts/limpiar.py                              crudo -> base limpia
 scripts/datos_dashboard.py                      base limpia -> docs/data/resumen.json
 scripts/informe.py                              informe del proyecto -> docs/informe_proyecto.docx + .pdf (vía Word)
+scripts/informe_muestreo.py                     informe de muestreo (L3) -> docs/informe_muestreo.docx + .pdf (después de R/04)
 scripts/tabla_variables.py                      crudo + limpia -> data/tabla_variables.xlsx y docs/data/variables.json
 scripts/mapa.py                                 limpia -> data/gis/mapa_ubicacion.gpkg + docs/img/mapa_ubicacion.png
 scripts/proyecto_qgis.py                        gpkg -> data/gis/mapa_ubicacion.qgz + docs/img/mapa_qgis.png (PyQGIS)
 data/gis/                                       capas GIS (WGS84) y proyecto QGIS con composición A4
 docs/informe_proyecto.docx / .pdf               informe: base de datos, estadística y documentación técnica
 R/funciones.R + 01/02/03_*.R                    estadística descriptiva (TDF, gráficas, outliers, indicadores)
+R/04_muestreo.R                                 muestreo (L3) -> data/muestras/*.csv, R/salidas/Muestreo.xlsx
+docs/mapa_ubicacion_A4.pdf                      mapa QGIS en PDF vectorial A4 para imprimir a escala (100 %, sin ajustar)
 R/analisis_agrupacion_outliers.md               por qué y cómo se agrupó y se trataron los outliers
 R/salidas/                                      Excel con todas las TDF
 docs/index.html, descriptiva/, datos/, equipo/  la web: una página por unidad (HTML + CSS + Plotly, sin build)
