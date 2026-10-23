@@ -150,19 +150,23 @@ def main():
         ("python scripts/informe_muestreo.py", "c"), ".")
 
     I.h("8. Escala del mapa de ubicación y cómo imprimirlo", 1)
-    I.p(("Cálculo de la escala. ", "b"), "El mapa muestra los 360° de longitud. Sobre el ecuador, 360° son 40 075 km = "
-        "40 075 000 000 mm. La escala es esa distancia dividida para el ancho del marco del mapa en el papel. Hay dos "
-        "versiones de la lámina, la A3 es la A4 ampliada:")
-    I.codigo("A4: marco de 264 mm   →   40 075 000 000 / 264   ≈ 151 800 000   →   1 : 151 000 000\n"
-             "A3: marco de 373 mm   →   40 075 000 000 / 373,4 ≈ 107 300 000   →   1 : 107 000 000")
+    I.p(("Cálculo de la escala. ", "b"), "Escala = distancia en el papel / distancia real. Aquí se hizo al revés: se "
+        "eligió una escala redonda y se calculó cuánto debe medir el marco del mapa para que los 360° de longitud entren "
+        "a esa escala. QGIS mide la escala con la longitud de un grado de latitud (unos 110,6 km), así que 360° "
+        "equivalen a unos 39 810 km = 39 810 000 000 mm:")
+    I.codigo("A4: ancho del marco = 39 810 000 000 mm / 150 000 000 ≈ 265,4 mm   →   1 : 150 000 000\n"
+             "A3: ancho del marco = 39 810 000 000 mm / 110 000 000 ≈ 361,9 mm   →   1 : 110 000 000")
+    I.p("¿Por qué no 1 : 100 000 000 en A3? Porque el marco mediría unos 40 cm en una hoja de 42 cm y no quedaría lugar "
+        "para el borde ni las coordenadas. Sobre el ecuador el grado de longitud mide un poco más (111,3 km), así que "
+        "allí la escala real es 0,7 % menor (1 : 151 000 000 en A4); con una regla no se nota.")
     I.p("Es una escala ", ("válida sobre el ecuador", "b"), ": en un mapa mundial las distancias se deforman hacia los "
         "polos, por eso el membrete y la escala gráfica lo aclaran.")
     I.tabla([["", "A4", "A3"],
              ["Archivo", "docs/mapa_ubicacion_A4.pdf", "docs/mapa_ubicacion_A3.pdf"],
              ["Tamaño de la hoja", "297 × 210 mm", "420 × 297 mm"],
-             ["Escala", "1 : 151 000 000", "1 : 107 000 000"],
-             ["Ancho del marco del mapa (regla)", "26,4 cm", "37,3 cm"],
-             ["Barra de 2 500 km (regla)", "≈ 1,6 cm", "≈ 2,3 cm"]], [6, 5, 5])
+             ["Escala", "1 : 150 000 000", "1 : 110 000 000"],
+             ["Ancho del marco del mapa (regla)", "26,5 cm", "36,2 cm"],
+             ["Barra de 2 500 km (regla)", "≈ 1,7 cm", "≈ 2,3 cm"]], [6, 5, 5])
     I.p(("Cómo imprimirlo a escala:", "b"))
     I.lista(["Descargar el PDF del tamaño de papel que se va a usar (en la web: sección Mapa de ubicación o página "
              "Datos). Son vectoriales y miden exactamente el tamaño de la hoja.",

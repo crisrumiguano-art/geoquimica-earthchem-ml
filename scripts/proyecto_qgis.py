@@ -46,7 +46,11 @@ CAPAS_SHP = {
     "paises": "SELECT CAST(pais AS character(40)) AS pais, CAST(continente AS character(25)) AS continente FROM paises",
     "oceanos": "SELECT CAST(nombre AS character(10)) AS nombre FROM contorno",
 }
-PAPELES = {"A4": 1.0, "A3": 2 ** 0.5}  # A3 = A4 con cada lado multiplicado por raíz de 2
+# Papel -> (factor de tamaño respecto de A4, escala). A3 = A4 con cada lado multiplicado por raíz de 2. Escalas
+# redondas: el ancho del marco se calcula para que los 360° del ecuador midan exactamente ECUADOR / escala.
+# 1:100 000 000 no entra en A3 (el mapa mediría 40,1 cm en una hoja de 42 cm, sin lugar para marco y coordenadas).
+PAPELES = {"A4": (1.0, 150_000_000), "A3": (2 ** 0.5, 110_000_000)}
+ECUADOR_MM = 40_075_016_686  # longitud del ecuador en el elipsoide WGS84
 
 
 def shapefiles():
@@ -82,7 +86,7 @@ class Lamina:
     papel, así la versión A3 es la misma lámina ampliada (con letras más grandes y mapa a mayor escala)."""
 
     def __init__(self, proyecto, papel):
-        self.f = PAPELES[papel]
+        self.f, self.escala = PAPELES[papel]
         self.layout = QgsPrintLayout(proyecto)
         self.layout.initializeDefaults()
         self.layout.setName(f"Mapa de ubicación {papel}")
@@ -147,8 +151,13 @@ class Lamina:
         mapa.setCrs(WGS84)
         mapa.setLayers([muestras, paises, oceanos])
         mapa.setFrameEnabled(True)
-        self.ubicar(mapa, 17, 13, 264, 132)
-        mapa.zoomToExtent(QgsRectangle(-180, -90, 180, 90))
+        ancho = ECUADOR_MM / self.escala / self.f  # en mm de A4 (ubicar() multiplica por el factor)
+        self.layout.addLayoutItem(mapa)
+        for _ in range(2):  # 2.ª vuelta: corrige el ancho con la escala que mide QGIS (su ecuador difiere ~0,7 %)
+            mapa.attemptMove(QgsLayoutPoint((148.5 - ancho / 2) * self.f, (13 + (132 - ancho / 2) / 2) * self.f, MM))
+            mapa.attemptResize(QgsLayoutSize(ancho * self.f, ancho / 2 * self.f, MM))
+            mapa.zoomToExtent(QgsRectangle(-180, -90, 180, 90))
+            ancho *= mapa.scale() / self.escala
         self.cuadricula(mapa)
 
         y0, alto = 154, 47
@@ -212,8 +221,9 @@ class Lamina:
         self.ubicar(logo, x + w - 14, y0 + 1, 12, 12)
         y_fecha = y0 + sum(h for h, _ in filas[:5])
         self.caja(x + w / 2, y_fecha, 0, 5)  # divisor fecha | escala
-        # Escala numérica redondeada al millón: 1:152 000 000 en A4 y 1:107 000 000 en A3 (en el ecuador).
-        escala_num = f"{round(mapa.scale(), -6):,.0f}".replace(",", ".")
+        # QGIS calcula la escala por su cuenta: tiene que coincidir con la elegida (tolerancia 0,5 %).
+        assert abs(mapa.scale() / self.escala - 1) < 0.005, (self.layout.name(), mapa.scale())
+        escala_num = f"{self.escala:,.0f}".replace(",", ".")
         self.etiqueta(f"FECHA: {date.today():%d/%m/%Y}", x, y_fecha, w / 2, 5, 7)
         self.etiqueta(f"ESCALA: 1 : {escala_num} (en el ecuador)", x + w / 2, y_fecha, w / 2, 5, 7)
         self.etiqueta("Fuente: EarthChem PetDB (13/10/2026, CC BY 4.0) y Natural Earth  ·  Proyecto estrictamente "
