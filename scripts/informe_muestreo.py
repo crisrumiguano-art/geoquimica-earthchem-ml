@@ -150,22 +150,30 @@ def main():
         ("python scripts/informe_muestreo.py", "c"), ".")
 
     I.h("8. Escala del mapa de ubicación y cómo imprimirlo", 1)
-    I.p(("Cálculo de la escala. ", "b"), "En la composición de QGIS el marco del mapa mide 264 mm de ancho y muestra los "
-        "360° de longitud. Sobre el ecuador, 360° son 40 075 km = 40 075 000 000 mm, así que:")
-    I.codigo("escala = 40 075 000 000 mm / 264 mm ≈ 151 800 000   →   1 : 150 000 000")
+    I.p(("Cálculo de la escala. ", "b"), "El mapa muestra los 360° de longitud. Sobre el ecuador, 360° son 40 075 km = "
+        "40 075 000 000 mm. La escala es esa distancia dividida para el ancho del marco del mapa en el papel. Hay dos "
+        "versiones de la lámina, la A3 es la A4 ampliada:")
+    I.codigo("A4: marco de 264 mm   →   40 075 000 000 / 264   ≈ 151 800 000   →   1 : 151 000 000\n"
+             "A3: marco de 373 mm   →   40 075 000 000 / 373,4 ≈ 107 300 000   →   1 : 107 000 000")
     I.p("Es una escala ", ("válida sobre el ecuador", "b"), ": en un mapa mundial las distancias se deforman hacia los "
-        "polos, por eso el membrete y la escala gráfica lo aclaran. La barra de 2 500 km debe medir unos 16,5 mm.")
+        "polos, por eso el membrete y la escala gráfica lo aclaran.")
+    I.tabla([["", "A4", "A3"],
+             ["Archivo", "docs/mapa_ubicacion_A4.pdf", "docs/mapa_ubicacion_A3.pdf"],
+             ["Tamaño de la hoja", "297 × 210 mm", "420 × 297 mm"],
+             ["Escala", "1 : 151 000 000", "1 : 107 000 000"],
+             ["Ancho del marco del mapa (regla)", "26,4 cm", "37,3 cm"],
+             ["Barra de 2 500 km (regla)", "≈ 1,6 cm", "≈ 2,3 cm"]], [6, 5, 5])
     I.p(("Cómo imprimirlo a escala:", "b"))
-    I.lista(["Archivo: docs/mapa_ubicacion_A4.pdf (en la web, sección Mapa de ubicación → «Mapa A4 en PDF para "
-             "imprimir»). Es vectorial y mide exactamente 297 × 210 mm.",
-             "Papel A4, orientación horizontal.",
+    I.lista(["Descargar el PDF del tamaño de papel que se va a usar (en la web: sección Mapa de ubicación o página "
+             "Datos). Son vectoriales y miden exactamente el tamaño de la hoja.",
+             "Papel del mismo tamaño que el PDF (A3 para el A3), orientación horizontal, a color.",
              "En el diálogo de impresión elegir «Tamaño real» o «Escala 100 %». NO usar «Ajustar a la página», "
-             "«Ajustar al área imprimible» ni «Reducir páginas grandes»: cambian el tamaño y la escala deja de valer.",
-             "Imprimir en color (la leyenda distingue los ambientes por color).",
-             "Verificar con una regla: el marco del mapa (sin las coordenadas) debe medir 26,4 cm de ancho y la barra "
-             "de 2 500 km unos 1,6 cm. Si da distinto, la impresora escaló la hoja.",
-             "Desde QGIS también se puede: abrir data/gis/mapa_ubicacion.qgz, Proyecto → Diseños → «Mapa de ubicación "
-             "A4» y Diseño → Imprimir (o Exportar como PDF), con la página al 100 %."], numerada=True)
+             "«Ajustar al área imprimible» ni «Reducir páginas grandes»: cambian el tamaño y la escala deja de valer. "
+             "No imprimir el PDF A4 en hoja A3 «ampliado»: para eso está el PDF A3.",
+             "Verificar con una regla el ancho del marco y la barra de escala (tabla de arriba). Si da distinto, la "
+             "impresora escaló la hoja.",
+             "Desde QGIS también se puede: abrir mapa_ubicacion.qgz (del .zip de la web), Proyecto → Diseños → «Mapa "
+             "de ubicación A3» (o A4) y Diseño → Imprimir o Exportar como PDF, con la página al 100 %."], numerada=True)
     I.p(("Web del proyecto: ", "b"), WEB)
 
     I.d.core_properties.title = "Informe del proceso de muestreo — Geoquímica de rocas PetDB"

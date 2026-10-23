@@ -10,3 +10,5 @@ data/raw/*.zip
 data/raw/crudos
 referencias_curso
 .env
+# base descomprimida a mano para Excel (90 MB): no versionar, ya está el .csv.gz
+data/earthchem_limpio.csv

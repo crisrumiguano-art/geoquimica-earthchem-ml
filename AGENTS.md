@@ -67,12 +67,15 @@ scripts/informe.py                              informe del proyecto -> docs/inf
 scripts/informe_muestreo.py                     informe de muestreo (L3) -> docs/informe_muestreo.docx + .pdf (después de R/04)
 scripts/tabla_variables.py                      crudo + limpia -> data/tabla_variables.xlsx y docs/data/variables.json
 scripts/mapa.py                                 limpia -> data/gis/mapa_ubicacion.gpkg + docs/img/mapa_ubicacion.png
-scripts/proyecto_qgis.py                        gpkg -> data/gis/mapa_ubicacion.qgz + docs/img/mapa_qgis.png (PyQGIS)
+scripts/proyecto_qgis.py                        gpkg -> data/gis/shp/*.shp + mapa_ubicacion.qgz (composiciones A4 y A3) +
+                                                docs/img/mapa_qgis.png, docs/mapa_ubicacion_A4.pdf / _A3.pdf y
+                                                docs/mapa_qgis_shapefiles.zip (qgz + shp + logo, para el equipo)
 data/gis/                                       capas GIS (WGS84) y proyecto QGIS con composición A4
 docs/informe_proyecto.docx / .pdf               informe: base de datos, estadística y documentación técnica
 R/funciones.R + 01/02/03_*.R                    estadística descriptiva (TDF, gráficas, outliers, indicadores)
 R/04_muestreo.R                                 muestreo (L3) -> data/muestras/*.csv, R/salidas/Muestreo.xlsx
-docs/mapa_ubicacion_A4.pdf                      mapa QGIS en PDF vectorial A4 para imprimir a escala (100 %, sin ajustar)
+docs/mapa_ubicacion_A4.pdf / _A3.pdf            mapa QGIS en PDF vectorial para imprimir a escala (100 %, sin ajustar):
+                                                A4 1:151 000 000, A3 1:107 000 000 (en el ecuador)
 R/analisis_agrupacion_outliers.md               por qué y cómo se agrupó y se trataron los outliers
 R/salidas/                                      Excel con todas las TDF
 docs/index.html, descriptiva/, datos/, equipo/  la web: una página por unidad (HTML + CSS + Plotly, sin build)
@@ -164,6 +167,10 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
   cubren todo el proyecto, cada uno con imagen; aviso de proyecto **estrictamente académico** en el pie de todas las
   páginas; mapa QGIS con **cuadrícula con coordenadas y membrete** (formato de `referencias_curso/QGIS/1.- Mapa de
   Ubicacion/Plantilla1.qpt`, logo `data/gis/UCE.png`).
+- El proyecto QGIS usa **shapefiles** (`data/gis/shp/`, 9 campos en muestras, anchos fijos con CAST en OGR SQL e índice
+  `.qix`), no el GeoPackage: el equipo trabaja QGIS "de forma tradicional" y el gpkg de 35 MB le colgaba QGIS. El
+  planteamiento del problema va en **una sola columna** (importancia, uso de la estadística, caso de estudio), pedido
+  del docente (23/10/2026).
 - Población/individuo/muestra: la muestra es la compilación PetDB (n = 159 760), **no probabilística**; la
   web dice que la inferencia usará submuestras aleatorias estratificadas por ambiente tectónico (L3).
 - Diseño "basalto": tema oscuro editorial, acento magma `#ff6b2c`, Fraunces (títulos) + Instrument Sans

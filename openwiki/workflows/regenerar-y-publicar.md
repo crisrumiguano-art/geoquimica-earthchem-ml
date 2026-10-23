@@ -8,7 +8,7 @@ python -I scripts/limpiar.py                     # -> data/earthchem_limpio.csv.
 python -I scripts/datos_dashboard.py             # -> docs/data/resumen.json
 python scripts/tabla_variables.py                # -> data/tabla_variables.xlsx, docs/data/variables.json
 python -I scripts/mapa.py                        # -> data/gis/mapa_ubicacion.gpkg, docs/img/mapa_ubicacion.png
-"/c/Program Files/QGIS 3.44.8/bin/python-qgis-ltr.bat" scripts/proyecto_qgis.py
+"/c/Program Files/QGIS 3.44.8/bin/python-qgis-ltr.bat" scripts/proyecto_qgis.py   # -> shp/, .qgz (A4 y A3), PNG, PDF A4/A3, zip
                                                  # -> data/gis/mapa_ubicacion.qgz, docs/img/mapa_qgis.png
 ```
 
@@ -54,7 +54,10 @@ tabla de atributos de QGIS. Después dibuja el PNG con matplotlib en proyección
 
 `proyecto_qgis.py` corre con el Python de QGIS (PyQGIS), no con el Python normal. Arma el proyecto con la
 misma simbología (colores en `GRUPOS`), una composición A4 (título, leyenda, escala, norte, coordenadas,
-fuente) y la exporta a `docs/img/mapa_qgis.png`. Guarda rutas relativas: el `.qgz` debe viajar junto al `.gpkg`.
+fuente) y la exporta a `docs/img/mapa_qgis.png`. Primero copia el GeoPackage a shapefiles (`data/gis/shp/`) con `gdal.VectorTranslate` y OGR SQL (`CAST` fija el
+ancho de cada campo; con el dialecto SQLite por defecto se pierde la geometría y el .dbf pesa 100 MB). El proyecto
+usa esos shapefiles y guarda rutas relativas: el `.qgz` viaja con `shp/` y `UCE.png`, y así va en
+`docs/mapa_qgis_shapefiles.zip`. La clase `Lamina` arma la misma lámina en A4 y A3 (todo × raíz de 2).
 
 Detalles que costaron:
 - La composición sigue la plantilla del docente (`referencias_curso/QGIS/1.- Mapa de Ubicacion/Plantilla1.qpt`):
