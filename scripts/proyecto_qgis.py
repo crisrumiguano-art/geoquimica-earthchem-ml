@@ -28,6 +28,7 @@ GIS = RAIZ / "data" / "gis"
 GPKG = GIS / "mapa_ubicacion.gpkg"
 SHP = GIS / "shp"
 LOGO = GIS / "UCE.png"  # copiado de referencias_curso/QGIS/1.- Mapa de Ubicacion/UCE.png
+LOGO_MINAS = GIS / "MINAS.png"
 WGS84 = QgsCoordinateReferenceSystem("EPSG:4326")
 GRUPOS = [("dorsal y corteza oceanica", "Dorsal y corteza oceánica", "#2a78d6"),
           ("intraplaca y rift", "Intraplaca y rift", "#1baf7a"),
@@ -205,7 +206,7 @@ class Lamina:
         x, w = 173, 115
         filas = [(14, ""), (5, "PROYECCIÓN GEOGRÁFICA (LATITUD / LONGITUD)"), (5, "DATUM: WGS84  ·  SRC: EPSG:4326"),
                  (6, "MAPA DE UBICACIÓN DE LAS MUESTRAS DE ROCA TOTAL — EARTHCHEM PETDB"),
-                 (8, f"Elaborado por: {AUTORES}\nDocente: Dr. Christian Mejía E., Ph.D. · Estadística y Probabilidades"),
+                 (8, f"Elaborado por: {AUTORES}"),
                  (5, ""), (4, "")]
         y = y0
         for h, texto in filas:
@@ -213,12 +214,15 @@ class Lamina:
             if texto:
                 self.etiqueta(texto, x + 1, y, w - 2, h, 6.5 if "\n" in texto else 7, texto.startswith("MAPA"))
             y += h
-        self.etiqueta("UNIVERSIDAD CENTRAL DEL ECUADOR", x + 2, y0 + 1, w - 18, 6, 10, True)
-        self.etiqueta("Facultad de Ingeniería en Geología, Minas, Petróleos y Ambiental\nCarrera de Minas",
-                      x + 2, y0 + 7, w - 18, 6.5, 6.5)
+        logo_minas = QgsLayoutItemPicture(self.layout)
+        logo_minas.setPicturePath(str(LOGO_MINAS))
+        self.ubicar(logo_minas, x + 2, y0 + 1, 12, 12)
         logo = QgsLayoutItemPicture(self.layout)
         logo.setPicturePath(str(LOGO))
         self.ubicar(logo, x + w - 14, y0 + 1, 12, 12)
+        self.etiqueta("UNIVERSIDAD CENTRAL DEL ECUADOR", x + 15, y0 + 1, w - 30, 6, 10, True)
+        self.etiqueta("Facultad de Ingeniería en Geología, Minas, Petróleos y Ambiental\nCarrera de Minas",
+                      x + 15, y0 + 7, w - 30, 6.5, 6.5)
         y_fecha = y0 + sum(h for h, _ in filas[:5])
         self.caja(x + w / 2, y_fecha, 0, 5)  # divisor fecha | escala
         # QGIS calcula la escala por su cuenta: tiene que coincidir con la elegida (tolerancia 0,5 %).
@@ -282,7 +286,7 @@ def main():
     # Paquete para trabajar con QGIS de la forma tradicional: descomprimir y abrir el .qgz.
     paquete = RAIZ / "docs" / "mapa_qgis_shapefiles.zip"
     with zipfile.ZipFile(paquete, "w", zipfile.ZIP_DEFLATED) as z:
-        for archivo in [salida, LOGO, *sorted(SHP.glob("*"))]:
+        for archivo in [salida, LOGO, LOGO_MINAS, *sorted(SHP.glob("*"))]:
             z.write(archivo, Path("mapa_qgis") / archivo.relative_to(GIS))
     print(paquete)
 
