@@ -65,6 +65,7 @@ scripts/limpiar.py                              crudo -> base limpia
 scripts/datos_dashboard.py                      base limpia -> docs/data/resumen.json
 scripts/informe.py                              informe del proyecto -> docs/informe_proyecto.docx + .pdf (vía Word)
 scripts/informe_muestreo.py                     informe de muestreo (L3) -> docs/informe_muestreo.docx + .pdf (después de R/04)
+scripts/codigo_r.py                             R/*.R -> docs/data/codigo_r.json (botón «Código R» de cada gráfica; correr tras R)
 scripts/tabla_variables.py                      crudo + limpia -> data/tabla_variables.xlsx y docs/data/variables.json
 scripts/mapa.py                                 limpia -> data/gis/mapa_ubicacion.gpkg + docs/img/mapa_ubicacion.png
 scripts/proyecto_qgis.py                        gpkg -> data/gis/shp/*.shp + mapa_ubicacion.qgz (composiciones A4 y A3) +
@@ -168,6 +169,13 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
   cubren todo el proyecto, cada uno con imagen; aviso de proyecto **estrictamente académico** en el pie de todas las
   páginas; mapa QGIS con **cuadrícula con coordenadas y membrete** (formato de `referencias_curso/QGIS/1.- Mapa de
   Ubicacion/Plantilla1.qpt`, logo `data/gis/UCE.png`).
+- Mapa QGIS en **EPSG:4087** (equidistante cilíndrica WGS84, metros): 1° = 111,32 km en todo el mapa, así la escala,
+  la barra en km y la cuadrícula de 30° coinciden (el docente objetó que en EPSG:4326 no cuadraban, 29/10/2026). La
+  cuadrícula va en metros (`GRADOS_30`) con rótulos convertidos a grados; una grilla en 4326 sobre el mapa en 4087
+  repite los rótulos dentro del mapa.
+- Cada gráfica de R en la web tiene un botón **Código R** (pedido del docente): muestra el script y las funciones exactas
+  que la generaron, desde `docs/data/codigo_r.json` (`scripts/codigo_r.py`). Si se agrega un PNG en `docs/img/r/`
+  con un prefijo nuevo, sumarlo a `SCRIPTS` en ese archivo.
 - El proyecto QGIS usa **shapefiles** (`data/gis/shp/`, 9 campos en muestras, anchos fijos con CAST en OGR SQL e índice
   `.qix`), no el GeoPackage: el equipo trabaja QGIS "de forma tradicional" y el gpkg de 35 MB le colgaba QGIS. El
   planteamiento del problema es **una sola redacción continua**, sin subtítulos ni columnas (cubre importancia, uso de

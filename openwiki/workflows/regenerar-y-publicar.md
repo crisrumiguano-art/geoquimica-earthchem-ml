@@ -27,6 +27,7 @@ Rscript R/02_discretas.R       # año de publicación y número de analitos
 Rscript R/03_continuas.R       # SiO2, MgO, Cr: agrupación, outliers, estrato, error de agrupación
 Rscript R/04_muestreo.R        # L3: muestras aleatoria, sistemática y estratificada (seed 2026) -> data/muestras/
 # después: python scripts/informe_muestreo.py  -> docs/informe_muestreo.pdf
+python -I scripts/codigo_r.py   # -> docs/data/codigo_r.json (código R de cada gráfica para la web)
 ```
 
 Cada script escribe tres cosas: PNG en `docs/img/r/`, CSV en `docs/data/tdf/` (las tablas que muestra

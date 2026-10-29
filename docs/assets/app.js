@@ -66,3 +66,35 @@ function base(extra = {}) {
 const cfg = { displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
 const bar = (x, y, extra = {}) => ({ type: "bar", x, y, marker: { color: css("--series-1"), line: { color: css("--surface-1"), width: 2 } }, ...extra });
 const conPlotly = f => window.Plotly ? f() : setTimeout(() => conPlotly(f), 100);
+
+// Botón «Código R» en cada gráfica hecha con R (img/r/*.png). El código sale de data/codigo_r.json, que arma
+// scripts/codigo_r.py con el script y las funciones exactas que generaron el PNG. Las gráficas se crean con JS
+// después de cargar la página, por eso se vigila el DOM en vez de recorrerlo una sola vez.
+let codigosR;
+function botonCodigo(fig) {
+  const img = fig.querySelector('img[src*="img/r/"]');
+  if (!img || fig.dataset.codigo) return;
+  const archivo = img.getAttribute("src").split("/").pop();
+  const json = img.getAttribute("src").replace(/img\/r\/[^/]+$/, "data/codigo_r.json");
+  fig.dataset.codigo = archivo;
+  const boton = document.createElement("button");
+  boton.type = "button"; boton.className = "ver-codigo"; boton.textContent = "</> Código R";
+  boton.setAttribute("aria-expanded", "false");
+  fig.append(boton);
+  boton.addEventListener("click", async () => {
+    let caja = fig.querySelector(".codigo-r");
+    if (caja) { caja.remove(); boton.setAttribute("aria-expanded", "false"); return; }
+    codigosR ??= fetch(json).then(r => r.json());
+    const texto = (await codigosR)[archivo] ?? "# Sin código registrado para " + archivo;
+    caja = document.createElement("div");
+    caja.className = "codigo-r";
+    caja.innerHTML = `<div class="barra"><span>${esc(archivo)} · R</span><button type="button">Copiar</button></div><pre><code>${esc(texto)}</code></pre>`;
+    caja.querySelector("button").addEventListener("click", e => navigator.clipboard.writeText(texto)
+      .then(() => { e.target.textContent = "Copiado"; setTimeout(() => e.target.textContent = "Copiar", 1500); }));
+    fig.append(caja);  // dentro de la figura: en .bloque un hermano nuevo desarmaría la grilla
+    boton.setAttribute("aria-expanded", "true");
+  });
+}
+new MutationObserver(() => document.querySelectorAll("figure.grafica").forEach(botonCodigo))
+  .observe(document.body, { childList: true, subtree: true });
+document.querySelectorAll("figure.grafica").forEach(botonCodigo);

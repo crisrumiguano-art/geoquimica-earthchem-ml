@@ -169,6 +169,17 @@ tbody tr:hover td { background: var(--surface-1); }
 .bloque .lectura { color: var(--text-secondary); font-size: .95rem; margin: .8rem 0 0; }
 .grafica { background: #fff; border: 1px solid var(--line); }
 .grafica img { width: 100%; }
+.grafica { position: relative; }
+.ver-codigo { position: absolute; top: .5rem; right: .5rem; padding: .3rem .65rem; border: 1px solid var(--line); border-radius: 999px;
+  background: rgba(15,14,12,.85); color: var(--text-primary); font: 500 .72rem var(--mono); cursor: pointer; }
+.ver-codigo:hover, .ver-codigo:focus-visible, .ver-codigo[aria-expanded="true"] { background: var(--magma); color: #0f0e0c; }
+.codigo-r { border-top: 1px solid var(--line); background: var(--surface-1); }
+.codigo-r .barra { display: flex; justify-content: space-between; align-items: center; padding: .4rem .7rem; border-bottom: 1px solid var(--line);
+  font: .72rem var(--mono); color: var(--muted); }
+.codigo-r .barra button { border: 1px solid var(--line); background: var(--surface-2); color: var(--text-primary); font: .72rem var(--mono);
+  padding: .2rem .6rem; cursor: pointer; }
+.codigo-r pre { margin: 0; max-height: 26rem; overflow: auto; padding: .8rem 1rem; font: .74rem/1.5 var(--mono); color: var(--text-secondary);
+  white-space: pre; tab-size: 2; }
 .callout { background: var(--surface-1); border: 1px solid var(--line); border-left: 3px solid var(--oro); padding: 1.5rem 1.7rem; margin: 0 0 2.4rem; }
 .callout h3 { font-family: var(--serif); font-weight: 500; font-size: 1.35rem; margin: 0 0 .7rem; }
 .callout p, .callout li { color: var(--text-secondary); font-size: .95rem; }

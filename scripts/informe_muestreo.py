@@ -150,23 +150,28 @@ def main():
         ("python scripts/informe_muestreo.py", "c"), ".")
 
     I.h("8. Escala del mapa de ubicación y cómo imprimirlo", 1)
-    I.p(("Cálculo de la escala. ", "b"), "Escala = distancia en el papel / distancia real. Aquí se hizo al revés: se "
-        "eligió una escala redonda y se calculó cuánto debe medir el marco del mapa para que los 360° de longitud entren "
-        "a esa escala. QGIS mide la escala con la longitud de un grado de latitud (unos 110,6 km), así que 360° "
-        "equivalen a unos 39 810 km = 39 810 000 000 mm:")
-    I.codigo("A4: ancho del marco = 39 810 000 000 mm / 150 000 000 ≈ 265,4 mm   →   1 : 150 000 000\n"
-             "A3: ancho del marco = 39 810 000 000 mm / 110 000 000 ≈ 361,9 mm   →   1 : 110 000 000")
-    I.p("¿Por qué no 1 : 100 000 000 en A3? Porque el marco mediría unos 40 cm en una hoja de 42 cm y no quedaría lugar "
-        "para el borde ni las coordenadas. Sobre el ecuador el grado de longitud mide un poco más (111,3 km), así que "
-        "allí la escala real es 0,7 % menor (1 : 151 000 000 en A4); con una regla no se nota.")
-    I.p("Es una escala ", ("válida sobre el ecuador", "b"), ": en un mapa mundial las distancias se deforman hacia los "
-        "polos, por eso el membrete y la escala gráfica lo aclaran.")
+    I.p(("Sistema de coordenadas. ", "b"), "El mapa está en la proyección ", ("equidistante cilíndrica", "b"),
+        " (Plate Carrée) sobre el datum WGS84, código EPSG:4087, que trabaja en metros. En ella cada grado mide lo mismo "
+        "en todo el mapa: 1° = 111,32 km, de modo que 30° = 3 339,6 km tanto a lo ancho como a lo alto. Por eso la escala "
+        "numérica, la barra en km y la cuadrícula de 30° coinciden. Antes el mapa estaba en grados (EPSG:4326) y QGIS "
+        "medía la escala con otro valor del grado (110,6 km): la barra y la grilla diferían 0,7 %.")
+    I.p(("Cálculo de la escala. ", "b"), "Escala = distancia en el papel / distancia real. Se eligió una escala redonda y "
+        "se calculó cuánto debe medir el marco para que los 360° del ecuador (40 075 km = 40 075 000 000 mm) entren a esa "
+        "escala:")
+    I.codigo("A4: ancho del marco = 40 075 000 000 mm / 150 000 000 = 267,2 mm   →   1 : 150 000 000\n"
+             "A3: ancho del marco = 40 075 000 000 mm / 110 000 000 = 364,3 mm   →   1 : 110 000 000\n"
+             "Comprobación A4: 30° = 3 339 600 000 mm / 150 000 000 = 22,3 mm entre líneas de la cuadrícula")
+    I.p("¿Por qué no 1 : 100 000 000 en A3? Porque el marco mediría 40,1 cm en una hoja de 42 cm y no quedaría lugar "
+        "para el borde ni las coordenadas. La escala es exacta sobre el ecuador y a lo largo de los meridianos; en sentido "
+        "este–oeste, lejos del ecuador, el mapa estira las distancias (a 60° de latitud, el doble), como todo mapa del "
+        "mundo entero en una hoja plana.")
     I.tabla([["", "A4", "A3"],
              ["Archivo", "docs/mapa_ubicacion_A4.pdf", "docs/mapa_ubicacion_A3.pdf"],
              ["Tamaño de la hoja", "297 × 210 mm", "420 × 297 mm"],
              ["Escala", "1 : 150 000 000", "1 : 110 000 000"],
-             ["Ancho del marco del mapa (regla)", "26,5 cm", "36,2 cm"],
-             ["Barra de 2 500 km (regla)", "≈ 1,7 cm", "≈ 2,3 cm"]], [6, 5, 5])
+             ["Ancho del marco del mapa (regla)", "26,7 cm", "36,4 cm"],
+             ["Barra de 2 500 km (regla)", "1,67 cm", "2,27 cm"],
+             ["Separación de la cuadrícula (30°)", "2,23 cm", "3,04 cm"]], [6, 5, 5])
     I.p(("Cómo imprimirlo a escala:", "b"))
     I.lista(["Descargar el PDF del tamaño de papel que se va a usar (en la web: sección Mapa de ubicación o página "
              "Datos). Son vectoriales y miden exactamente el tamaño de la hoja.",

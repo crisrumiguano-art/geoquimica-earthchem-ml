@@ -29,7 +29,13 @@ GPKG = GIS / "mapa_ubicacion.gpkg"
 SHP = GIS / "shp"
 LOGO = GIS / "UCE.png"  # copiado de referencias_curso/QGIS/1.- Mapa de Ubicacion/UCE.png
 LOGO_MINAS = GIS / "MINAS.png"
-WGS84 = QgsCoordinateReferenceSystem("EPSG:4326")
+WGS84 = QgsCoordinateReferenceSystem("EPSG:4326")  # capas y cuadrícula en grados
+# El mapa se dibuja en metros: equidistante cilíndrica (Plate Carrée) sobre WGS84. x = a·λ, y = a·φ, así que 1° mide
+# lo mismo en todo el mapa (111,32 km) y la escala numérica, la barra en km y la cuadrícula de 30° coinciden.
+# En grados (EPSG:4326) QGIS medía la escala con el grado de latitud (110,6 km) y la barra no cuadraba con la grilla.
+PLATE = QgsCoordinateReferenceSystem("EPSG:4087")
+GRADOS_30 = 20_037_508.342789244 / 6  # 30° en metros en EPSG:4087
+MUNDO = QgsRectangle(-20_037_508.34, -10_018_754.17, 20_037_508.34, 10_018_754.17)  # ±180°, ±90° en metros
 GRUPOS = [("dorsal y corteza oceanica", "Dorsal y corteza oceánica", "#2a78d6"),
           ("intraplaca y rift", "Intraplaca y rift", "#1baf7a"),
           ("margen convergente", "Margen convergente", "#eb6834"),
@@ -124,18 +130,21 @@ class Lamina:
     def cuadricula(self, mapa):
         """Cuadrícula de 30° con las coordenadas en el borde (O/E, S/N) y marco cebra, como la plantilla del docente."""
         g = QgsLayoutItemMapGrid("Cuadrícula", mapa)
-        g.setCrs(WGS84)
-        g.setIntervalX(30)
-        g.setIntervalY(30)
+        # En la misma proyección del mapa (metros): 30° = 20 037 508,34 m / 6. Una grilla en EPSG:4326 sobre un mapa
+        # en otro SRC QGIS la dibuja como curva y repite los rótulos dentro del mapa.
+        g.setCrs(PLATE)
+        g.setIntervalX(GRADOS_30)
+        g.setIntervalY(GRADOS_30)
         g.setLineSymbol(QgsLineSymbol.createSimple({"line_color": "#9a9990", "line_width": str(0.15 * self.f)}))
         g.setFrameStyle(QgsLayoutItemMapGrid.Zebra)
         g.setFrameWidth(1.2 * self.f)
         g.setAnnotationEnabled(True)
         g.setAnnotationFormat(QgsLayoutItemMapGrid.CustomFormat)
         g.setAnnotationExpression(
-            "CASE WHEN abs(@grid_number) = if(@grid_axis = 'x', 180, 90) THEN '' "  # sin rótulos en las esquinas: se encimarían
-            "ELSE concat(abs(@grid_number), '°', CASE WHEN @grid_number = 0 THEN '' WHEN @grid_axis = 'x' "
-            "THEN if(@grid_number < 0, 'O', 'E') ELSE if(@grid_number < 0, 'S', 'N') END) END")
+            f"with_variable('g', round(@grid_number / {GRADOS_30 / 30!r}), "  # metros -> grados
+            "CASE WHEN abs(@g) = if(@grid_axis = 'x', 180, 90) THEN '' "  # sin rótulos en las esquinas: se encimarían
+            "ELSE concat(abs(@g), '°', CASE WHEN @g = 0 THEN '' WHEN @grid_axis = 'x' "
+            "THEN if(@g < 0, 'O', 'E') ELSE if(@g < 0, 'S', 'N') END) END)")
         g.setAnnotationTextFormat(self.texto(7))
         g.setAnnotationFrameDistance(1 * self.f)
         for lado in (QgsLayoutItemMapGrid.Left, QgsLayoutItemMapGrid.Right, QgsLayoutItemMapGrid.Top,
@@ -149,15 +158,15 @@ class Lamina:
         # El mapa es mundial (2:1): va arriba a lo ancho, y leyenda, escala y membrete en una franja abajo.
         self.caja(6, 6, 285, 198, 0.5)
         mapa = QgsLayoutItemMap(self.layout)
-        mapa.setCrs(WGS84)
+        mapa.setCrs(PLATE)
         mapa.setLayers([muestras, paises, oceanos])
         mapa.setFrameEnabled(True)
         ancho = ECUADOR_MM / self.escala / self.f  # en mm de A4 (ubicar() multiplica por el factor)
         self.layout.addLayoutItem(mapa)
-        for _ in range(2):  # 2.ª vuelta: corrige el ancho con la escala que mide QGIS (su ecuador difiere ~0,7 %)
+        for _ in range(2):  # 2.ª vuelta: ajusta el ancho a la escala que mide QGIS (en metros coincide)
             mapa.attemptMove(QgsLayoutPoint((148.5 - ancho / 2) * self.f, (13 + (132 - ancho / 2) / 2) * self.f, MM))
             mapa.attemptResize(QgsLayoutSize(ancho * self.f, ancho / 2 * self.f, MM))
-            mapa.zoomToExtent(QgsRectangle(-180, -90, 180, 90))
+            mapa.zoomToExtent(MUNDO)
             ancho *= mapa.scale() / self.escala
         self.cuadricula(mapa)
 
@@ -200,11 +209,12 @@ class Lamina:
         escala.setHeight(3 * self.f)
         escala.setTextFormat(self.texto(7))
         self.ubicar(escala, 112, y0 + 29)
-        self.etiqueta("Distancias válidas sobre el ecuador", 99, y0 + 41, 72, 4, 6.5, color="#52514e")
+        self.etiqueta("Exacta sobre el ecuador y los meridianos", 99, y0 + 41, 72, 4, 6.5, color="#52514e")
 
         # Membrete, con las filas de la plantilla del docente
         x, w = 173, 115
-        filas = [(14, ""), (5, "PROYECCIÓN GEOGRÁFICA (LATITUD / LONGITUD)"), (5, "DATUM: WGS84  ·  SRC: EPSG:4326"),
+        filas = [(14, ""), (5, "PROYECCIÓN EQUIDISTANTE CILÍNDRICA (PLATE CARRÉE) · CUADRÍCULA CADA 30°"),
+                 (5, "DATUM: WGS84  ·  SRC: EPSG:4087  ·  30° = 3 339,6 km"),
                  (6, "MAPA DE UBICACIÓN DE LAS MUESTRAS DE ROCA TOTAL — EARTHCHEM PETDB"),
                  (8, f"Elaborado por: {AUTORES}"),
                  (5, ""), (4, "")]
@@ -229,7 +239,7 @@ class Lamina:
         assert abs(mapa.scale() / self.escala - 1) < 0.005, (self.layout.name(), mapa.scale())
         escala_num = f"{self.escala:,.0f}".replace(",", ".")
         self.etiqueta(f"FECHA: {date.today():%d/%m/%Y}", x, y_fecha, w / 2, 5, 7)
-        self.etiqueta(f"ESCALA: 1 : {escala_num} (en el ecuador)", x + w / 2, y_fecha, w / 2, 5, 7)
+        self.etiqueta(f"ESCALA: 1 : {escala_num} (ecuador y meridianos)", x + w / 2, y_fecha, w / 2, 5, 7)
         self.etiqueta("Fuente: EarthChem PetDB (13/10/2026, CC BY 4.0) y Natural Earth  ·  Proyecto estrictamente "
                       "académico", x, y_fecha + 5, w, 4, 5.5, color="#52514e")
         print(self.layout.name(), "escala 1 :", escala_num)
@@ -246,7 +256,7 @@ class Lamina:
 def main():
     shapefiles()
     proyecto = QgsProject.instance()
-    proyecto.setCrs(WGS84)  # geográficas: la cuadrícula toca el marco en los cuatro lados
+    proyecto.setCrs(PLATE)  # en metros: la cuadrícula toca el marco en los cuatro lados y la escala cuadra
     proyecto.setTitle("Mapa de ubicación — Geoquímica de rocas EarthChem PetDB")
 
     oceanos, paises, muestras = (capa(n) for n in ("oceanos", "paises", "muestras"))
