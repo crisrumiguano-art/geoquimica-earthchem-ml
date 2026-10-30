@@ -55,7 +55,7 @@ def usadas(texto, todas):
 
 def main():
     todas = funciones((R / "funciones.R").read_text(encoding="utf-8"))
-    cabecera = "\n".join(l for l in (R / "funciones.R").read_text(encoding="utf-8").splitlines()[:20]
+    cabecera = "\n".join(l for l in (R / "funciones.R").read_text(encoding="utf-8").splitlines()[:30]
                          if l.startswith(("library(", ".libPaths", "SALIDAS", "GRAFICOS", "TABLAS_WEB", "for (d")))
     codigo = {}
     for png in sorted(IMG.glob("*.png")):
@@ -63,7 +63,9 @@ def main():
         texto = (R / script).read_text(encoding="utf-8").rstrip()
         nombres = usadas(texto, todas)
         codigo[png.name] = (
-            f"# Gráfico: {png.name}\n# Lo genera R/{script}; correr desde la raíz del repositorio:  Rscript R/{script}\n\n"
+            f"# Gráfico: {png.name}\n# Lo genera R/{script}; correr desde la raíz del repositorio:  Rscript R/{script}\n"
+            "# Las líneas que empiezan con # son explicaciones: R no las ejecuta. Primero va el script y debajo\n"
+            "# las funciones que usa, cada una con lo que hace, qué recibe y qué devuelve.\n\n"
             f"# ======================= R/{script} =======================\n{texto}\n\n"
             f"# =========== Funciones de R/funciones.R que usa (source(\"R/funciones.R\")) ===========\n"
             f"{cabecera}\n\n" + "\n\n".join(todas[n] for n in nombres) + "\n")

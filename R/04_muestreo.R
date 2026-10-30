@@ -5,6 +5,7 @@
 
 source("R/funciones.R")
 base <- leer_base()
+# R genera números "al azar" a partir de una semilla: fijarla hace que el sorteo sea reproducible.
 set.seed(2026)  # misma semilla = mismas muestras cada vez que se corre
 
 N <- nrow(base)
@@ -22,6 +23,7 @@ n <- ceiling(n0 / (1 + (n0 - 1) / N))
 cat("N =", N, " n0 =", round(n0, 1), " n =", n, "\n")
 
 # ------------------------------------------------------------ los tres métodos
+# sample(N, n) elige n números distintos entre 1 y N: son los números de fila que entran a la muestra.
 aleatorio <- function() sample(N, n)  # sorteo sin reposición: todas las filas con la misma chance
 
 sistematico <- function() {
@@ -41,6 +43,8 @@ afijacion <- function() {
 }
 NH <- afijacion()
 
+# lapply() recorre los estratos y devuelve una lista con las filas elegidas en cada uno; unlist() la junta en un
+# solo vector. which() da los números de fila donde la condición es verdadera.
 estratificado <- function() {
   # Muestreo aleatorio simple dentro de cada estrato, con el tamaño que le toca.
   unlist(lapply(names(NH), function(h) {
@@ -60,6 +64,7 @@ tabla_afijacion <- data.frame(estrato = names(NH), N_h = as.vector(table(base$Es
 print(tabla_afijacion)
 
 # ------------------------------------------------------------ comparación con la población
+# Porcentaje de cada estrato en un conjunto de filas (toda la base o una muestra).
 pct <- function(filas) round(prop.table(table(factor(base$Estrato[filas], levels = names(NH)))) * 100, 2)
 comp_estratos <- data.frame(estrato = names(NH), poblacion = as.vector(pct(seq_len(N))),
                             aleatoria = as.vector(pct(muestras$aleatoria)),
@@ -80,6 +85,9 @@ print(comp_medias)
 # Si se repite el muestreo, la media muestral cambia. Su desviación estándar (error estándar) mide la precisión.
 R <- 500
 sio2 <- base[["SiO2 (wt%)"]]
+# replicate(R, ...) repite R veces el muestreo y guarda la media de SiO2 de cada muestra. sapply() lo hace para
+# los tres métodos: sim es una matriz de 500 filas × 3 columnas. apply(sim, 2, sd) calcula la desviación
+# estándar de cada columna: el error estándar de cada método.
 sim <- sapply(list(aleatoria = aleatorio, sistematica = sistematico, estratificada = estratificado),
               function(f) replicate(R, mean(sio2[f()], na.rm = TRUE)))
 comp_repeticiones <- data.frame(metodo = colnames(sim), media_de_las_medias = round(colMeans(sim), 3),
