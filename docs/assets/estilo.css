@@ -178,7 +178,16 @@ tbody tr:hover td { background: var(--surface-1); }
   font: .72rem var(--mono); color: var(--muted); }
 .codigo-r .barra button { border: 1px solid var(--line); background: var(--surface-2); color: var(--text-primary); font: .72rem var(--mono);
   padding: .2rem .6rem; cursor: pointer; }
-.codigo-r pre { margin: 0; max-height: 26rem; overflow: auto; padding: .8rem 1rem; font: .74rem/1.5 var(--mono); color: var(--text-secondary);
+/* Colores del código R: tema oscuro tipo RStudio / VS Code */
+.codigo-r code { color: #d4d4d4; }
+.codigo-r .r-c { color: #7f9f7f; font-style: italic; }  /* comentario */
+.codigo-r .r-s { color: #ce9178; }  /* cadena */
+.codigo-r .r-k { color: #c586c0; }  /* palabra reservada */
+.codigo-r .r-b { color: #569cd6; }  /* TRUE, NULL, NA */
+.codigo-r .r-n { color: #b5cea8; }  /* número */
+.codigo-r .r-f { color: #dcdcaa; }  /* función */
+.codigo-r .r-o { color: #d4d4d4; }  /* operador */
+.codigo-r pre { margin: 0; max-height: 26rem; overflow: auto; padding: .8rem 1rem; font: .74rem/1.5 var(--mono); background: #1e1e1e;
   white-space: pre; tab-size: 2; }
 .callout { background: var(--surface-1); border: 1px solid var(--line); border-left: 3px solid var(--oro); padding: 1.5rem 1.7rem; margin: 0 0 2.4rem; }
 .callout h3 { font-family: var(--serif); font-weight: 500; font-size: 1.35rem; margin: 0 0 .7rem; }

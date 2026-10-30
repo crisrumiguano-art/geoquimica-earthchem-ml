@@ -174,7 +174,8 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
   y rótulos **en metros** cada 2 500 000 m (`PASO`), como la plantilla UTM: mezclar rótulos en grados con un mapa en
   metros también fue objetado. Barra con punto de miles (`QgsBasicNumericFormat`).
 - Cada gráfica de R en la web tiene un botón **Código R** (pedido del docente): muestra el script y las funciones exactas
-  que la generaron, desde `docs/data/codigo_r.json` (`scripts/codigo_r.py`). Si se agrega un PNG en `docs/img/r/`
+  que la generaron, desde `docs/data/codigo_r.json` (`scripts/codigo_r.py`), con resaltado de sintaxis propio
+  (`resaltarR` en `app.js`, colores tipo VS Code en `.codigo-r .r-*`). Los comentarios didácticos viven en los `.R`. Si se agrega un PNG en `docs/img/r/`
   con un prefijo nuevo, sumarlo a `SCRIPTS` en ese archivo.
 - El proyecto QGIS usa **shapefiles** (`data/gis/shp/`, 9 campos en muestras, anchos fijos con CAST en OGR SQL e índice
   `.qix`), no el GeoPackage: el equipo trabaja QGIS "de forma tradicional" y el gpkg de 35 MB le colgaba QGIS. El

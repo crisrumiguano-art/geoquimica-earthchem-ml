@@ -70,6 +70,29 @@ const conPlotly = f => window.Plotly ? f() : setTimeout(() => conPlotly(f), 100)
 // Botón «Código R» en cada gráfica hecha con R (img/r/*.png). El código sale de data/codigo_r.json, que arma
 // scripts/codigo_r.py con el script y las funciones exactas que generaron el PNG. Las gráficas se crean con JS
 // después de cargar la página, por eso se vigila el DOM en vez de recorrerlo una sola vez.
+// Resaltado de sintaxis de R, con los mismos colores por tipo que RStudio o VS Code (tema oscuro).
+// Un solo regex recorre el código: el primer grupo que coincide decide el color del trozo. Las cadenas van antes
+// que los comentarios en el orden de lectura, así un "#3987e5" dentro de comillas no se toma como comentario.
+const R_TOKENS = new RegExp([
+  /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/,                                   // 1 cadena de texto
+  /(#.*)/,                                                                   // 2 comentario
+  /\b(function|if|else|for|while|in|repeat|return|next|break)\b/,            // 3 palabra reservada
+  /\b(TRUE|FALSE|NULL|NA|Inf|NaN)\b/,                                        // 4 constante
+  /(\b\d+(?:\.\d+)?(?:e[+-]?\d+)?L?\b|\.\d+\b)/,                             // 5 número
+  /([A-Za-z_.][\w.]*)(?=\s*\()/,                                             // 6 llamada a función
+  /(<<-|<-|->|%in%|%%|==|!=|<=|>=|&&|\|\||\$|[+\-*/^~!&|<>=:])/,            // 7 operador
+].map(r => r.source).join("|"), "g");
+const R_CLASES = [, "s", "c", "k", "b", "n", "f", "o"];
+function resaltarR(texto) {
+  let html = "", desde = 0;
+  for (const m of texto.matchAll(R_TOKENS)) {
+    const g = m.findIndex((v, i) => i > 0 && v !== undefined);
+    html += esc(texto.slice(desde, m.index)) + `<span class="r-${R_CLASES[g]}">${esc(m[g])}</span>`;
+    desde = m.index + m[g].length;  // el grupo 6 no incluye el "(" (lookahead): sigue como texto normal
+  }
+  return html + esc(texto.slice(desde));
+}
+
 let codigosR;
 function botonCodigo(fig) {
   const img = fig.querySelector('img[src*="img/r/"]');
@@ -88,7 +111,7 @@ function botonCodigo(fig) {
     const texto = (await codigosR)[archivo] ?? "# Sin código registrado para " + archivo;
     caja = document.createElement("div");
     caja.className = "codigo-r";
-    caja.innerHTML = `<div class="barra"><span>${esc(archivo)} · R</span><button type="button">Copiar</button></div><pre><code>${esc(texto)}</code></pre>`;
+    caja.innerHTML = `<div class="barra"><span>${esc(archivo)} · R</span><button type="button">Copiar</button></div><pre><code>${resaltarR(texto)}</code></pre>`;
     caja.querySelector("button").addEventListener("click", e => navigator.clipboard.writeText(texto)
       .then(() => { e.target.textContent = "Copiado"; setTimeout(() => e.target.textContent = "Copiar", 1500); }));
     fig.append(caja);  // dentro de la figura: en .bloque un hermano nuevo desarmaría la grilla
