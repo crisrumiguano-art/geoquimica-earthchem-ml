@@ -14,7 +14,7 @@ from osgeo import gdal
 
 gdal.UseExceptions()
 from qgis.core import (
-    QgsApplication, QgsCategorizedSymbolRenderer, QgsCoordinateReferenceSystem, QgsFillSymbol,
+    QgsApplication, QgsBasicNumericFormat, QgsCategorizedSymbolRenderer, QgsCoordinateReferenceSystem, QgsFillSymbol,
     QgsLayoutExporter, QgsLayoutItemLabel, QgsLayoutItemLegend, QgsLayoutItemMap, QgsLayoutItemMapGrid,
     QgsLayoutItemPicture, QgsLayoutItemScaleBar, QgsLayoutItemShape, QgsLayoutPoint, QgsLayoutSize, QgsLegendStyle,
     QgsLineSymbol, QgsMarkerSymbol, QgsPrintLayout, QgsProject, QgsRectangle, QgsRendererCategory, QgsTextFormat,
@@ -29,12 +29,13 @@ GPKG = GIS / "mapa_ubicacion.gpkg"
 SHP = GIS / "shp"
 LOGO = GIS / "UCE.png"  # copiado de referencias_curso/QGIS/1.- Mapa de Ubicacion/UCE.png
 LOGO_MINAS = GIS / "MINAS.png"
-WGS84 = QgsCoordinateReferenceSystem("EPSG:4326")  # capas y cuadrícula en grados
+WGS84 = QgsCoordinateReferenceSystem("EPSG:4326")  # capas (shapefiles) en grados
 # El mapa se dibuja en metros: equidistante cilíndrica (Plate Carrée) sobre WGS84. x = a·λ, y = a·φ, así que 1° mide
-# lo mismo en todo el mapa (111,32 km) y la escala numérica, la barra en km y la cuadrícula de 30° coinciden.
+# lo mismo en todo el mapa (111,32 km) y la escala numérica, la barra en km y la cuadrícula coinciden. La cuadrícula
+# y sus rótulos van en metros, en el mismo sistema del mapa, como la plantilla UTM del docente.
 # En grados (EPSG:4326) QGIS medía la escala con el grado de latitud (110,6 km) y la barra no cuadraba con la grilla.
 PLATE = QgsCoordinateReferenceSystem("EPSG:4087")
-GRADOS_30 = 20_037_508.342789244 / 6  # 30° en metros en EPSG:4087
+PASO = 2_500_000  # cuadrícula cada 2 500 km
 MUNDO = QgsRectangle(-20_037_508.34, -10_018_754.17, 20_037_508.34, 10_018_754.17)  # ±180°, ±90° en metros
 GRUPOS = [("dorsal y corteza oceanica", "Dorsal y corteza oceánica", "#2a78d6"),
           ("intraplaca y rift", "Intraplaca y rift", "#1baf7a"),
@@ -128,23 +129,20 @@ class Lamina:
         return self.ubicar(r, x, y, w, h)
 
     def cuadricula(self, mapa):
-        """Cuadrícula de 30° con las coordenadas en el borde (O/E, S/N) y marco cebra, como la plantilla del docente."""
+        """Cuadrícula cada 2 500 km con las coordenadas en metros en el borde y marco cebra, como la plantilla del docente."""
         g = QgsLayoutItemMapGrid("Cuadrícula", mapa)
-        # En la misma proyección del mapa (metros): 30° = 20 037 508,34 m / 6. Una grilla en EPSG:4326 sobre un mapa
-        # en otro SRC QGIS la dibuja como curva y repite los rótulos dentro del mapa.
-        g.setCrs(PLATE)
-        g.setIntervalX(GRADOS_30)
-        g.setIntervalY(GRADOS_30)
+        g.setCrs(PLATE)  # mismo SRC que el mapa: rótulos en metros, como la escala
+        g.setIntervalX(PASO)
+        g.setIntervalY(PASO)
         g.setLineSymbol(QgsLineSymbol.createSimple({"line_color": "#9a9990", "line_width": str(0.15 * self.f)}))
         g.setFrameStyle(QgsLayoutItemMapGrid.Zebra)
         g.setFrameWidth(1.2 * self.f)
         g.setAnnotationEnabled(True)
         g.setAnnotationFormat(QgsLayoutItemMapGrid.CustomFormat)
         g.setAnnotationExpression(
-            f"with_variable('g', round(@grid_number / {GRADOS_30 / 30!r}), "  # metros -> grados
-            "CASE WHEN abs(@g) = if(@grid_axis = 'x', 180, 90) THEN '' "  # sin rótulos en las esquinas: se encimarían
-            "ELSE concat(abs(@g), '°', CASE WHEN @g = 0 THEN '' WHEN @grid_axis = 'x' "
-            "THEN if(@g < 0, 'O', 'E') ELSE if(@g < 0, 'S', 'N') END) END)")
+            # Sin rótulo en las líneas pegadas al borde (±20 000 000 en x, ±10 000 000 en y): caerían en las esquinas.
+            "CASE WHEN abs(@grid_number) >= if(@grid_axis = 'x', 20000000, 10000000) THEN '' "
+            "ELSE format_number(@grid_number, 0, 'es') END")
         g.setAnnotationTextFormat(self.texto(7))
         g.setAnnotationFrameDistance(1 * self.f)
         for lado in (QgsLayoutItemMapGrid.Left, QgsLayoutItemMapGrid.Right, QgsLayoutItemMapGrid.Top,
@@ -208,13 +206,19 @@ class Lamina:
         escala.setUnitsPerSegment(2500)
         escala.setHeight(3 * self.f)
         escala.setTextFormat(self.texto(7))
+        miles = QgsBasicNumericFormat()  # 2.500 y no 2,500
+        miles.setThousandsSeparator(".")
+        miles.setDecimalSeparator(",")
+        miles.setShowThousandsSeparator(True)
+        miles.setNumberDecimalPlaces(0)
+        escala.setNumericFormat(miles)
         self.ubicar(escala, 112, y0 + 29)
         self.etiqueta("Exacta sobre el ecuador y los meridianos", 99, y0 + 41, 72, 4, 6.5, color="#52514e")
 
         # Membrete, con las filas de la plantilla del docente
         x, w = 173, 115
-        filas = [(14, ""), (5, "PROYECCIÓN EQUIDISTANTE CILÍNDRICA (PLATE CARRÉE) · CUADRÍCULA CADA 30°"),
-                 (5, "DATUM: WGS84  ·  SRC: EPSG:4087  ·  30° = 3 339,6 km"),
+        filas = [(14, ""), (5, "PROYECCIÓN EQUIDISTANTE CILÍNDRICA (PLATE CARRÉE) · COORDENADAS EN METROS"),
+                 (5, "DATUM: WGS84  ·  SRC: EPSG:4087  ·  CUADRÍCULA CADA 2 500 000 m"),
                  (6, "MAPA DE UBICACIÓN DE LAS MUESTRAS DE ROCA TOTAL — EARTHCHEM PETDB"),
                  (8, f"Elaborado por: {AUTORES}"),
                  (5, ""), (4, "")]

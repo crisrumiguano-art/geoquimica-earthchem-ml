@@ -170,9 +170,9 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
   páginas; mapa QGIS con **cuadrícula con coordenadas y membrete** (formato de `referencias_curso/QGIS/1.- Mapa de
   Ubicacion/Plantilla1.qpt`, logo `data/gis/UCE.png`).
 - Mapa QGIS en **EPSG:4087** (equidistante cilíndrica WGS84, metros): 1° = 111,32 km en todo el mapa, así la escala,
-  la barra en km y la cuadrícula de 30° coinciden (el docente objetó que en EPSG:4326 no cuadraban, 29/10/2026). La
-  cuadrícula va en metros (`GRADOS_30`) con rótulos convertidos a grados; una grilla en 4326 sobre el mapa en 4087
-  repite los rótulos dentro del mapa.
+  la barra en km y la cuadrícula coinciden (el docente objetó que en EPSG:4326 no cuadraban, 29/10/2026). Cuadrícula
+  y rótulos **en metros** cada 2 500 000 m (`PASO`), como la plantilla UTM: mezclar rótulos en grados con un mapa en
+  metros también fue objetado. Barra con punto de miles (`QgsBasicNumericFormat`).
 - Cada gráfica de R en la web tiene un botón **Código R** (pedido del docente): muestra el script y las funciones exactas
   que la generaron, desde `docs/data/codigo_r.json` (`scripts/codigo_r.py`). Si se agrega un PNG en `docs/img/r/`
   con un prefijo nuevo, sumarlo a `SCRIPTS` en ese archivo.
