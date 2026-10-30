@@ -94,6 +94,19 @@ function resaltarR(texto) {
 }
 
 let codigosR;
+// Panel con el código coloreado y botón Copiar. json: ruta de codigo_r.json; clave: PNG o nombre del script.
+async function panelCodigo(json, clave) {
+  codigosR ??= fetch(json).then(r => r.json());
+  const texto = (await codigosR)[clave] ?? "# Sin código registrado para " + clave;
+  const caja = document.createElement("div");
+  caja.className = "codigo-r";
+  caja.innerHTML = `<div class="barra"><span>${esc(clave)} · R</span><span><a href="#leer-codigo">¿Cómo se lee?</a>
+    <button type="button">Copiar</button></span></div><pre><code>${resaltarR(texto)}</code></pre>`;
+  caja.querySelector("button").addEventListener("click", e => navigator.clipboard.writeText(texto)
+    .then(() => { e.target.textContent = "Copiado"; setTimeout(() => e.target.textContent = "Copiar", 1500); }));
+  return caja;
+}
+
 function botonCodigo(fig) {
   const img = fig.querySelector('img[src*="img/r/"]');
   if (!img || fig.dataset.codigo) return;
@@ -105,19 +118,22 @@ function botonCodigo(fig) {
   boton.setAttribute("aria-expanded", "false");
   fig.append(boton);
   boton.addEventListener("click", async () => {
-    let caja = fig.querySelector(".codigo-r");
-    if (caja) { caja.remove(); boton.setAttribute("aria-expanded", "false"); return; }
-    codigosR ??= fetch(json).then(r => r.json());
-    const texto = (await codigosR)[archivo] ?? "# Sin código registrado para " + archivo;
-    caja = document.createElement("div");
-    caja.className = "codigo-r";
-    caja.innerHTML = `<div class="barra"><span>${esc(archivo)} · R</span><button type="button">Copiar</button></div><pre><code>${resaltarR(texto)}</code></pre>`;
-    caja.querySelector("button").addEventListener("click", e => navigator.clipboard.writeText(texto)
-      .then(() => { e.target.textContent = "Copiado"; setTimeout(() => e.target.textContent = "Copiar", 1500); }));
-    fig.append(caja);  // dentro de la figura: en .bloque un hermano nuevo desarmaría la grilla
+    const abierta = fig.querySelector(".codigo-r");
+    if (abierta) { abierta.remove(); boton.setAttribute("aria-expanded", "false"); return; }
+    fig.append(await panelCodigo(json, archivo));  // dentro de la figura: en .bloque un hermano nuevo desarmaría la grilla
     boton.setAttribute("aria-expanded", "true");
   });
 }
 new MutationObserver(() => document.querySelectorAll("figure.grafica").forEach(botonCodigo))
   .observe(document.body, { childList: true, subtree: true });
 document.querySelectorAll("figure.grafica").forEach(botonCodigo);
+
+// Botones sueltos que abren un script completo: <button data-ver-codigo="05_paso_a_paso.R" data-json="...">.
+document.querySelectorAll("[data-ver-codigo]").forEach(boton => boton.addEventListener("click", async () => {
+  const abierta = boton.nextElementSibling?.classList.contains("codigo-r") ? boton.nextElementSibling : null;
+  if (abierta) { abierta.remove(); boton.setAttribute("aria-expanded", "false"); return; }
+  boton.after(await panelCodigo(boton.dataset.json, boton.dataset.verCodigo));
+  boton.setAttribute("aria-expanded", "true");
+}));
+// Ejemplos cortos de R escritos en la página: <pre class="r-mini"><code>...</code></pre> se colorean igual.
+document.querySelectorAll("pre.r-mini code").forEach(c => { c.innerHTML = resaltarR(c.textContent); });

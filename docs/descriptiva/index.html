@@ -40,7 +40,7 @@
     <nav class="indice rev" style="--d:3" aria-label="Secciones de la página">
       <a href="#poblacion">01 Población y muestra</a><a href="#variables">02 Variables</a>
       <a href="#cualitativas">03 Cualitativas</a><a href="#discretas">04 Discretas</a>
-      <a href="#continuas">05 Continuas</a><a href="#exploracion">06 Exploración</a>
+      <a href="#continuas">05 Continuas</a><a href="#exploracion">06 Exploración</a><a href="#leer-codigo">07 Leer el código R</a>
     </nav>
   </div>
 </header>
@@ -145,6 +145,76 @@
     <div class="graficos">
       <div class="g rev"><h3>Muestras por ambiente tectónico</h3><p>12 ambientes más frecuentes de PetDB</p><div class="plot" id="g-tec"></div></div>
       <div class="g rev"><h3>Diagrama TAS: álcalis totales frente a sílice</h3><p>Rocas volcánicas, selección aleatoria de 6.000 análisis</p><div class="plot" id="g-tas"></div></div>
+    </div>
+  </section>
+
+  <section class="cap" id="leer-codigo">
+    <div class="cab rev"><span class="num">07</span><h2>Cómo leer el código R</h2>
+      <p>Cada gráfica de esta página tiene un botón <b>Código R</b> con el programa exacto que la generó. Esta sección
+        explica lo mínimo para entenderlo y lo compara con la plantilla del curso.</p></div>
+
+    <div class="leer rev">
+      <div class="paso"><h3>1 · Guardar un valor</h3>
+        <p><code>&lt;-</code> guarda un resultado con un nombre para usarlo después. Se lee «recibe».</p>
+        <pre class="r-mini"><code>n &lt;- 57031          # n recibe 57031
+k &lt;- round(1 + 3.3 * log10(n))   # Sturges: k = 17</code></pre></div>
+      <div class="paso"><h3>2 · Vectores y tablas</h3>
+        <p>Un <b>vector</b> es una lista de valores; un <b>data.frame</b> es una tabla (filas y columnas). Con
+          <code>base[["SiO2 (wt%)"]]</code> se saca una columna de la base como vector.</p>
+        <pre class="r-mini"><code>ni &lt;- c(888, 478, 1110)           # vector
+hi &lt;- round(ni / sum(ni) * 100, 2) # opera con todos a la vez
+TDF &lt;- data.frame(ni, hi)          # tabla con dos columnas</code></pre></div>
+      <div class="paso"><h3>3 · Usar una función</h3>
+        <p>Una <b>función</b> es un bloque de código con nombre: recibe datos entre paréntesis (los
+          <i>argumentos</i>) y devuelve un resultado. R trae muchas (<code>mean</code>, <code>barplot</code>…).</p>
+        <pre class="r-mini"><code>mean(c(2, 4, 6))                 # devuelve 4
+quantile(SiO2, 0.25)             # devuelve el primer cuartil
+barplot(hi, space = 0)           # dibuja un histograma</code></pre></div>
+      <div class="paso"><h3>4 · Crear una función</h3>
+        <p>Cuando un procedimiento se repite (aquí, con 9 variables) se escribe <b>una vez</b> como función y después
+          solo se <b>llama</b>. Eso es <code>funciones.R</code>; los scripts <code>01</code>–<code>04</code> la usan.</p>
+        <pre class="r-mini"><code># Definir (una vez):
+cv &lt;- function(x) {
+  sd(x) / mean(x) * 100   # la última línea es lo que devuelve
+}
+# Usar (las veces que haga falta):
+cv(SiO2)   # coeficiente de variación de SiO2</code></pre></div>
+    </div>
+
+    <h3 class="rev" style="margin-top:2.6rem">Lo mismo que la plantilla del curso, organizado en funciones</h3>
+    <p class="rev" style="color:var(--text-secondary);max-width:820px">La plantilla del docente (<code>Analisis_SiO2.R</code>)
+      escribe cada cálculo línea por línea para una variable. Nuestro código hace <b>los mismos cálculos</b>, pero dentro de
+      funciones para repetirlos en todas las variables. Esta es la equivalencia:</p>
+    <div class="tabla rev"><table>
+      <thead><tr><th>Paso</th><th>Plantilla del curso</th><th>Nuestro código (funciones.R)</th></tr></thead>
+      <tbody>
+        <tr><td>Límites</td><td><code>Li &lt;- seq(40, 75, by = 5)</code> a mano</td><td>dentro de <code>tdf_continua()</code>: Sturges, amplitud redonda y <code>seq</code></td></tr>
+        <tr><td>ni</td><td><code>ni &lt;- c(2, 30, 81, …)</code> copiado de Excel</td><td>R los cuenta: <code>table(cut(x, breaks))</code></td></tr>
+        <tr><td>hi, Ni, Hi</td><td><code>cumsum()</code> y <code>rev()</code></td><td>igual: <code>cumsum()</code> y <code>rev()</code></td></tr>
+        <tr><td>Histograma</td><td><code>barplot(hi, space = 0)</code> + <code>lines()</code></td><td>igual, en <code>graficos_continua()</code></td></tr>
+        <tr><td>Ojiva</td><td><code>plot(Ls, Hiasc)</code> + <code>lines(Li, Hidsc)</code></td><td>igual, en <code>graficos_continua()</code></td></tr>
+        <tr><td>Caja</td><td><code>boxplot(x, horizontal = TRUE)</code></td><td>igual</td></tr>
+        <tr><td>Indicadores</td><td><code>EDA()</code> del paquete PASWR y CV a mano</td><td><code>indicadores()</code>: <code>quantile</code>, <code>mean</code>, <code>sd</code>, CV, <code>skewness</code>, <code>kurtosis</code></td></tr>
+        <tr><td>Outliers</td><td><code>boxplot(...)$out</code></td><td><code>limites_iqr()</code> y clases abiertas (no se borra ningún dato)</td></tr>
+      </tbody></table></div>
+
+    <div class="rev" style="margin-top:2rem;max-width:900px">
+      <p style="color:var(--text-secondary)"><b>Versión paso a paso.</b> Para ver todo sin funciones, como en la
+        plantilla: <code>R/05_paso_a_paso.R</code> hace el ambiente tectónico y el SiO2 línea por línea, explicado, y al
+        final <b>comprueba que da exactamente las mismas tablas</b> que el código con funciones.</p>
+      <button type="button" class="btn" data-ver-codigo="05_paso_a_paso.R" data-json="../data/codigo_r.json">Ver el código paso a paso</button>
+    </div>
+
+    <div class="rev" style="margin-top:2rem;max-width:900px">
+      <h3>Cómo correrlo en RStudio</h3>
+      <ol class="pasos-r">
+        <li>Descargar el repositorio (botón verde <i>Code → Download ZIP</i> en GitHub) y descomprimirlo.</li>
+        <li>En RStudio: <i>Session → Set Working Directory → Choose Directory…</i> y elegir la carpeta del repositorio
+          (la que tiene <code>R/</code>, <code>data/</code> y <code>docs/</code>).</li>
+        <li>Instalar una vez los paquetes: <code>install.packages(c("e1071", "openxlsx"))</code>.</li>
+        <li>Abrir <code>R/05_paso_a_paso.R</code> y ejecutar línea por línea con <b>Ctrl + Enter</b>: cada resultado sale en
+          la consola y cada gráfico en el panel <i>Plots</i>. Las líneas con <code>#</code> son explicaciones y R las ignora.</li>
+      </ol>
     </div>
   </section>
 </main>

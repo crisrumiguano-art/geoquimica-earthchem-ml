@@ -12,3 +12,6 @@ referencias_curso
 .env
 # base descomprimida a mano para Excel (90 MB): no versionar, ya está el .csv.gz
 data/earthchem_limpio.csv
+
+# gráficos del paso a paso cuando se corre con Rscript (en RStudio salen en el panel Plots)
+R/salidas/paso_a_paso_*.png

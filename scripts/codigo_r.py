@@ -69,6 +69,8 @@ def main():
             f"# ======================= R/{script} =======================\n{texto}\n\n"
             f"# =========== Funciones de R/funciones.R que usa (source(\"R/funciones.R\")) ===========\n"
             f"{cabecera}\n\n" + "\n\n".join(todas[n] for n in nombres) + "\n")
+    # Script completo sin funciones propias, con el estilo de la plantilla (sección «Cómo leer el código R»).
+    codigo["05_paso_a_paso.R"] = (R / "05_paso_a_paso.R").read_text(encoding="utf-8")
     SALIDA.write_text(json.dumps(codigo, ensure_ascii=False, indent=0), encoding="utf-8")
     print(f"{len(codigo)} gráficos -> {SALIDA}")
 

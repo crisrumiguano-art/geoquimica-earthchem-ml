@@ -75,6 +75,8 @@ data/gis/                                       capas GIS (WGS84) y proyecto QGI
 docs/informe_proyecto.docx / .pdf               informe: base de datos, estadística y documentación técnica
 R/funciones.R + 01/02/03_*.R                    estadística descriptiva (TDF, gráficas, outliers, indicadores)
 R/04_muestreo.R                                 muestreo (L3) -> data/muestras/*.csv, R/salidas/Muestreo.xlsx
+R/05_paso_a_paso.R                              SiO2 y ambiente tectónico SIN funciones propias, estilo plantilla
+                                                del docente, línea por línea; al final comprueba que da lo mismo que funciones.R
 docs/mapa_ubicacion_A4.pdf / _A3.pdf            mapa QGIS en PDF vectorial para imprimir a escala (100 %, sin ajustar):
                                                 A4 1:150 000 000, A3 1:110 000 000 (fijadas en PAPELES de proyecto_qgis.py;
                                                 el ancho del marco se calcula; 1:100 M no entra en A3)
@@ -175,7 +177,9 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
   metros también fue objetado. Barra con punto de miles (`QgsBasicNumericFormat`).
 - Cada gráfica de R en la web tiene un botón **Código R** (pedido del docente): muestra el script y las funciones exactas
   que la generaron, desde `docs/data/codigo_r.json` (`scripts/codigo_r.py`), con resaltado de sintaxis propio
-  (`resaltarR` en `app.js`, colores tipo VS Code en `.codigo-r .r-*`). Los comentarios didácticos viven en los `.R`. Si se agrega un PNG en `docs/img/r/`
+  (`resaltarR` en `app.js`, colores tipo VS Code en `.codigo-r .r-*`). Los comentarios didácticos viven en los `.R`.
+  La sección 07 de `/descriptiva/` («Cómo leer el código R») explica variable, vector, función y la equivalencia con
+  la plantilla `Analisis_SiO2.R`; el equipo no entendía las funciones (29/10/2026). Si se agrega un PNG en `docs/img/r/`
   con un prefijo nuevo, sumarlo a `SCRIPTS` en ese archivo.
 - El proyecto QGIS usa **shapefiles** (`data/gis/shp/`, 9 campos en muestras, anchos fijos con CAST en OGR SQL e índice
   `.qix`), no el GeoPackage: el equipo trabaja QGIS "de forma tradicional" y el gpkg de 35 MB le colgaba QGIS. El
