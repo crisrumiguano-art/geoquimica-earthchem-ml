@@ -14,6 +14,8 @@ RAIZ = Path(__file__).resolve().parent.parent
 R = RAIZ / "R"
 IMG = RAIZ / "docs" / "img" / "r"
 SALIDA = RAIZ / "docs" / "data" / "codigo_r.json"
+SOURCE = 'source("R/funciones.R")'
+BASE_URL = "https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz"
 # Prefijo del PNG -> script que lo genera.
 SCRIPTS = [("cual_", "01_cualitativas.R"), ("disc_", "02_discretas.R"), ("muestreo_", "04_muestreo.R"),
            ("", "03_continuas.R")]  # SiO2_agrupacion.png, MgO_toda_la_muestra.png, ...
@@ -62,13 +64,25 @@ def main():
         script = next(s for prefijo, s in SCRIPTS if png.name.startswith(prefijo))
         texto = (R / script).read_text(encoding="utf-8").rstrip()
         nombres = usadas(texto, todas)
+        # Versión autónoma: se puede copiar y correr en cualquier carpeta. Las funciones van ANTES del script
+        # (R las necesita definidas antes de usarlas) y el source("R/funciones.R") queda comentado.
+        assert SOURCE in texto, script
+        texto = texto.replace(SOURCE, '# source("R/funciones.R")   <- no hace falta: las funciones ya están arriba', 1)
         codigo[png.name] = (
-            f"# Gráfico: {png.name}\n# Lo genera R/{script}; correr desde la raíz del repositorio:  Rscript R/{script}\n"
-            "# Las líneas que empiezan con # son explicaciones: R no las ejecuta. Primero va el script y debajo\n"
-            "# las funciones que usa, cada una con lo que hace, qué recibe y qué devuelve.\n\n"
-            f"# ======================= R/{script} =======================\n{texto}\n\n"
-            f"# =========== Funciones de R/funciones.R que usa (source(\"R/funciones.R\")) ===========\n"
-            f"{cabecera}\n\n" + "\n\n".join(todas[n] for n in nombres) + "\n")
+            f"# Gráfico: {png.name}  (lo genera R/{script} del repositorio)\n"
+            "# Código COMPLETO y autónomo: copiar todo en RStudio y ejecutar (Ctrl + A, Ctrl + Enter).\n"
+            "#   1. Session > Set Working Directory > Choose Directory: una carpeta cualquiera.\n"
+            "#   2. La parte 0 descarga la base la primera vez (26 MB) a data/ dentro de esa carpeta.\n"
+            f"#   3. El gráfico queda en docs/img/r/{png.name}; el script también hace los demás gráficos de su sección.\n"
+            "# Las líneas con # son explicaciones: R no las ejecuta.\n\n"
+            "# ============ 0. Base de datos (solo se descarga si no está) ============\n"
+            'dir.create("data", showWarnings = FALSE)\n'
+            'if (!file.exists("data/earthchem_limpio.csv.gz"))\n'
+            f'  download.file("{BASE_URL}",\n'
+            '                "data/earthchem_limpio.csv.gz", mode = "wb")   # mode = "wb": archivo binario\n\n'
+            "# ============ 1. Funciones (de R/funciones.R) ============\n"
+            f"{cabecera}\n\n" + "\n\n".join(todas[n] for n in nombres) + "\n\n"
+            f"# ============ 2. Script R/{script} ============\n{texto}\n")
     # Script completo sin funciones propias, con el estilo de la plantilla (sección «Cómo leer el código R»).
     codigo["05_paso_a_paso.R"] = (R / "05_paso_a_paso.R").read_text(encoding="utf-8")
     SALIDA.write_text(json.dumps(codigo, ensure_ascii=False, indent=0), encoding="utf-8")
