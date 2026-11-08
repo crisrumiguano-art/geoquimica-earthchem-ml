@@ -74,7 +74,9 @@ scripts/proyecto_qgis.py                        gpkg -> data/gis/shp/*.shp + map
 data/gis/                                       capas GIS (WGS84) y proyecto QGIS con composición A4
 docs/informe_proyecto.docx / .pdf               informe: base de datos, estadística y documentación técnica
 R/funciones.R + 01/02/03_*.R                    estadística descriptiva (TDF, gráficas, outliers, indicadores)
-R/04_muestreo.R                                 muestreo (L3) -> data/muestras/*.csv, R/salidas/Muestreo.xlsx
+R/graficos/NN_*.R                               un script SIMPLE por gráfico (sin funciones propias), generado por
+                                                scripts/codigo_r.py desde las plantillas de scripts/codigo_simple.py
+R/04_muestreo.R                                 muestreo (L3), simple, sin funciones -> data/muestras/*.csv, Muestreo.xlsx
 R/05_paso_a_paso.R                              SiO2 y ambiente tectónico SIN funciones propias, estilo plantilla
                                                 del docente, línea por línea; al final comprueba que da lo mismo que funciones.R
 docs/mapa_ubicacion_A4.pdf / _A3.pdf            mapa QGIS en PDF vectorial para imprimir a escala (100 %, sin ajustar):
@@ -175,6 +177,10 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
   la barra en km y la cuadrícula coinciden (el docente objetó que en EPSG:4326 no cuadraban, 29/10/2026). Cuadrícula
   y rótulos **en metros** cada 2 500 000 m (`PASO`), como la plantilla UTM: mezclar rótulos en grados con un mapa en
   metros también fue objetado. Barra con punto de miles (`QgsBasicNumericFormat`).
+- **El código R que se muestra y se explica es SIMPLE** (pedido del equipo, 08/11/2026): paso a paso, sin funciones
+  propias, como la plantilla del docente. `R/graficos/` y el botón «Código R» salen de `scripts/codigo_simple.py`;
+  cada plantilla reproduce el PNG byte a byte (probarlo al tocarlas). `funciones.R` + 01–03 quedan solo para
+  regenerar todo en bucle (ver `R/LEEME.md`).
 - Cada gráfica de R en la web tiene un botón **Código R** (pedido del docente): muestra el script y las funciones exactas
   que la generaron, desde `docs/data/codigo_r.json` (`scripts/codigo_r.py`), en versión **autónoma y por gráfico** (`fragmento()` arma
   solo las líneas de ese PNG con los argumentos del bucle; muestreo muestra el script entero) (descarga la base

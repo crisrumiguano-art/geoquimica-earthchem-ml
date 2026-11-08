@@ -1,128 +1,143 @@
-# MUESTREO (Lección 3): aleatorio simple, sistemático y estratificado.
-# Correr desde la carpeta del repositorio:  Rscript R/04_muestreo.R
-# Saca 3 muestras del mismo tamaño de la base (N = 159 760), las compara con la base completa y
-# repite cada método 500 veces para ver cuál es más preciso.
+# =========================================================================================
+# MUESTREO (Lección 3): aleatorio simple, sistemático y estratificado
+# Saca 3 muestras del mismo tamaño de la base (N = 159 760), las compara con la base completa
+# y repite cada método 500 veces para ver cuál es más preciso.
+# Correr desde la carpeta del repositorio (RStudio: abrir el proyecto; o Rscript R/04_muestreo.R).
+# Las líneas con # son explicaciones (R no las ejecuta).
+# =========================================================================================
 
-source("R/funciones.R")   # carga las funciones del proyecto
-base <- leer_base()       # lee la base completa
-set.seed(2026)  # misma semilla = mismas muestras cada vez que se corre
+library(openxlsx)   # para guardar Excel (install.packages("openxlsx"))
 
-N <- nrow(base)   # tamaño de la población (número de filas)
-# Estratos = ambiente tectónico agrupado (las 304 filas sin dato forman su propio estrato)
+# ---- 1. Datos ----
+base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
+set.seed(2026)      # semilla: el sorteo sale igual cada vez que se corre
+N <- nrow(base)     # tamaño de la población (número de filas)
+
+# Estratos = ambiente tectónico agrupado (las filas sin dato forman su propio estrato)
 estrato <- base[["Tectonic Group"]]
 estrato[is.na(estrato) | estrato == ""] <- "sin dato"
-base$Estrato <- estrato
 
-# ------------------------------------------------------------ tamaño de muestra
-# Fórmula: n0 = z² · p · q / e²   y   n = n0 / (1 + (n0 - 1) / N)
-# z = 1,96 (95 % de confianza), p = q = 0,5 (caso más desfavorable), e = 3 % (error máximo)
-z <- 1.96; p <- 0.5; e <- 0.03
+# ---- 2. Tamaño de la muestra ----
+# n0 = z² · p · q / e²   y   n = n0 / (1 + (n0 - 1) / N)
+z <- 1.96           # 95 % de confianza
+p <- 0.5            # p = q = 0,5: el caso más desfavorable
+e <- 0.03           # error máximo: 3 %
 n0 <- z^2 * p * (1 - p) / e^2
-n <- ceiling(n0 / (1 + (n0 - 1) / N))
-cat("N =", N, " n0 =", round(n0, 1), " n =", n, "\n")
+n <- ceiling(n0 / (1 + (n0 - 1) / N))   # ceiling = redondear hacia arriba
+c(N = N, n0 = n0, n = n)
 
-# ------------------------------------------------------------ los tres métodos
-# ALEATORIO SIMPLE: sorteo de n filas entre 1 y N (sample)
-aleatorio <- function() sample(N, n)  # sorteo sin reposición: todas las filas con la misma chance
+# ---- 3. Cuántas filas le tocan a cada estrato (afijación proporcional) ----
+Nh <- table(estrato)                    # tamaño de cada estrato
+exacto <- n * Nh / N                    # n_h = n · N_h / N  (con decimales)
+nh <- floor(exacto)                     # parte entera
+falta <- n - sum(nh)                    # lo que falta para llegar a n
+mayores <- order(exacto - nh, decreasing = TRUE)[seq_len(falta)]   # los de mayor decimal
+nh[mayores] <- nh[mayores] + 1          # reciben 1 más
+tabla_afijacion <- data.frame(estrato = names(Nh), N_h = as.vector(Nh),
+                              peso = round(as.vector(Nh) / N * 100, 2), n_h = as.vector(nh))
+tabla_afijacion
 
-# SISTEMÁTICO: una fila cada k, empezando en una fila sorteada
-sistematico <- function() {
-  k <- floor(N / n)        # intervalo de selección
-  i <- sample(k, 1)        # arranque aleatorio entre 1 y k
-  i + (0:(n - 1)) * k      # i, i+k, i+2k, ..., i+(n-1)k
+# ---- 4. Las tres muestras (cada una = números de fila) ----
+# ALEATORIO SIMPLE: sorteo de n filas entre 1 y N, sin repetir
+m_aleatoria <- sample(N, n)
+
+# SISTEMÁTICO: una fila cada k, empezando en una fila sorteada entre 1 y k
+k <- floor(N / n)                       # intervalo: 159760 / 1061 ≈ 150
+inicio <- sample(k, 1)
+m_sistematica <- inicio + (0:(n - 1)) * k   # inicio, inicio + k, inicio + 2k, ...
+
+# ESTRATIFICADO: sorteo dentro de cada estrato, con su n_h
+m_estratificada <- c()
+for (h in names(nh)) {
+  filas <- which(estrato == h)          # filas de ese estrato
+  m_estratificada <- c(m_estratificada, filas[sample(length(filas), nh[[h]])])
 }
 
-afijacion <- function() {
-  # cuántas filas le tocan a cada estrato: n_h = n · N_h / N (proporcional a su tamaño)
-  Nh <- table(base$Estrato)
-  bruto <- n * Nh / N
-  nh <- floor(bruto)
-  falta <- n - sum(nh)
-  nh[order(bruto - nh, decreasing = TRUE)[seq_len(falta)]] <- nh[order(bruto - nh, decreasing = TRUE)[seq_len(falta)]] + 1
-  nh
+# ---- 5. ¿Las muestras se parecen a la población? ----
+# % de cada estrato en la población y en cada muestra
+porcentaje <- function(filas) round(prop.table(table(factor(estrato[filas], levels = names(nh)))) * 100, 2)
+comp_estratos <- data.frame(estrato = names(nh),
+                            poblacion = as.vector(porcentaje(1:N)),
+                            aleatoria = as.vector(porcentaje(m_aleatoria)),
+                            sistematica = as.vector(porcentaje(m_sistematica)),
+                            estratificada = as.vector(porcentaje(m_estratificada)))
+comp_estratos
+
+# Media de tres variables en la población y en cada muestra
+comp_medias <- data.frame()
+for (v in c("SiO2 (wt%)", "MgO (wt%)", "Publication Year")) {
+  valores <- base[[v]]
+  comp_medias <- rbind(comp_medias, data.frame(
+    variable = v,
+    poblacion = round(mean(valores, na.rm = TRUE), 3),
+    aleatoria = round(mean(valores[m_aleatoria], na.rm = TRUE), 3),
+    sistematica = round(mean(valores[m_sistematica], na.rm = TRUE), 3),
+    estratificada = round(mean(valores[m_estratificada], na.rm = TRUE), 3),
+    n_con_dato_estratificada = sum(!is.na(valores[m_estratificada]))))
 }
-NH <- afijacion()
+comp_medias
 
-# ESTRATIFICADO: sorteo dentro de cada estrato, con su n_h (lapply = repetir por estrato; unlist = juntar)
-estratificado <- function() {
-  unlist(lapply(names(NH), function(h) {
-    filas <- which(base$Estrato == h)
-    filas[sample(length(filas), NH[[h]])]
-  }), use.names = FALSE)
-}
-
-k <- floor(N / n)
-muestras <- list(aleatoria = aleatorio(), sistematica = sistematico(), estratificada = estratificado())
-stopifnot(all(lengths(muestras) == n))
-
-# ------------------------------------------------------------ tabla de afijación
-tabla_afijacion <- data.frame(estrato = names(NH), N_h = as.vector(table(base$Estrato)[names(NH)]),
-                              peso = round(as.vector(table(base$Estrato)[names(NH)]) / N * 100, 2),
-                              n_h = as.vector(NH))
-print(tabla_afijacion)
-
-# ------------------------------------------------------------ comparación con la población
-# % de cada estrato en un grupo de filas
-pct <- function(filas) round(prop.table(table(factor(base$Estrato[filas], levels = names(NH)))) * 100, 2)
-comp_estratos <- data.frame(estrato = names(NH), poblacion = as.vector(pct(seq_len(N))),
-                            aleatoria = as.vector(pct(muestras$aleatoria)),
-                            sistematica = as.vector(pct(muestras$sistematica)),
-                            estratificada = as.vector(pct(muestras$estratificada)))
-print(comp_estratos)
-
-VARIABLES <- c("SiO2 (wt%)", "MgO (wt%)", "Publication Year")
-media <- function(v, filas) mean(base[[v]][filas], na.rm = TRUE)
-comp_medias <- do.call(rbind, lapply(VARIABLES, function(v) data.frame(
-  variable = v, poblacion = round(media(v, seq_len(N)), 3),
-  aleatoria = round(media(v, muestras$aleatoria), 3), sistematica = round(media(v, muestras$sistematica), 3),
-  estratificada = round(media(v, muestras$estratificada), 3),
-  n_con_dato_estratificada = sum(!is.na(base[[v]][muestras$estratificada])))))
-print(comp_medias)
-
-# ------------------------------------------------------------ 500 repeticiones: ¿qué método es más preciso?
-# Cada muestra da una media distinta; cuanto menos varía (error estándar), más preciso el método
+# ---- 6. Repetir cada método 500 veces: ¿cuál es más preciso? ----
+# Cada muestra da una media de SiO2 distinta; cuanto menos varían (error estándar), mejor el método.
 R <- 500
 sio2 <- base[["SiO2 (wt%)"]]
-# replicate = repetir 500 veces; sapply = hacerlo para los 3 métodos; sim = tabla 500 × 3 de medias
-sim <- sapply(list(aleatoria = aleatorio, sistematica = sistematico, estratificada = estratificado),
-              function(f) replicate(R, mean(sio2[f()], na.rm = TRUE)))
-comp_repeticiones <- data.frame(metodo = colnames(sim), media_de_las_medias = round(colMeans(sim), 3),
-                                error_estandar = round(apply(sim, 2, sd), 4),
+sim <- matrix(NA, nrow = R, ncol = 3, dimnames = list(NULL, c("aleatoria", "sistematica", "estratificada")))
+for (r in 1:R) sim[r, "aleatoria"] <- mean(sio2[sample(N, n)], na.rm = TRUE)
+for (r in 1:R) sim[r, "sistematica"] <- mean(sio2[sample(k, 1) + (0:(n - 1)) * k], na.rm = TRUE)
+for (r in 1:R) {
+  filas_r <- c()
+  for (h in names(nh)) {
+    filas <- which(estrato == h)
+    filas_r <- c(filas_r, filas[sample(length(filas), nh[[h]])])
+  }
+  sim[r, "estratificada"] <- mean(sio2[filas_r], na.rm = TRUE)
+}
+comp_repeticiones <- data.frame(metodo = colnames(sim),
+                                media_de_las_medias = round(colMeans(sim), 3),     # promedio de las 500 medias
+                                error_estandar = round(apply(sim, 2, sd), 4),      # cuánto varían
                                 sesgo = round(colMeans(sim) - mean(sio2, na.rm = TRUE), 4))
-print(comp_repeticiones)
+comp_repeticiones
 
-# ------------------------------------------------------------ gráficos
-png(file.path(GRAFICOS, "muestreo_estratos.png"), width = 1100, height = 650, res = 130)
-m <- t(as.matrix(comp_estratos[, -1])); colnames(m) <- comp_estratos$estrato
+# ---- 7. Gráficos ----
+dir.create("docs/img/r", recursive = TRUE, showWarnings = FALSE)
+png("docs/img/r/muestreo_estratos.png", width = 1100, height = 650, res = 130)
+m <- t(as.matrix(comp_estratos[, -1]))              # filas = población y muestras; columnas = estratos
+colnames(m) <- comp_estratos$estrato
 barplot(m, beside = TRUE, col = c("gray25", "gray55", "gray75", "gray90"), ylim = c(0, max(m) * 1.2),
         main = "Gráfica No. 1: Porcentaje por ambiente tectónico, población y muestras",
         ylab = "Porcentaje (%)", cex.names = 0.8, legend.text = TRUE,
         args.legend = list(x = "topright", bty = "n", cex = 0.8))
 dev.off()
 
-png(file.path(GRAFICOS, "muestreo_repeticiones.png"), width = 1100, height = 650, res = 130)
+png("docs/img/r/muestreo_repeticiones.png", width = 1100, height = 650, res = 130)
 boxplot(sim, col = c("gray55", "gray75", "gray90"), ylab = "Media de SiO2 (wt%)",
         main = paste0("Gráfica No. 2: Media de SiO2 en ", R, " muestras de cada método (n = ", n, ")"))
-abline(h = mean(sio2, na.rm = TRUE), lty = 2)
+abline(h = mean(sio2, na.rm = TRUE), lty = 2)       # media de la población
 legend("topright", "media poblacional", lty = 2, bty = "n", cex = 0.8)
 dev.off()
 
-# ------------------------------------------------------------ salidas
+# ---- 8. Guardar resultados ----
+base$Estrato <- estrato
 dir.create("data/muestras", showWarnings = FALSE)
-for (nombre in names(muestras)) {
-  write.csv(base[muestras[[nombre]], ], file.path("data/muestras", paste0("muestra_", nombre, ".csv")),
-            row.names = FALSE, fileEncoding = "UTF-8")
-}
+write.csv(base[m_aleatoria, ], "data/muestras/muestra_aleatoria.csv", row.names = FALSE, fileEncoding = "UTF-8")
+write.csv(base[m_sistematica, ], "data/muestras/muestra_sistematica.csv", row.names = FALSE, fileEncoding = "UTF-8")
+write.csv(base[m_estratificada, ], "data/muestras/muestra_estratificada.csv", row.names = FALSE, fileEncoding = "UTF-8")
+
 resumen <- data.frame(dato = c("N (población)", "confianza", "z", "p", "error e", "n0", "n", "k (sistemático)"),
                       valor = c(N, "95 %", z, p, e, round(n0, 1), n, k))
+dir.create("R/salidas", showWarnings = FALSE)
 libro <- createWorkbook()
-for (h in list(list("Tamano de muestra", resumen), list("Afijacion", tabla_afijacion),
-               list("Comparacion estratos", comp_estratos), list("Comparacion medias", comp_medias),
-               list("500 repeticiones", comp_repeticiones))) {
-  addWorksheet(libro, h[[1]]); writeData(libro, h[[1]], h[[2]])
-}
-saveWorkbook(libro, file.path(SALIDAS, "Muestreo.xlsx"), overwrite = TRUE)
-for (h in list(list("muestreo_tamano", resumen), list("muestreo_afijacion", tabla_afijacion),
-               list("muestreo_estratos", comp_estratos), list("muestreo_medias", comp_medias),
-               list("muestreo_repeticiones", comp_repeticiones))) tabla_web(h[[2]], h[[1]])
-cat("Listo: R/salidas/Muestreo.xlsx, data/muestras/*.csv, docs/img/r/muestreo_*.png\n")
+addWorksheet(libro, "Tamano de muestra");    writeData(libro, "Tamano de muestra", resumen)
+addWorksheet(libro, "Afijacion");            writeData(libro, "Afijacion", tabla_afijacion)
+addWorksheet(libro, "Comparacion estratos"); writeData(libro, "Comparacion estratos", comp_estratos)
+addWorksheet(libro, "Comparacion medias");   writeData(libro, "Comparacion medias", comp_medias)
+addWorksheet(libro, "500 repeticiones");     writeData(libro, "500 repeticiones", comp_repeticiones)
+saveWorkbook(libro, "R/salidas/Muestreo.xlsx", overwrite = TRUE)
+
+# Tablas para la página web
+dir.create("docs/data/tdf", recursive = TRUE, showWarnings = FALSE)
+write.csv(resumen, "docs/data/tdf/muestreo_tamano.csv", row.names = FALSE, fileEncoding = "UTF-8")
+write.csv(tabla_afijacion, "docs/data/tdf/muestreo_afijacion.csv", row.names = FALSE, fileEncoding = "UTF-8")
+write.csv(comp_estratos, "docs/data/tdf/muestreo_estratos.csv", row.names = FALSE, fileEncoding = "UTF-8")
+write.csv(comp_medias, "docs/data/tdf/muestreo_medias.csv", row.names = FALSE, fileEncoding = "UTF-8")
+write.csv(comp_repeticiones, "docs/data/tdf/muestreo_repeticiones.csv", row.names = FALSE, fileEncoding = "UTF-8")
