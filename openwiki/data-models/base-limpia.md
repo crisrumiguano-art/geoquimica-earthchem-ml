@@ -41,7 +41,7 @@ Reglas, cada una en su función:
 | Clase por SiO2 | `clase_sio2` | ordinal: ultrabásica < 45 ≤ básica < 52 ≤ intermedia < 63 ≤ ácida |
 | Grado de alteración 0–5 | `ALTERACION` | ordinal; acepta texto o inicial (F, S, M, E, A, T); `N` y `N/A` quedan vacíos |
 | Grupo tectónico | `grupo_tectonico` | 59 ambientes → dorsal y corteza oceánica / margen convergente / intraplaca y rift / mixto |
-| Número de analitos medidos | `N Analytes` | discreta |
+| Número de analitos medidos (analito = cada óxido o elemento medido) | `N Analytes` | discreta, 0–75 |
 
 El bloque `if __name__ == "__main__"` tiene `assert`s de autoverificación de estas funciones: correr el script
 sin argumentos los ejecuta y muestra el uso.
@@ -73,6 +73,10 @@ Las descripciones viven en `OTRAS` y `NOMBRES`, y los dominios en `DOMINIOS` y `
 `scripts/tabla_variables.py`: si una variable nueva entra a la base, agregarla ahí o el script falla con `KeyError`.
 
 ## Población, individuo y muestra (marco del curso)
+
+La muestra probabilística para inferir (L3) es `data/muestras/muestra_estratificada.csv` (n = 1 061, estratos =
+`Tectonic Group`, afijación proporcional, seed 2026; `R/04_muestreo.R`).
+
 
 - Población U: todas las porciones de roca total de la corteza y el manto superior (infinita).
 - Individuo Xᵢ: cada porción de roca analizada.

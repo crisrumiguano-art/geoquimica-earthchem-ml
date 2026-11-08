@@ -1,58 +1,43 @@
 # La web: estructura, diseño y cómo agregar una sección
 
-La web son páginas HTML estáticas, una por unidad del curso, que comparten `docs/assets/estilo.css` y
-`docs/assets/app.js`. Plotly y las fuentes vienen de CDN. No hay framework ni paso de compilación, a propósito:
-GitHub Pages lo sirve tal cual y cualquier integrante del equipo puede editarlo.
+HTML estático, una página por unidad, con `docs/assets/estilo.css` y `docs/assets/app.js` compartidos. Plotly y
+fuentes por CDN. Sin framework ni compilación: GitHub Pages lo sirve tal cual.
 
 | Página | Contenido |
 |---|---|
-| `docs/index.html` | portada, problema (importancia, uso de la estadística, caso de estudio), mapa, objetivos (general + 3 con imagen), recorrido |
-| `docs/descriptiva/` | Unidad 1: población y muestra, tabla de variables, TDF y gráficas de R, exploración |
-| `docs/datos/` | origen, preparación, descargas |
-| `docs/equipo/` | integrantes y docente |
+| `docs/index.html` | portada, planteamiento (una redacción continua), mapa (QGIS / Python / interactivo, PDF A4 y A3, zip QGIS), objetivos (general + 3 con imagen), recorrido |
+| `docs/descriptiva/` | 01 población y muestra · 02 tabla de variables · 03 cualitativas · 04 discretas · 05 continuas · 06 exploración · 07 cómo leer el código R |
+| `docs/datos/` | origen, preparación, descargas (informes, mapas, base, QGIS) |
+| `docs/equipo/` | 5 integrantes con contacto, docente |
 
-El menú está **repetido en cada HTML**: al agregar una página, actualizarlo en todas. Las subpáginas usan rutas
-relativas (`../assets/`, `../img/`, `../data/`). `app.js` marca la página actual con `<body data-pagina="…">`.
+El menú está **repetido en cada HTML**: al agregar una página, actualizarlo en todas (`<span class="pronto">` -> enlace).
 
 ## Datos que consume
 
 | Archivo | Lo genera | Lo usa |
 |---|---|---|
-| `docs/data/resumen.json` | `scripts/datos_dashboard.py` | cifras de la portada, gráficos de "Exploración", mapa interactivo |
-| `docs/data/variables.json` | `scripts/tabla_variables.py` | tarjetas de clases y tabla filtrable de variables |
-| `docs/data/tdf/*.csv`, `docs/img/r/*.png` | scripts de `R/` | tablas y gráficas de `/descriptiva/` (`leerCSV()` + `tabla()` de `app.js`) |
-| `docs/img/*` | fotos reales, `mapa.py`, `proyecto_qgis.py`, Google Flow | imágenes |
+| `data/resumen.json` | `datos_dashboard.py` | cifras de portada, exploración, mapa interactivo |
+| `data/variables.json` | `tabla_variables.py` | tarjetas de clases y tabla de variables (con «Nombre en español») |
+| `data/tdf/*.csv`, `img/r/*.png` | scripts de `R/` | tablas y gráficas de `/descriptiva/` |
+| `data/codigo_r.json` | `codigo_r.py` | panel «Código R» de cada gráfica y botón «Ver el código paso a paso» |
 
-`resumen.json` trae agregados (conteos y muestras de 6 000 puntos para el mapa y el TAS), no la base: así la web pesa
-poco. Si un gráfico nuevo necesita otro agregado, agregarlo en `datos_dashboard.py`, no calcularlo en el navegador.
+## Componentes de `app.js`
 
-## Agregar una página o una sección
+- **Aviso académico**: barra flotante inferior en todas las páginas, se cierra con × y vuelve al recargar.
+- **Botón «Código R»**: un `MutationObserver` agrega el botón a cada `figure.grafica` con imagen de `img/r/`;
+  `panelCodigo()` abre el código simple de ese PNG con botón Copiar. El JSON se pide con `cache: "no-cache"`.
+- **`resaltarR()`**: resaltado de sintaxis R propio (un regex; clases `.r-c/s/k/b/n/f/o`, colores tipo VS Code);
+  también colorea `<pre class="r-mini">` de la sección 07.
+- `leerCSV()` + `tabla()` para las TDF; `base()`, `bar()`, `cfg` para Plotly; `pestanas()` para pestañas.
 
-- **Página nueva** (p. ej. `/inferencial/`): copiar `docs/datos/index.html` como esqueleto, cambiar
-  `data-pagina`, la cabecera y el contenido, y reemplazar el `<span class="pronto">` del menú por un enlace en
-  todas las páginas. Agregar la tarjeta en "Recorrido del proyecto" de la portada.
-- **Sección dentro de una página**: patrón `<section class="cap" id="..."><div class="cab rev"><span class="num">NN</span><h2>…</h2></div>…</section>`.
-- **Gráfica de R + tabla**: en `/descriptiva/`, la función `bloque()` arma figura + tabla CSV + lectura.
-- **Gráficos interactivos**: usar `base()`, `bar()` y `cfg` de `app.js` para heredar colores y tipografía.
+## Diseño
 
-## Sistema de diseño
-
-Dirección: editorial de revista científica sobre un tema oscuro "basalto". Todo color sale de los tokens de
-`:root`:
-
-- Superficies `--page`, `--surface-1`, `--surface-2`; tinta `--text-primary/secondary`, `--muted`.
-- Acento `--magma` (botones, números de capítulo, letras capitulares) y `--oro` (rótulos en mono).
-- Series de datos `--series-1..3` y la `rampa` azul para ordinales: es la paleta validada para daltonismo,
-  compartida con `mapa.py` y `proyecto_qgis.py`. Máximo 3 colores categóricos por gráfico.
-- Tipografía: Fraunces (títulos), Instrument Sans (texto), JetBrains Mono (cifras, fórmulas, rótulos).
-
-Comportamiento: las clases `.rev` aparecen al hacer scroll (`IntersectionObserver`), las cifras de portada
-cuentan hacia arriba, y todo respeta `prefers-reduced-motion`. Debajo de 1100 px se oculta el menú de
-capítulos y debajo de 900 px las grillas pasan a una o dos columnas.
+Tema oscuro "basalto": tokens en `:root` (`--page`, `--surface-1/2`, `--magma`, `--oro`, `--series-1..3`), Fraunces +
+Instrument Sans + JetBrains Mono. Paleta de datos validada para daltonismo, la misma en `mapa.py` y `proyecto_qgis.py`;
+máximo 3 colores categóricos. `.rev` aparece al hacer scroll; respeta `prefers-reduced-motion`.
 
 ## Al editar
 
-- Revisar en local con `python -m http.server` (ver [Regenerar y publicar](../workflows/regenerar-y-publicar.md)).
-- Las imágenes con `loading="lazy"` no aparecen en capturas de página completa: no es un error.
-- Las fotos del equipo son 400×400 recortadas de originales del usuario; las ilustrativas llevan la nota
-  "generada con IA" en el pie o en el footer.
+- Una clase CSS nueva: buscar antes si ya existe (`.tres` existía y rompió la grilla de objetivos; se usa `.trio`).
+- El panel de código va **dentro** de la figura: en `.bloque` un hermano nuevo desarma la grilla de 2 columnas.
+- Imágenes `loading="lazy"` no salen en capturas de página completa. Fotos del equipo: reales, 400×400.
