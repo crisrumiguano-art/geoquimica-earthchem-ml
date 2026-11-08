@@ -1,70 +1,60 @@
-# Variables cuantitativas continuas: TDF, gráficas, outliers e indicadores (Lecciones 5 y 6).
-# Ejecutar desde la raíz del repositorio:  Rscript R/03_continuas.R
+# VARIABLES CONTINUAS: TDF, gráficas, outliers e indicadores (Lecciones 5 y 6).
+# Correr desde la carpeta del repositorio:  Rscript R/03_continuas.R
 #
-# Para cada variable:
-#   1. Número de intervalos según las reglas del curso.
-#   2. TDF "por defecto" (plantilla: Sturges sobre el rango completo, a = R / k) -> muestra el problema.
-#   3. Outliers por la regla intercuartílica, y de qué rocas son (¿errores o rocas reales?).
-#   4. TDF corregida: intervalos cerrados sobre el rango típico (límites IQR), amplitud redonda y
-#      dos clases abiertas para los extremos. No se borra ningún dato.
-#   5. Lo mismo dentro de un estrato homogéneo (rocas volcánicas máficas).
+# Pasos para cada variable:
+#   1. Cuántos intervalos (reglas del curso).
+#   2. TDF "por defecto" (como la plantilla) -> muestra el problema.
+#   3. Outliers (regla IQR) y de qué rocas son.
+#   4. TDF corregida: intervalos sobre el rango típico + 2 clases abiertas. No se borra ningún dato.
+#   5. Lo mismo en un grupo homogéneo (rocas volcánicas máficas).
 #   6. Error de agrupación e indicadores.
-# El razonamiento completo está en R/analisis_agrupacion_outliers.md.
+# Explicación completa: R/analisis_agrupacion_outliers.md
 
-source("R/funciones.R")
-base <- leer_base()
+source("R/funciones.R")   # carga las funciones del proyecto
+base <- leer_base()       # lee la base completa
 
-ESTRATO <- "igneous:volcanic:mafic"   # basaltos y afines, el grupo más grande de la base
+ESTRATO <- "igneous:volcanic:mafic"   # grupo homogéneo: basaltos y afines
 
-# Variables continuas: columna de la base, nombre corto, unidad y si se analiza en logaritmo base 10.
+# Variables a analizar: columna, nombre corto, unidad, ¿usar logaritmo?
 VARIABLES <- list(
   list(col = "SiO2 (wt%)", nombre = "SiO2", unidad = "wt%", log = FALSE),
   list(col = "MgO (wt%)",  nombre = "MgO",  unidad = "wt%", log = FALSE),
-  # Cr: cola extrema (cromititas de hasta 29,5 %). Se analiza en log10, donde es casi simétrica.
+  # Cr: valores extremos (hasta 29,5 %): se analiza en log10, donde es casi simétrica
   list(col = "Cr (ppm)",   nombre = "Cr",   unidad = "ppm", log = TRUE)
 )
 
-libro <- createWorkbook()
-n_graf <- 1
+libro <- createWorkbook()   # Excel vacío
+n_graf <- 1                 # número de la próxima gráfica
 
-for (v in VARIABLES) {
-  # tiene marca las filas con dato. Con ese mismo filtro se toman el valor (x) y el tipo de roca (tipo),
-  # así cada valor queda emparejado con su roca.
-  tiene <- !is.na(base[[v$col]])
-  x <- base[[v$col]][tiene]
-  tipo <- base[["Sample Type"]][tiene]
-  # Escala de análisis: log10 convierte 10, 100, 1000 ppm en 1, 2, 3; así una cola enorme se vuelve casi simétrica.
-  esc <- if (v$log) log10(x) else x                     # escala de análisis
+for (v in VARIABLES) {                       # repite para cada variable
+  tiene <- !is.na(base[[v$col]])             # TRUE = la fila tiene dato
+  x <- base[[v$col]][tiene]                  # valores de la variable
+  tipo <- base[["Sample Type"]][tiene]       # tipo de roca de cada valor
+  esc <- if (v$log) log10(x) else x                     # escala de análisis (log10: 10, 100, 1000 -> 1, 2, 3)
   unidad <- if (v$log) paste("log10", v$unidad) else v$unidad
   nombre <- if (v$log) paste("log10", v$nombre) else v$nombre
   cat("\n==========", v$col, "==========\n")
   cat("n =", length(x), " | rango:", min(x), "-", max(x), "\n")
 
-  # Paso 1: cuántos intervalos sugiere cada regla del curso.
+  # Paso 1: número de intervalos según cada regla
   reglas <- reglas_k(length(x))
   print(reglas)
 
-  # Por defecto (como la plantilla, en la escala original)
-  # Paso 2: TDF como la plantilla (Sturges, a = R / k desde el mínimo). Sirve para mostrar el problema:
-  # los extremos estiran el rango y casi todos los datos caen en uno o dos intervalos.
+  # Paso 2: TDF por defecto (como la plantilla: Sturges sobre todo el rango)
   tdf_def <- tdf_continua(x, redondear = FALSE)
   cat(sprintf("Por defecto: k = %d, a = %.4g; el intervalo más poblado concentra el %.1f %% de los datos\n",
               nrow(tdf_def), tdf_def$Ls[1] - tdf_def$Li[1], max(tdf_def$hi)))
 
-  # Outliers y de qué rocas son
-  # Paso 3: outliers por la regla intercuartílica y de qué rocas son. table(tipo[es_out]) cuenta los outliers
-  # por tipo de roca: si son peridotitas o cromititas, son otras rocas reales, no errores, y NO se borran.
-  lim <- limites_iqr(esc)
-  es_out <- esc < lim["inferior"] | esc > lim["superior"]
-  lim_orig <- if (v$log) 10^lim else lim
+  # Paso 3: outliers y de qué rocas son (rocas reales -> no se borran)
+  lim <- limites_iqr(esc)                                # límites IQR
+  es_out <- esc < lim["inferior"] | esc > lim["superior"] # TRUE = outlier
+  lim_orig <- if (v$log) 10^lim else lim                 # límites en la unidad original
   cat(sprintf("Límites IQR: [%.4g ; %.4g] %s -> %d outliers (%.1f %%)\n", lim_orig[1], lim_orig[2], v$unidad,
               sum(es_out), mean(es_out) * 100))
-  rocas_out <- sort(table(tipo[es_out]), decreasing = TRUE)
-  print(head(rocas_out, 5))
+  rocas_out <- sort(table(tipo[es_out]), decreasing = TRUE)  # outliers por tipo de roca
+  print(head(rocas_out, 5))                                  # los 5 tipos más frecuentes
 
-  # TDF corregida, toda la muestra
-  # Paso 4: TDF corregida. Intervalos redondos solo sobre el rango típico (límites IQR) y los extremos en
-  # dos clases abiertas ("< Li" y "≥ Ls"): todos los datos siguen contados. Luego, su error de agrupación.
+  # Paso 4: TDF corregida (intervalos en el rango típico + clases abiertas) y su error
   tdf_todo <- tdf_continua(esc, lim = lim)
   err_todo <- error_agrupacion(esc, tdf_todo)
   cat(sprintf("Corregida: %d clases cerradas de amplitud %g + abiertas\n", sum(!is.na(tdf_todo$MC)),
@@ -72,49 +62,44 @@ for (v in VARIABLES) {
   print(tdf_todo)
   print(err_todo)
 
-  # Estrato homogéneo
-  # Paso 5: lo mismo dentro de un estrato homogéneo (solo rocas volcánicas máficas). Al quitar la mezcla de
-  # rocas distintas, la distribución es más compacta y hay menos outliers.
-  ee <- esc[tipo == ESTRATO]
+  # Paso 5: lo mismo solo con rocas volcánicas máficas (grupo homogéneo)
+  ee <- esc[tipo == ESTRATO]                             # valores de ese grupo
   lim_e <- limites_iqr(ee)
-  pct_e <- mean(ee < lim_e["inferior"] | ee > lim_e["superior"]) * 100
+  pct_e <- mean(ee < lim_e["inferior"] | ee > lim_e["superior"]) * 100  # % de outliers en el grupo
   tdf_est <- tdf_continua(ee, lim = lim_e)
   err_est <- error_agrupacion(ee, tdf_est)
   cat(sprintf("Estrato %s: n = %d, outliers %.1f %%\n", ESTRATO, length(ee), pct_e))
   print(tdf_est)
   print(err_est)
 
-  # Paso 6: indicadores de toda la muestra y del estrato, lado a lado (y en log10 si corresponde).
+  # Paso 6: indicadores de toda la muestra y del grupo, lado a lado
   ind <- data.frame(indicador = indicadores(x)$indicador, toda_la_muestra = indicadores(x)$valor,
                     rocas_volcanicas_maficas = indicadores(x[tipo == ESTRATO])$valor)
-  if (v$log) ind$log10_toda_la_muestra <- indicadores(esc)$valor
+  if (v$log) ind$log10_toda_la_muestra <- indicadores(esc)$valor   # y en log10 si corresponde
   print(ind, digits = 4)
 
-  # Gráficas
-  # Gráficas: por defecto vs corregida (<var>_agrupacion.png), toda la muestra y el estrato (ver funciones.R).
-  comparar_agrupacion(tdf_def, tdf_todo, v$nombre, unidad, paste0(v$nombre, "_agrupacion.png"))
-  graficos_continua(esc, tdf_todo, nombre, v$unidad, paste0(v$nombre, "_toda_la_muestra.png"), n_graf)
-  graficos_continua(ee, tdf_est, paste(nombre, "en rocas volcánicas máficas"), v$unidad,
+  # Gráficas (PNG en docs/img/r/)
+  comparar_agrupacion(tdf_def, tdf_todo, v$nombre, unidad, paste0(v$nombre, "_agrupacion.png"))       # por defecto vs corregida
+  graficos_continua(esc, tdf_todo, nombre, v$unidad, paste0(v$nombre, "_toda_la_muestra.png"), n_graf) # toda la muestra
+  graficos_continua(ee, tdf_est, paste(nombre, "en rocas volcánicas máficas"), v$unidad,               # solo el grupo
                     paste0(v$nombre, "_estrato_mafico.png"), n_graf + 3)
-  n_graf <- n_graf + 6
+  n_graf <- n_graf + 6                                   # se usaron 6 números de gráfica
 
-  # Tablas para la web
+  # Tablas para la web (CSV)
   tabla_web(cbind(intervalo = etiquetas(tdf_todo), tdf_todo), paste0("cont_", v$nombre))
   tabla_web(cbind(intervalo = etiquetas(tdf_est), tdf_est), paste0("cont_", v$nombre, "_estrato"))
   tabla_web(rbind(cbind(muestra = "toda", err_todo), cbind(muestra = "volcanicas maficas", err_est)),
             paste0("cont_", v$nombre, "_error"))
   tabla_web(ind, paste0("cont_", v$nombre, "_indicadores"))
 
-  # Excel: una hoja por variable con las tablas apiladas
+  # Excel: una hoja por variable, tablas una debajo de otra
   hoja <- v$nombre
   addWorksheet(libro, hoja)
-  fila <- 1
-  # Función interna para escribir tablas una debajo de otra en la hoja de Excel.
-  # El operador <<- modifica la variable fila de afuera de la función (la siguiente tabla empieza más abajo).
-  bloque <- function(titulo, tabla) {
+  fila <- 1                                  # fila donde empieza la próxima tabla
+  bloque <- function(titulo, tabla) {        # mini función: escribe título + tabla y baja la fila
     writeData(libro, hoja, titulo, startRow = fila)
     writeData(libro, hoja, tabla, startRow = fila + 1)
-    fila <<- fila + nrow(tabla) + 4
+    fila <<- fila + nrow(tabla) + 4          # <<- cambia "fila" fuera de la función
   }
   bloque("Número de intervalos según cada regla", reglas)
   bloque("TDF por defecto (Sturges sobre el rango completo, a = R/k)", cbind(intervalo = etiquetas(tdf_def, 3), tdf_def))
@@ -128,5 +113,5 @@ for (v in VARIABLES) {
   bloque("Indicadores", ind)
 }
 
-saveWorkbook(libro, file.path(SALIDAS, "TDF_continuas.xlsx"), overwrite = TRUE)
+saveWorkbook(libro, file.path(SALIDAS, "TDF_continuas.xlsx"), overwrite = TRUE)  # guarda el Excel
 cat("\nSalidas en", SALIDAS, "\n")

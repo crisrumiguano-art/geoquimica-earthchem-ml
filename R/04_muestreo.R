@@ -1,31 +1,31 @@
-# Muestreo probabilístico (Lección 3): aleatorio simple, sistemático y estratificado sobre la base PetDB.
-# Ejecutar desde la raíz del repositorio:  Rscript R/04_muestreo.R
-# La base completa (N = 159 760) es el marco muestral. Se extraen tres muestras del mismo tamaño n y se comparan
-# con la población; después se repite cada método 500 veces para ver cuál estima mejor la media.
+# MUESTREO (Lección 3): aleatorio simple, sistemático y estratificado.
+# Correr desde la carpeta del repositorio:  Rscript R/04_muestreo.R
+# Saca 3 muestras del mismo tamaño de la base (N = 159 760), las compara con la base completa y
+# repite cada método 500 veces para ver cuál es más preciso.
 
-source("R/funciones.R")
-base <- leer_base()
-# R genera números "al azar" a partir de una semilla: fijarla hace que el sorteo sea reproducible.
+source("R/funciones.R")   # carga las funciones del proyecto
+base <- leer_base()       # lee la base completa
 set.seed(2026)  # misma semilla = mismas muestras cada vez que se corre
 
-N <- nrow(base)
-# Estratos: ambiente tectónico agrupado; las 304 filas sin ambiente forman su propio estrato.
+N <- nrow(base)   # tamaño de la población (número de filas)
+# Estratos = ambiente tectónico agrupado (las 304 filas sin dato forman su propio estrato)
 estrato <- base[["Tectonic Group"]]
 estrato[is.na(estrato) | estrato == ""] <- "sin dato"
 base$Estrato <- estrato
 
 # ------------------------------------------------------------ tamaño de muestra
-# n0 = z^2 p q / e^2 y corrección por población finita n = n0 / (1 + (n0 - 1) / N).
-# p = q = 0,5 (la peor varianza posible), 95 % de confianza (z = 1,96), error e = 3 %.
+# Fórmula: n0 = z² · p · q / e²   y   n = n0 / (1 + (n0 - 1) / N)
+# z = 1,96 (95 % de confianza), p = q = 0,5 (caso más desfavorable), e = 3 % (error máximo)
 z <- 1.96; p <- 0.5; e <- 0.03
 n0 <- z^2 * p * (1 - p) / e^2
 n <- ceiling(n0 / (1 + (n0 - 1) / N))
 cat("N =", N, " n0 =", round(n0, 1), " n =", n, "\n")
 
 # ------------------------------------------------------------ los tres métodos
-# sample(N, n) elige n números distintos entre 1 y N: son los números de fila que entran a la muestra.
+# ALEATORIO SIMPLE: sorteo de n filas entre 1 y N (sample)
 aleatorio <- function() sample(N, n)  # sorteo sin reposición: todas las filas con la misma chance
 
+# SISTEMÁTICO: una fila cada k, empezando en una fila sorteada
 sistematico <- function() {
   k <- floor(N / n)        # intervalo de selección
   i <- sample(k, 1)        # arranque aleatorio entre 1 y k
@@ -33,7 +33,7 @@ sistematico <- function() {
 }
 
 afijacion <- function() {
-  # Afijación proporcional: n_h = n * N_h / N, redondeada por restos mayores para que sume n exacto.
+  # cuántas filas le tocan a cada estrato: n_h = n · N_h / N (proporcional a su tamaño)
   Nh <- table(base$Estrato)
   bruto <- n * Nh / N
   nh <- floor(bruto)
@@ -43,10 +43,8 @@ afijacion <- function() {
 }
 NH <- afijacion()
 
-# lapply() recorre los estratos y devuelve una lista con las filas elegidas en cada uno; unlist() la junta en un
-# solo vector. which() da los números de fila donde la condición es verdadera.
+# ESTRATIFICADO: sorteo dentro de cada estrato, con su n_h (lapply = repetir por estrato; unlist = juntar)
 estratificado <- function() {
-  # Muestreo aleatorio simple dentro de cada estrato, con el tamaño que le toca.
   unlist(lapply(names(NH), function(h) {
     filas <- which(base$Estrato == h)
     filas[sample(length(filas), NH[[h]])]
@@ -64,7 +62,7 @@ tabla_afijacion <- data.frame(estrato = names(NH), N_h = as.vector(table(base$Es
 print(tabla_afijacion)
 
 # ------------------------------------------------------------ comparación con la población
-# Porcentaje de cada estrato en un conjunto de filas (toda la base o una muestra).
+# % de cada estrato en un grupo de filas
 pct <- function(filas) round(prop.table(table(factor(base$Estrato[filas], levels = names(NH)))) * 100, 2)
 comp_estratos <- data.frame(estrato = names(NH), poblacion = as.vector(pct(seq_len(N))),
                             aleatoria = as.vector(pct(muestras$aleatoria)),
@@ -82,12 +80,10 @@ comp_medias <- do.call(rbind, lapply(VARIABLES, function(v) data.frame(
 print(comp_medias)
 
 # ------------------------------------------------------------ 500 repeticiones: ¿qué método es más preciso?
-# Si se repite el muestreo, la media muestral cambia. Su desviación estándar (error estándar) mide la precisión.
+# Cada muestra da una media distinta; cuanto menos varía (error estándar), más preciso el método
 R <- 500
 sio2 <- base[["SiO2 (wt%)"]]
-# replicate(R, ...) repite R veces el muestreo y guarda la media de SiO2 de cada muestra. sapply() lo hace para
-# los tres métodos: sim es una matriz de 500 filas × 3 columnas. apply(sim, 2, sd) calcula la desviación
-# estándar de cada columna: el error estándar de cada método.
+# replicate = repetir 500 veces; sapply = hacerlo para los 3 métodos; sim = tabla 500 × 3 de medias
 sim <- sapply(list(aleatoria = aleatorio, sistematica = sistematico, estratificada = estratificado),
               function(f) replicate(R, mean(sio2[f()], na.rm = TRUE)))
 comp_repeticiones <- data.frame(metodo = colnames(sim), media_de_las_medias = round(colMeans(sim), 3),
