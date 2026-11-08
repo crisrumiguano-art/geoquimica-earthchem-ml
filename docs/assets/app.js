@@ -96,7 +96,7 @@ function resaltarR(texto) {
 let codigosR;
 // Panel con el código coloreado y botón Copiar. json: ruta de codigo_r.json; clave: PNG o nombre del script.
 async function panelCodigo(json, clave) {
-  codigosR ??= fetch(json).then(r => r.json());
+  codigosR ??= fetch(json, { cache: "no-cache" }).then(r => r.json());  // no-cache: siempre pregunta al servidor si hay versión nueva
   const texto = (await codigosR)[clave] ?? "# Sin código registrado para " + clave;
   const caja = document.createElement("div");
   caja.className = "codigo-r";

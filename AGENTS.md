@@ -176,7 +176,8 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
   y rótulos **en metros** cada 2 500 000 m (`PASO`), como la plantilla UTM: mezclar rótulos en grados con un mapa en
   metros también fue objetado. Barra con punto de miles (`QgsBasicNumericFormat`).
 - Cada gráfica de R en la web tiene un botón **Código R** (pedido del docente): muestra el script y las funciones exactas
-  que la generaron, desde `docs/data/codigo_r.json` (`scripts/codigo_r.py`), en versión **autónoma** (descarga la base
+  que la generaron, desde `docs/data/codigo_r.json` (`scripts/codigo_r.py`), en versión **autónoma y por gráfico** (`fragmento()` arma
+  solo las líneas de ese PNG con los argumentos del bucle; muestreo muestra el script entero) (descarga la base
   de GitHub si falta, luego las funciones, luego el script sin `source()`; probado en carpeta vacía: PNG idénticos),
   con resaltado de sintaxis propio
   (`resaltarR` en `app.js`, colores tipo VS Code en `.codigo-r .r-*`). Los comentarios didácticos viven en los `.R`.
