@@ -11,7 +11,7 @@ import pandas as pd
 RAIZ = Path(__file__).resolve().parent.parent
 MUESTRA = 6000  # puntos por gráfico de dispersión/mapa: más satura el navegador
 TIPOS = {  # tipo estadístico de cada columna no química (las químicas son continuas)
-    "Sample Name": "identificador", "Sample URL": "identificador", "Citation": "nominal",
+    "Sample Name": "nominal", "Sample URL": "nominal", "Citation": "nominal",
     "Publication Year": "discreta", "Analyzed Material": "nominal (binaria)",
     "Sample Type": "nominal", "Sample SubType": "nominal", "Latitude": "continua",
     "Longitude": "continua", "Geographic Features": "nominal", "Tectonic Setting": "nominal",

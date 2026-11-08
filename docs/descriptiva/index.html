@@ -83,7 +83,7 @@
       <input class="buscar" type="search" placeholder="Buscar variable o elemento…" aria-label="Buscar variable">
     </div>
     <div class="tabla rev"><table id="vars"><thead><tr>
-      <th>Nombre</th><th>Descripción</th><th>Tipo</th><th>Subtipo</th><th>Dominio</th><th>Dominio (conjunto)</th><th>Rango</th><th>Instrumento</th><th>Unidad</th><th>Escala</th><th class="n">% dato</th>
+      <th>Nombre</th><th>Nombre en español</th><th>Descripción</th><th>Tipo</th><th>Subtipo</th><th>Dominio</th><th>Dominio (conjunto)</th><th>Rango</th><th>Instrumento</th><th>Unidad</th><th>Escala</th><th class="n">% dato</th>
     </tr></thead><tbody></tbody></table></div>
     <div class="descargas"><a href="https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/tabla_variables.xlsx">Descargar la tabla de variables (Excel)</a></div>
   </section>
@@ -315,14 +315,14 @@ addEventListener("DOMContentLoaded", () => {
                   discreta: ["Cuantitativa", "Valores puntuales, sin intermedios"], continua: ["Cuantitativa", "Cualquier valor de un intervalo"] };
     const sub = r => r.Subtipo.split(" ")[0];
     document.getElementById("clases").innerHTML = Object.keys(def).map(k =>
-      `<div class="clase"><div class="n">${v.filter(r => r.Tipo !== "identificador" && sub(r) === k).length}</div><div class="t">${def[k][0]}</div>
+      `<div class="clase"><div class="n">${v.filter(r => sub(r) === k).length}</div><div class="t">${def[k][0]}</div>
        <h3>${k[0].toUpperCase() + k.slice(1)}</h3><p>${def[k][1]}. Ej.: ${ex[k]}.</p></div>`).join("");
-    const cols = ["Variable", "Descripción", "Tipo", "Subtipo", "Dominio (definición)", "Dominio (conjunto)", "Rango", "Instrumento / método", "Unidad", "Escala de medición", "% con dato"];
+    const cols = ["Variable", "Variable (español)", "Descripción", "Tipo", "Subtipo", "Dominio (definición)", "Dominio (conjunto)", "Rango", "Instrumento / método", "Unidad", "Escala de medición", "% con dato"];
     const cuerpo = document.querySelector("#vars tbody");
     let filtro = "", texto = "";
     const pintar = () => {
       cuerpo.innerHTML = v.filter(r => (!filtro || sub(r) === filtro) &&
-        (!texto || (r.Variable + " " + r.Descripción).toLowerCase().includes(texto)))
+        (!texto || (r.Variable + " " + r["Variable (español)"] + " " + r.Descripción).toLowerCase().includes(texto)))
         .map(r => `<tr>${cols.map(k => k === "Tipo" ? `<td><span class="tag ${r[k]}">${esc(r[k])}</span></td>`
           : `<td${k === "% con dato" ? ' class="n"' : ""}>${esc(r[k])}</td>`).join("")}</tr>`).join("");
     };

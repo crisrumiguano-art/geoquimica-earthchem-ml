@@ -55,11 +55,13 @@ frecuente** de cada variable desde las columnas `Method` del crudo.
 
 | Tipo | Cuántas | Ejemplos |
 |---|---|---|
-| Nominal | 9 (una binaria) | `Sample Type`, `Tectonic Setting`, `Tectonic Group`, `Analyzed Material` |
+| Nominal | 11 (una binaria; 2 identificadoras) | `Sample Type`, `Tectonic Setting`, `Tectonic Group`, `Analyzed Material`, `Sample Name`, `Sample URL` |
 | Ordinal | 4 | `SiO2 Class`, `Alteration Grade`, `Geologic Age`, `Sample Alteration` |
 | Discreta | 2 | `Publication Year`, `N Analytes` |
 | Continua | 58 | 52 químicas (wt% y ppm), coordenadas, elevaciones, edades en Ma |
-| Identificador | 2 | `Sample Name`, `Sample URL` |
+
+Desde el 07/11/2026 la tabla tiene la columna «Nombre en español» (`ESPANOL` en el script) y los
+identificadores (`Sample Name`, `Sample URL`) figuran como cualitativas nominales, a pedido del docente.
 
 La tabla sigue el formato de la plantilla del curso (`referencias_curso/Litogeoquímica del Perú/BD_LITOGEOQUIMICA.xlsx`,
 hoja `Hoja1`): nombre, descripción, tipo, subtipo, **dominio** en dos versiones (definición, p. ej.

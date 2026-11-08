@@ -43,8 +43,9 @@ METODOS = {  # siglas de PetDB -> nombre legible
 
 # Variables no químicas: (descripción, tipo, subtipo, escala, instrumento, unidad)
 OTRAS = {
-    "Sample Name": ("Código de la muestra asignado por el autor", "identificador", "—", "nominal", "registro del autor", "—"),
-    "Sample URL": ("Enlace a la ficha de la muestra en PetDB", "identificador", "—", "nominal", "PetDB", "—"),
+    # Los identificadores son cualitativas nominales (cada código es una categoría sin orden), aunque no se analicen.
+    "Sample Name": ("Código de la muestra asignado por el autor", "cualitativa", "nominal", "nominal", "registro del autor", "—"),
+    "Sample URL": ("Enlace a la ficha de la muestra en PetDB", "cualitativa", "nominal", "nominal", "PetDB", "—"),
     "Citation": ("Artículo científico que publicó el análisis", "cualitativa", "nominal", "nominal", "revisión bibliográfica", "—"),
     "Publication Year": ("Año de publicación del artículo", "cuantitativa", "discreta", "intervalo", "extraído de la cita", "año"),
     "Analyzed Material": ("Material analizado", "cualitativa", "nominal (binaria)", "nominal", "registro PetDB", "—"),
@@ -66,6 +67,18 @@ OTRAS = {
     "Alteration Grade": ("Grado de alteración: 0 fresca, 1 leve, 2 moderada, 3 extensa, 4 casi total, 5 total", "cualitativa", "ordinal", "ordinal", "derivada de Sample Alteration", "—"),
     "SiO2 Class": ("Clase por sílice: ultrabásica < 45 ≤ básica < 52 ≤ intermedia < 63 ≤ ácida", "cualitativa", "ordinal", "ordinal", "derivada de SiO2 (wt%)", "—"),
     "N Analytes": ("Número de analitos químicos medidos en la muestra", "cuantitativa", "discreta", "razón", "conteo", "analitos"),
+}
+
+# Nombre de cada variable en español (las químicas se arman con NOMBRES y la unidad).
+ESPANOL = {
+    "Sample Name": "Nombre de la muestra", "Sample URL": "Enlace de la muestra", "Citation": "Cita bibliográfica",
+    "Publication Year": "Año de publicación", "Analyzed Material": "Material analizado", "Sample Type": "Tipo de roca",
+    "Sample SubType": "Nombre de la roca", "Latitude": "Latitud", "Longitude": "Longitud",
+    "Geographic Features": "Rasgo geográfico", "Tectonic Setting": "Ambiente tectónico", "Rock Texture": "Textura de la roca",
+    "Sample Alteration": "Alteración de la muestra", "Elevation Min (m)": "Elevación mínima (m)",
+    "Elevation Max (m)": "Elevación máxima (m)", "Geologic Age": "Edad geológica", "Geologic Age Max (Ma)": "Edad máxima (Ma)",
+    "Geologic Age Min (Ma)": "Edad mínima (Ma)", "Expedition": "Expedición", "Tectonic Group": "Grupo tectónico",
+    "Alteration Grade": "Grado de alteración", "SiO2 Class": "Clase según SiO2", "N Analytes": "Número de analitos",
 }
 
 
@@ -145,24 +158,27 @@ def main(cruda):
     for c in df.columns:
         if c in OTRAS:
             desc, tipo, sub, escala, inst, unidad = OTRAS[c]
+            espanol = ESPANOL[c]
             definicion, conjunto = DOMINIOS[c]
         else:
             simbolo, unidad = c.split(" (")[0], c.split("(")[1].rstrip(")")
             grupo = ("elemento mayor" if unidad == "wt%" and simbolo not in ("Co", "Cu", "Ni", "Zn")
                      else "tierra rara" if simbolo in TIERRAS_RARAS else "elemento traza")
             desc = f"Concentración de {NOMBRES[simbolo]} ({grupo})"
+            espanol = f"{NOMBRES[simbolo][0].upper()}{NOMBRES[simbolo][1:]}, {unidad}"  # p. ej. "Cromo, ppm"
             tipo, sub, escala, inst = "cuantitativa", "continua", "razón", met.get(c, "")
             unidad = "% en peso" if unidad == "wt%" else "partes por millón"
             # La pérdida por calcinación puede ser negativa (la roca gana peso al oxidarse el hierro).
             definicion = "D={x/x es concentración ^ x ∈ R}"
             conjunto = "R" if simbolo == "LOI" else "R+ ∪ {0}"
-        filas.append({"Variable": c, "Descripción": desc, "Tipo": tipo, "Subtipo": sub,
+        filas.append({"Variable": c, "Variable (español)": espanol, "Descripción": desc, "Tipo": tipo, "Subtipo": sub,
                       "Dominio (definición)": definicion, "Dominio (conjunto)": dominio_conjunto(conjunto),
-                      "Rango": rango(df[c], sub, conjunto) if tipo != "identificador" else f"R={{y/y ∈ {conjunto}}}",
+                      "Rango": rango(df[c], sub, conjunto),
                       "Instrumento / método": inst, "Unidad": unidad, "Escala de medición": escala,
                       "% con dato": round(100 * df[c].notna().mean(), 1)})
     tabla = pd.DataFrame(filas)
-    excel = tabla.rename(columns={"Variable": "Nombre", "Unidad": "Sistema de unidades de medida"})
+    excel = tabla.rename(columns={"Variable": "Nombre", "Variable (español)": "Nombre en español",
+                                  "Unidad": "Sistema de unidades de medida"})
     for col in ("Tipo", "Subtipo", "Escala de medición"):
         excel[col] = excel[col].str.capitalize()
     excel.to_excel(RAIZ / "data" / "tabla_variables.xlsx", index=False, sheet_name="Variables")

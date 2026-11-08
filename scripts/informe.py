@@ -320,7 +320,7 @@ def parte_base(I, df):
         ["Numéricas discretas", "Publication Year, N Analytes", "Solo valores enteros."],
         ["Numéricas continuas", "52 químicas, Latitude, Longitude, elevaciones, edades (Ma)",
          "Óxidos mayores en % en peso; trazas y tierras raras en ppm."],
-        ["Identificadores", "Sample Name, Sample URL", "No se analizan; sirven para rastrear cada muestra."],
+        ["Nominales identificadoras", "Sample Name, Sample URL", "Cualitativas nominales: cada código es una categoría sin orden. No se analizan; sirven para rastrear cada muestra."],
     ], [3.2, 6.3, 7])
     I.p("La tabla de variables completa sigue el formato de la plantilla del curso: nombre, descripción, tipo, subtipo, "
         "dominio (como definición y como conjunto, por ejemplo D={x/x es concentración ^ x ∈ R} y D={x/x ∈ R+ ∪ {0}}), "

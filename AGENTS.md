@@ -51,7 +51,7 @@ para limpieza, mapa y web.
 |---|---|
 | ≥ 10 000 filas | 159 760 filas (cada fila = un análisis de una muestra) |
 | ≥ 30 columnas | 75 columnas |
-| Variables nominales | `Sample Type`, `Sample SubType`, `Tectonic Setting`, `Geographic Features`, `Rock Texture`, `Expedition`, `Citation`, `Tectonic Group` (3 grupos + mixto); binaria: `Analyzed Material` |
+| Variables nominales | `Sample Name` y `Sample URL` (identificadoras, nominales por pedido del docente), `Sample Type`, `Sample SubType`, `Tectonic Setting`, `Geographic Features`, `Rock Texture`, `Expedition`, `Citation`, `Tectonic Group` (3 grupos + mixto); binaria: `Analyzed Material` |
 | Variables ordinales | `SiO2 Class` (ultrabasica < basica < intermedia < acida), `Alteration Grade` (0 fresca … 5 totalmente alterada), `Geologic Age` (período), `Sample Alteration` (texto original) |
 | Numéricas discretas | `Publication Year`, `N Analytes` (cuántos analitos se midieron en la muestra) |
 | Numéricas continuas | 52 químicas (wt% y ppm), `Latitude`, `Longitude`, elevaciones, edades en Ma |
