@@ -83,6 +83,8 @@ def fragmento(png):
                        "tdf <- tdf_continua(ee, lim = limites_iqr(ee))       # TDF del grupo",
                        "print(tdf)",
                        f'graficos_continua(ee, tdf, "{rotulo} en rocas volcánicas máficas", "{unidad}", "{png}", n_graf = {n + 3})']
+    lineas += ["", "# Abre la imagen que se acaba de crear (solo en RStudio; con Rscript no hace nada)",
+               f'if (interactive()) browseURL(file.path(getwd(), GRAFICOS, "{png}"))']
     return "\n".join(lineas)
 
 
