@@ -20,6 +20,7 @@ El menú está **repetido en cada HTML**: al agregar una página, actualizarlo e
 | `data/variables.json` | `tabla_variables.py` | tarjetas de clases y tabla de variables (con «Nombre en español») |
 | `data/tdf/*.csv`, `img/r/*.png` | scripts de `R/` | tablas y gráficas de `/descriptiva/` |
 | `data/codigo_r.json` | `codigo_r.py` | panel «Código R» de cada gráfica y botón «Ver el código paso a paso» |
+| `rpubs/*.html` | `rpubs.py` | documentos R Markdown por variable, enlazados en la sección 07 y en Datos |
 
 ## Componentes de `app.js`
 

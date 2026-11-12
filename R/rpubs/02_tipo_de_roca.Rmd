@@ -1,0 +1,85 @@
+---
+title: "Análisis estadístico de la variable cualitativa nominal: Tipo de roca (Sample Type)"
+subtitle: "Geoquímica de rocas con datos de EarthChem PetDB · Estadística y Probabilidades, FIGEMPA – UCE"
+author: "Cristoffer Rumiguano, Ana Gabriela Fernández, Evelyn Bustamante, Jessica Haro, Jhonattan Ligña"
+date: "Noviembre de 2026"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+> Proyecto estrictamente académico. Datos: EarthChem PetDB (CC BY 4.0), descargados el 13/10/2026. Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
+
+## 1. Carga de datos y librerías
+
+Se lee la base limpia (159 760 análisis de roca total × 75 variables). La primera vez se descarga del repositorio del proyecto (26 MB).
+
+```{r}
+knitr::opts_chunk$set(
+  echo = TRUE,          # muestra el código en el documento
+  message = FALSE,      # sin mensajes de carga de paquetes
+  warning = FALSE,      # sin advertencias
+  fig.align = "center" # gráficos centrados
+)
+library(e1071)         # asimetría y curtosis (install.packages("e1071"))
+if (!file.exists("data/earthchem_limpio.csv.gz")) {
+  dir.create("data", showWarnings = FALSE)
+  download.file("https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz",
+                "data/earthchem_limpio.csv.gz", mode = "wb")
+}
+base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
+dim(base)              # filas y columnas
+```
+
+## 2. Datos
+
+Se toma la columna de la variable y se quitan las filas vacías (vacío = no medido, nunca cero).
+
+```{r}
+x <- base[["Sample Type"]]                         # la columna de la base
+frec <- prop.table(table(x))                 # proporción de cada tipo
+x[x %in% names(frec[frec < 0.01])] <- "otros" # los de menos de 1 % se juntan en "otros"
+x <- as.character(x)                         # como texto
+x <- x[!is.na(x) & x != ""]                  # quita los vacíos
+```
+
+## 3. Tabla de frecuencias
+
+ni cuenta los casos de cada categoría y hi los expresa en porcentaje; la moda es la categoría con más casos.
+
+```{r}
+conteo <- sort(table(x), decreasing = TRUE)  # cuenta cada categoría, de mayor a menor
+categoria <- names(conteo)
+ni <- as.vector(conteo)                      # frecuencia absoluta
+hi <- round(ni / sum(ni) * 100, 2)           # frecuencia relativa (%)
+TDF <- data.frame(categoria, ni, hi)         # nominal: sin acumuladas (no hay orden)
+knitr::kable(TDF, caption = "Tabla N° 1: distribución de frecuencias")
+categoria[which.max(ni)]                     # moda: la categoría con más casos
+```
+
+## 4. Gráfico: barras + circular
+
+Diagrama de barras (altura = ni) y diagrama circular (porción = hi).
+
+```{r, fig.width = 8, fig.height = 3.5}
+par(mfrow = c(1, 2), mar = c(9, 5, 4, 1))    # 2 gráficos lado a lado
+colores <- gray.colors(length(ni), start = .25, end = .85)       # un gris por categoría
+barplot(ni, names.arg = categoria, las = 2, col = colores, ylab = "Cantidad",   # barras: altura = ni
+        main = "Gráfica No. 3: Tipo de roca", cex.names = .8, cex.main = .9)
+par(mar = c(1, 1, 4, 1))
+pie(hi, labels = paste0(hi, "%"), col = colores, clockwise = TRUE, cex = .75,  # circular: porción = hi
+    main = "Gráfica No. 4: Tipo de roca (%)", cex.main = .9)
+legend("topright", legend = categoria, fill = colores, cex = .6, bty = "n")
+```
+
+```{r, include = FALSE}
+f <- function(v, d = 2) format(round(v, d), big.mark = if (abs(v) >= 10000) " " else "", decimal.mark = ",")
+res <- list(moda = categoria[which.max(ni)], hi_max = max(hi), n = sum(ni), k = length(ni))
+```
+
+## 5. Conclusión
+
+La categoría más frecuente (moda) es **`r res$moda`**, con el `r f(res$hi_max)` % de los `r f(res$n, 0)` casos con dato, repartidos en `r res$k` categorías. Predominan las rocas ígneas volcánicas máficas (basaltos), coherente con el peso de las dorsales en la base; las categorías poco frecuentes se agrupan en «Otros» para que el gráfico se pueda leer.

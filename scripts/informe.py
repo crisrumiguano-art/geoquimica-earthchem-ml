@@ -200,7 +200,7 @@ def guia_equipo(I, df):
         ["Lección", "Qué pide", "Estado"],
         ["L1–L2", "problema, objetivos; población, individuo y muestra", "Hecho (web: Inicio y Descriptiva 01)"],
         ["L3", "muestreo y mapa de ubicación en QGIS", "Mapa hecho (QGIS y Python). Falta el informe de muestreo estratificado"],
-        ["L4", "tabla de variables: tipo, subtipo, dominio, rango, instrumento, unidad", "Hecho (web y Excel, formato del curso)"],
+        ["L4", "tabla de variables: nombre corto, tipo, subtipo, dominio, rango, instrumento, unidad, escala, variable de interés e individuo", "Hecho (web y Excel, formato del docente)"],
         ["L5", "tablas de frecuencia (TDF) y gráficas", "Hecho: 4 cualitativas, 2 discretas, 3 continuas (SiO2, MgO, Cr)"],
         ["L6", "indicadores de posición, dispersión y forma", "Hecho para esas variables; se puede ampliar a más"],
         ["L7", "exposición de la etapa descriptiva y conclusiones", "Pendiente: redactar conclusiones y preparar la exposición"],
@@ -322,25 +322,24 @@ def parte_base(I, df):
          "Óxidos mayores en % en peso; trazas y tierras raras en ppm."],
         ["Nominales identificadoras", "Sample Name, Sample URL", "Cualitativas nominales: cada código es una categoría sin orden. No se analizan; sirven para rastrear cada muestra."],
     ], [3.2, 6.3, 7])
-    I.p("La tabla de variables completa sigue el formato de la plantilla del curso: nombre, descripción, tipo, subtipo, "
-        "dominio (como definición y como conjunto, por ejemplo D={x/x es concentración ^ x ∈ R} y D={x/x ∈ R+ ∪ {0}}), "
-        "rango observado (por ejemplo R={y/ 0.0011 ≤ y ≤ 98.9} para el SiO2), instrumento analítico, unidad y escala de "
-        "medición. Está en la página web (Estadística descriptiva) y en ", ("data/tabla_variables.xlsx", "c"),
+    I.p("La tabla de variables completa sigue el formato que pidió el docente: N°, nombre, nombre corto, nombre en "
+        "español, descripción, tipo, subtipo, dominio (una sola columna, por ejemplo D={x/x ∈ R ^ 0 ≤ x ≤ 100} para un "
+        "óxido), rango observado (por ejemplo R={x/x ∈ R ^ 0.0011 ≤ x ≤ 98.9} para el SiO2), instrumento analítico, unidad, "
+        "escala de medición, variable de interés y variable de individuo. Está en la página web (Estadística descriptiva) y en ", ("data/tabla_variables.xlsx", "c"),
         ". El diccionario resumido está en el Anexo A.")
 
     I.h("4.1 Dominio y rango: qué significan", 3)
     I.p("La idea es la misma que con las funciones en matemáticas. El ", ("dominio", "b"), " son todos los valores que la "
         "variable podría tomar en teoría, por cómo es la variable. El ", ("rango", "b"), " son los valores que tomó de verdad en "
-        "nuestros datos. La plantilla del curso escribe el dominio dos veces: en palabras (la definición) y como conjunto "
-        "numérico. Por ejemplo, una concentración puede ser cualquier número real desde cero hacia arriba (dominio R+ ∪ {0}), "
+        "nuestros datos. Por ejemplo, una concentración en wt% puede ser cualquier número real de 0 a 100 (dominio), "
         "pero en esta base el SiO2 va de 0,0011 % a 98,9 % (rango).")
     vars_ = {v["Variable"]: v for v in json.loads((RAIZ / "docs" / "data" / "variables.json").read_text(encoding="utf-8"))}
-    I.tabla([["Variable", "Dominio (definición)", "Dominio (conjunto)", "Rango"]] + [
-        [c, vars_[c]["Dominio (definición)"], vars_[c]["Dominio (conjunto)"], vars_[c]["Rango"]]
+    I.tabla([["Variable", "Dominio", "Rango"]] + [
+        [c, vars_[c]["Dominio"], vars_[c]["Rango"]]
         for c in ("SiO2 (wt%)", "Publication Year", "Alteration Grade", "Sample Type") if c in vars_
-    ], [3, 5.6, 3.4, 4.3])
+    ], [3.4, 6.2, 6.7])
     I.p("En las variables cualitativas el rango son las categorías que aparecen en la base; cuando son pocas se enumeran y "
-        "cuando son muchas se indica cuántas hay.")
+        "cuando son muchas se indica cuántas hay y cuáles son las más frecuentes.")
 
     I.h("5. Requisitos del trabajo", 2)
     I.tabla([["Requisito", "Exigido", "Base"], ["Filas", "al menos 10.000", miles(n)], ["Columnas", "al menos 30", str(ncol)],

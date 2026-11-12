@@ -27,7 +27,7 @@ Regresión (lineal, exponencial, polinómica, potencial, logarítmica, múltiple
 |---|---|---|
 | L2 | Población, individuo, muestra | definición textual y simbólica (hecha) |
 | L3 | Muestreo probabilístico + QGIS | mapa de ubicación en QGIS y Python (hecho); muestreo aleatorio, sistemático y estratificado en `R/04_muestreo.R` + `docs/informe_muestreo.pdf` (hecho; n = 1 061, estratos = `Tectonic Group`; la estratificada es la que va a la Unidad 2) |
-| L4 | Variable y escalas de medición | tabla de variables con el formato del curso: dominio (definición y conjunto) y rango (hecha) |
+| L4 | Variable y escalas de medición | tabla de variables con el formato que pidió el docente (11/11/2026, tomado del proyecto modelo geoquimicaglobal): N°, nombre, **nombre corto**, nombre en español, descripción que **no repite el nombre**, tipo, subtipo, **un solo dominio**, rango observado, instrumento, unidad, escala, **variable de interés (SI/NO)** y **variable de individuo** (hecha) |
 | L5 | TDF cualitativas, discretas, continuas | TDF + histograma, ojiva, barras en R (hecho, `/descriptiva/`) |
 | L6 | Indicadores | indicadores, boxplots y error de agrupación en R (hecho para SiO2, MgO, Cr; ampliar a más variables) |
 | L7 | Exposición etapa I | sitio con descriptiva completa |
@@ -77,6 +77,8 @@ R/funciones.R + 01/02/03_*.R                    estadística descriptiva (TDF, g
 R/graficos/NN_*.R                               un script SIMPLE por gráfico (sin funciones propias), generado por
                                                 scripts/codigo_r.py desde las plantillas de scripts/codigo_simple.py
 R/04_muestreo.R                                 muestreo (L3), simple, sin funciones -> data/muestras/*.csv, Muestreo.xlsx
+R/rpubs/*.Rmd                                   un R Markdown por variable (formato RPubs del proyecto modelo), generado por
+                                                scripts/rpubs.py desde R/graficos/; HTML en docs/rpubs/ (enlazados en la web)
 R/05_paso_a_paso.R                              SiO2 y ambiente tectónico SIN funciones propias, estilo plantilla
                                                 del docente, línea por línea; al final comprueba que da lo mismo que funciones.R
 docs/mapa_ubicacion_A4.pdf / _A3.pdf            mapa QGIS en PDF vectorial para imprimir a escala (100 %, sin ajustar):
@@ -190,6 +192,7 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
   La sección 07 de `/descriptiva/` («Cómo leer el código R») explica variable, vector, función y la equivalencia con
   la plantilla `Analisis_SiO2.R`; el equipo no entendía las funciones (29/10/2026). Si se agrega un PNG en `docs/img/r/`
   con un prefijo nuevo, sumarlo a `SCRIPTS` en ese archivo.
+- Correcciones de la tabla de variables (11/11/2026, quitó 0,2): faltaba nombre corto; descripciones redundantes; una sola columna de dominio; rango mal definido (ahora `R={x/x ∈ R ^ min ≤ x ≤ max}` o las categorías observadas); **elevación = razón** y **edad geológica = intervalo** (las tres columnas de edad); faltaban variable de interés y de individuo. Proyecto modelo: https://geoquimicaglobal.framer.website/ (su tabla es un Google Sheet; su código R está en RPubs, un documento por variable). Nuestros equivalentes: `R/rpubs/*.Rmd` -> `docs/rpubs/*.html`; publicarlos en RPubs lo hace el equipo desde RStudio con su cuenta (Knit -> Publish).
 - El proyecto QGIS usa **shapefiles** (`data/gis/shp/`, 9 campos en muestras, anchos fijos con CAST en OGR SQL e índice
   `.qix`), no el GeoPackage: el equipo trabaja QGIS "de forma tradicional" y el gpkg de 35 MB le colgaba QGIS. El
   planteamiento del problema es **una sola redacción continua**, sin subtítulos ni columnas (cubre importancia, uso de

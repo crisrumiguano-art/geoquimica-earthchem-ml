@@ -9,6 +9,7 @@ Una vez: `install.packages(c("e1071", "openxlsx"))`.
 |---|---|
 | `graficos/01…15_*.R` | Un archivo por gráfico de la página, en el mismo orden. Lee la base, arma la tabla de frecuencias, dibuja el gráfico y calcula los indicadores. Es el mismo código del botón «Código R» de la web. |
 | `04_muestreo.R` | Muestreo aleatorio simple, sistemático y estratificado (Lección 3) y sus dos gráficos. |
+| `rpubs/NN_*.Rmd` | Un documento R Markdown por variable (como el proyecto modelo en RPubs): código + resultado + conclusión. Abrir en RStudio, **Knit**, y **Publish → RPubs**. Instalar una vez `install.packages(c("rmarkdown", "knitr"))`. |
 | `05_paso_a_paso.R` | SiO2 y ambiente tectónico explicados línea por línea, con el estilo de la plantilla del docente. |
 
 ## Para regenerar toda la web de una vez (versión automática)

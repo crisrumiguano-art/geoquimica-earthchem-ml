@@ -7,6 +7,7 @@ Pages** (`docs/`) que crece una sección por lección, más la base limpia y los
 
 - Web: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/ · Repo: https://github.com/crisrumiguano-art/geoquimica-earthchem-ml
 - Plan del curso: https://cimejia.github.io/proyectos-estadistica/Plan_20_Lecciones_Estadistica.html
+- Proyecto modelo que mostró el docente: https://geoquimicaglobal.framer.website/ (tabla de variables y código R en RPubs)
 - Copia del equipo en Google Sheets: https://docs.google.com/spreadsheets/d/1i8tvb2M3Sn-HuON0TFsDOkX02NfImvWHGwTLIBfBLwc/edit?usp=sharing
 
 | Carpeta | Qué hay | Detalle |
@@ -29,8 +30,8 @@ df = pd.read_csv("data/earthchem_limpio.csv.gz", low_memory=False)   # 159 760 �
 |---|---|---|
 | L1–L2 | problema (una redacción), objetivos (general + 3), población/individuo/muestra | hecho |
 | L3 | mapa QGIS (EPSG:4087, A4 1:150 M y A3 1:110 M) + muestreo aleatorio, sistemático y estratificado | hecho (`informe_muestreo.pdf`) |
-| L4 | tabla de variables: nombre en español, dominio (definición y conjunto), rango | hecho |
-| L5–L6 | TDF, gráficas, indicadores, outliers, error de agrupación, con código R por gráfico | hecho (SiO2, MgO, Cr; ampliar) |
+| L4 | tabla de variables con el formato del docente (nombre corto, un dominio, rango, variable de interés e individuo) | hecho (corregida 11/2026) |
+| L5–L6 | TDF, gráficas, indicadores, outliers, error de agrupación, con código R por gráfico y un R Markdown por variable (RPubs) | hecho (SiO2, MgO, Cr; ampliar) |
 | L7 | exposición etapa I | pendiente |
 | U2–U4 | inferencia (usar la muestra estratificada), regresión, red neuronal | pendiente |
 

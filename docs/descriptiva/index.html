@@ -72,7 +72,7 @@
 
   <section class="cap" id="variables">
     <div class="cab rev"><span class="num">02</span><h2>Tabla de variables</h2>
-      <p>Cada columna de la base es una variable. Se clasifican según lo que miden y la escala en que se expresan. El <b>dominio</b> dice qué valores puede tomar la variable en teoría, primero como definición y después como conjunto; el <b>rango</b>, qué valores toma de verdad en la muestra (mínimo y máximo, o las categorías observadas).</p></div>
+      <p>Cada columna de la base es una variable. Se clasifican según lo que miden y la escala en que se expresan. El <b>dominio</b> dice qué valores puede tomar la variable en teoría; el <b>rango</b>, qué valores toma de verdad en la base (mínimo y máximo, o las categorías observadas). La <b>variable de interés</b> marca las que se usan en el estudio (los identificadores no) y la <b>variable de individuo</b> dice de quién es cada valor: de cada análisis de roca total.</p></div>
     <div class="clases rev" id="clases"></div>
     <div class="filtros rev">
       <button class="chip" aria-pressed="true" data-f="">Todas</button>
@@ -83,7 +83,7 @@
       <input class="buscar" type="search" placeholder="Buscar variable o elemento…" aria-label="Buscar variable">
     </div>
     <div class="tabla rev"><table id="vars"><thead><tr>
-      <th>Nombre</th><th>Nombre en español</th><th>Descripción</th><th>Tipo</th><th>Subtipo</th><th>Dominio</th><th>Dominio (conjunto)</th><th>Rango</th><th>Instrumento</th><th>Unidad</th><th>Escala</th><th class="n">% dato</th>
+      <th class="n">N°</th><th>Nombre</th><th>Nombre corto</th><th>Nombre en español</th><th>Descripción</th><th>Tipo</th><th>Subtipo</th><th>Dominio</th><th>Rango</th><th>Instrumento</th><th>Unidad</th><th>Escala</th><th>Variable de interés</th><th>Variable de individuo</th><th class="n">% dato</th>
     </tr></thead><tbody></tbody></table></div>
     <div class="descargas"><a href="https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/tabla_variables.xlsx">Descargar la tabla de variables (Excel)</a></div>
   </section>
@@ -204,6 +204,14 @@ dev.off()                    # cierra y guarda</code></pre></div>
     </div>
 
     <div class="rev" style="margin-top:2rem;max-width:900px">
+      <h3 id="codigo-rpubs">Un documento por variable (R Markdown, formato RPubs)</h3>
+      <p style="color:var(--text-secondary)">Como el proyecto modelo del curso: cada variable en un documento con el código y su
+        resultado debajo, paso a paso (carga de datos, TDF, gráficos, indicadores, outliers y conclusión). Los <code>.Rmd</code>
+        están en <code>R/rpubs/</code>; en RStudio se abren y se publican con <i>Knit → Publish → RPubs</i>.</p>
+      <div class="descargas"><a href="../rpubs/01_ambiente_tectonico.html">Ambiente tectónico</a><a href="../rpubs/02_tipo_de_roca.html">Tipo de roca</a><a href="../rpubs/03_clase_SiO2.html">Clase según SiO2</a><a href="../rpubs/04_grado_de_alteracion.html">Grado de alteración</a><a href="../rpubs/05_anio_de_publicacion.html">Año de publicación</a><a href="../rpubs/06_numero_de_analitos.html">Número de analitos</a><a href="../rpubs/07_SiO2.html">SiO2</a><a href="../rpubs/08_MgO.html">MgO</a><a href="../rpubs/09_Cr.html">Cr</a></div>
+    </div>
+
+    <div class="rev" style="margin-top:2rem;max-width:900px">
       <h3>Cómo correrlo en RStudio</h3>
       <ol class="pasos-r">
         <li>Descargar el repositorio (botón verde <i>Code → Download ZIP</i> en GitHub) y descomprimirlo.</li>
@@ -315,14 +323,14 @@ addEventListener("DOMContentLoaded", () => {
     document.getElementById("clases").innerHTML = Object.keys(def).map(k =>
       `<div class="clase"><div class="n">${v.filter(r => sub(r) === k).length}</div><div class="t">${def[k][0]}</div>
        <h3>${k[0].toUpperCase() + k.slice(1)}</h3><p>${def[k][1]}. Ej.: ${ex[k]}.</p></div>`).join("");
-    const cols = ["Variable", "Variable (español)", "Descripción", "Tipo", "Subtipo", "Dominio (definición)", "Dominio (conjunto)", "Rango", "Instrumento / método", "Unidad", "Escala de medición", "% con dato"];
+    const cols = ["N°", "Variable", "Nombre corto", "Variable (español)", "Descripción", "Tipo", "Subtipo", "Dominio", "Rango", "Instrumento / método", "Unidad", "Escala de medición", "Variable de interés", "Variable de individuo", "% con dato"];
     const cuerpo = document.querySelector("#vars tbody");
     let filtro = "", texto = "";
     const pintar = () => {
       cuerpo.innerHTML = v.filter(r => (!filtro || sub(r) === filtro) &&
-        (!texto || (r.Variable + " " + r["Variable (español)"] + " " + r.Descripción).toLowerCase().includes(texto)))
+        (!texto || (r.Variable + " " + r["Nombre corto"] + " " + r["Variable (español)"] + " " + r.Descripción).toLowerCase().includes(texto)))
         .map(r => `<tr>${cols.map(k => k === "Tipo" ? `<td><span class="tag ${r[k]}">${esc(r[k])}</span></td>`
-          : `<td${k === "% con dato" ? ' class="n"' : ""}>${esc(r[k])}</td>`).join("")}</tr>`).join("");
+          : `<td${k === "% con dato" || k === "N°" ? ' class="n"' : ""}>${esc(r[k])}</td>`).join("")}</tr>`).join("");
     };
     document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => {
       document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === c));

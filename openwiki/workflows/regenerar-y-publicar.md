@@ -10,6 +10,7 @@ python -I scripts/mapa.py               # -> data/gis/mapa_ubicacion.gpkg, docs/
 "/c/Program Files/QGIS 3.44.8/bin/python-qgis-ltr.bat" scripts/proyecto_qgis.py   # shp, .qgz A4+A3, PNG, PDF, zip
 # R (ver abajo), y al final:
 python scripts/codigo_r.py              # -> docs/data/codigo_r.json + R/graficos/*.R
+python scripts/rpubs.py                 # -> R/rpubs/*.Rmd + docs/rpubs/*.html (rmarkdown + pandoc, ~3 min)
 python scripts/informe_muestreo.py      # -> docs/informe_muestreo.docx/.pdf (tras R/04)
 python scripts/informe.py               # -> docs/informe_proyecto.docx/.pdf (Word por COM)
 ```
@@ -26,10 +27,14 @@ R 4.6 + `e1071` y `openxlsx`. Ejecutable: `"/c/Program Files/R/R-4.6.1/bin/Rscri
 | `R/04_muestreo.R` | L3, simple y sin funciones (seed 2026, n = 1 061) -> `data/muestras/`, `Muestreo.xlsx` |
 | `R/05_paso_a_paso.R` | SiO2 y ambiente tectónico al estilo de la plantilla; comprueba que da lo mismo que `funciones.R` |
 | `R/graficos/NN_*.R` | **generados**: un script simple por gráfico, sin funciones propias (lo que se muestra y explica) |
+| `R/rpubs/NN_*.Rmd` | **generados** desde `R/graficos/`: un R Markdown por variable (formato RPubs del proyecto modelo) |
 
 El código simple sale de las plantillas de `scripts/codigo_simple.py`. Cada plantilla debe producir el **mismo PNG
 byte a byte** que el bucle: al tocarlas, extraer los 15 scripts a una carpeta vacía con `data/`, correrlos y comparar
 con `cmp`. Las amplitudes redondas se leen de `docs/data/tdf/`.
+
+`rpubs.py` parte cada script por sus marcas `# ---- N. Título ----`: no cambiarlas en `codigo_simple.py` sin
+revisar `TEXTOS` y `DOCUMENTOS`. Necesita `rmarkdown`, `knitr` y pandoc (instalado por winget).
 
 Trampas: `read.csv()` sobre el `.gz` se cae en Windows (usar `gzfile(..., encoding = "UTF-8")`); `Rscript -e` multilínea
 falla (escribir un `.R`). Comentarios didácticos: estilo `# QUÉ HACE / RECIBE / DEVUELVE` y notas cortas por línea; al
