@@ -82,35 +82,35 @@
       <figure class="grafica"><a href="../img/regresion/reg_01_lineal_La_Ce-conjetura.png" target="_blank"><img src="../img/regresion/reg_01_lineal_La_Ce-conjetura.png" alt="Dispersión de La y Ce con la recta de regresión" loading="lazy"></a></figure>
       <div><h4>Lineal · lantano → cerio</h4>
         <p class="lectura">Ce = 6,87 + 1,675·La, con r = 0,970: el cerio depende del lantano en un 94 %. Son tierras raras vecinas que entran y salen juntas de los minerales. El documento incluye la deducción de los estimadores por mínimos cuadrados a mano (b = Sxy/Sxx) y la covarianza.</p>
-        <div class="descargas"><a href="../rpubs/reg_01_lineal_La_Ce.html">Documento R completo</a></div></div>
+        <div class="descargas"><a href="https://rpubs.com/rosemeri/reg-01-lineal-La-Ce">Documento R en RPubs</a></div></div>
     </div>
 
     <div class="bloque rev">
       <figure class="grafica"><a href="../img/regresion/reg_02_potencial_Zr_Hf-conjetura.png" target="_blank"><img src="../img/regresion/reg_02_potencial_Zr_Hf-conjetura.png" alt="Dispersión log-log de Zr y Hf con la curva potencial" loading="lazy"></a></figure>
       <div><h4>Potencial · circonio → hafnio</h4>
         <p class="lectura">Hf = 0,0402·Zr<sup>0,906</sup>, r = 0,966 en logaritmos (0,15 en escala normal). El hafnio es el gemelo del circonio y los dos viven en el circón. Para 150 ppm de Zr se esperan 3,8 ppm de Hf.</p>
-        <div class="descargas"><a href="../rpubs/reg_02_potencial_Zr_Hf.html">Documento R completo</a></div></div>
+        <div class="descargas"><a href="https://rpubs.com/rosemeri/reg-02-potencial-Zr-Hf">Documento R en RPubs</a></div></div>
     </div>
 
     <div class="bloque rev">
       <figure class="grafica"><a href="../img/regresion/reg_03_exponencial_SiO2_MgO-conjetura.png" target="_blank"><img src="../img/regresion/reg_03_exponencial_SiO2_MgO-conjetura.png" alt="Dispersión de SiO2 y MgO con la curva exponencial" loading="lazy"></a></figure>
       <div><h4>Exponencial · sílice → magnesio</h4>
         <p class="lectura">MgO = 10.739·e<sup>−0,1455·SiO₂</sup>, r = −0,879: el magnesio cae rápido cuando sube la sílice y después se aplana. Una andesita con 60 % de SiO<sub>2</sub> tendría 1,7 % de MgO.</p>
-        <div class="descargas"><a href="../rpubs/reg_03_exponencial_SiO2_MgO.html">Documento R completo</a></div></div>
+        <div class="descargas"><a href="https://rpubs.com/rosemeri/reg-03-exponencial-SiO2-MgO">Documento R en RPubs</a></div></div>
     </div>
 
     <div class="bloque rev">
       <figure class="grafica"><a href="../img/regresion/reg_04_logaritmica_MgO_SiO2-conjetura.png" target="_blank"><img src="../img/regresion/reg_04_logaritmica_MgO_SiO2-conjetura.png" alt="Dispersión de MgO y SiO2 con la curva logarítmica" loading="lazy"></a></figure>
       <div><h4>Logarítmico · magnesio → sílice</h4>
         <p class="lectura">SiO₂ = 61,24 − 5,31·ln(MgO), r = −0,879. La misma diferenciación vista desde el otro lado, como en la plantilla del curso. Restricción: más allá de MgO = e<sup>−a/b</sup> el modelo daría sílice negativa.</p>
-        <div class="descargas"><a href="../rpubs/reg_04_logaritmica_MgO_SiO2.html">Documento R completo</a></div></div>
+        <div class="descargas"><a href="https://rpubs.com/rosemeri/reg-04-logaritmica-MgO-SiO2">Documento R en RPubs</a></div></div>
     </div>
 
     <div class="bloque rev">
       <figure class="grafica"><a href="../img/regresion/reg_05_polinomica_MgO_CaO-conjetura.png" target="_blank"><img src="../img/regresion/reg_05_polinomica_MgO_CaO-conjetura.png" alt="Dispersión de MgO y CaO con la curva cúbica" loading="lazy"></a></figure>
       <div><h4>Polinómico · magnesio → calcio</h4>
         <p class="lectura">El CaO sube hasta un máximo cerca de 14 % de MgO (basaltos, con plagioclasa y clinopiroxeno) y baja en las peridotitas (olivino, casi sin calcio). Una recta da r = −0,28; el polinomio de grado 3, r = 0,80. Fuera del rango medido el polinomio se dispara.</p>
-        <div class="descargas"><a href="../rpubs/reg_05_polinomica_MgO_CaO.html">Documento R completo</a></div></div>
+        <div class="descargas"><a href="https://rpubs.com/rosemeri/reg-05-polinomica-MgO-CaO">Documento R en RPubs</a></div></div>
     </div>
 
   </section>
@@ -123,7 +123,7 @@
       <figure class="grafica"><a href="../img/regresion/reg_06_multiple_Nd-plano.png" target="_blank"><img src="../img/regresion/reg_06_multiple_Nd-plano.png" alt="Nd real frente a Nd estimado por el modelo múltiple" loading="lazy"></a></figure>
       <div><h4>Neodimio ← lantano + samario</h4>
         <p class="lectura">Nd = 1,71 + 0,368·La + 2,447·Sm, R = 0,847 (R² = 71,7 %). El neodimio está entre el lantano y el samario en la serie de las tierras raras. La y Sm están muy correlacionados entre sí (multicolinealidad), y agregar el ambiente tectónico como variable ficticia casi no mejora el ajuste.</p>
-        <div class="descargas"><a href="../rpubs/reg_06_multiple_Nd.html">Documento R completo</a></div></div>
+        <div class="descargas"><a href="https://rpubs.com/rosemeri/reg-06-multiple-Nd">Documento R en RPubs</a></div></div>
     </div>
 
   </section>
@@ -139,7 +139,7 @@
           En los datos de prueba acierta el <b>84,6 %</b>: reconoce el 95 % de las rocas que no son de arco y el 61,6 % de las
           que sí (son la clase menor). Una andesita típica sale con 73 % de probabilidad de ser de arco; un basalto de dorsal,
           con 20 %.</p>
-        <div class="descargas"><a href="../rpubs/reg_09_logistica_arco.html">Documento R completo</a></div></div>
+        <div class="descargas"><a href="https://rpubs.com/rosemeri/reg-09-logistica-arco">Documento R en RPubs</a></div></div>
     </div>
   </section>
 
@@ -151,14 +151,14 @@
       <figure class="grafica"><a href="../img/regresion/reg_07_serie_de_tiempo-tendencia.png" target="_blank"><img src="../img/regresion/reg_07_serie_de_tiempo-tendencia.png" alt="Serie anual de análisis publicados con tendencia lineal y cuadrática" loading="lazy"></a></figure>
       <div><h4>Componentes y tendencia</h4>
         <p class="lectura">La serie crece de largo plazo, con ciclos de varios años (campañas de perforación oceánica) y picos aislados de trabajos que publican miles de análisis juntos. Con datos anuales no hay estacionalidad: se usa un modelo aditivo.</p>
-        <div class="descargas"><a href="../rpubs/reg_07_serie_de_tiempo.html">Documento R completo</a></div></div>
+        <div class="descargas"><a href="https://rpubs.com/rosemeri/reg-07-serie-de-tiempo">Documento R en RPubs</a></div></div>
     </div>
 
     <div class="bloque rev">
       <figure class="grafica"><a href="../img/regresion/reg_07_serie_de_tiempo-pronostico.png" target="_blank"><img src="../img/regresion/reg_07_serie_de_tiempo-pronostico.png" alt="Pronóstico 2025-2029 con tres técnicas" loading="lazy"></a></figure>
       <div><h4>Pronóstico 2025–2029</h4>
         <p class="lectura">La tendencia cuadrática, la media móvil de 5 años y la suavización de Holt dan entre 2.700 y 3.400 análisis por año. Los métodos que siguen el nivel reciente son los más prudentes para un dato que depende de campañas y de los autores que cargan sus datos.</p>
-        <div class="descargas"><a href="../rpubs/reg_07_serie_de_tiempo.html">Documento R completo</a></div></div>
+        <div class="descargas"><a href="https://rpubs.com/rosemeri/reg-07-serie-de-tiempo">Documento R en RPubs</a></div></div>
     </div>
 
   </section>
@@ -172,7 +172,7 @@
           MgO a la sílice y los álcalis: es el eje de la diferenciación magmática y ordena las rocas de ultramáficas (verde)
           a félsicas (rojo). k-means, sin conocer el tipo de roca, forma grupos que coinciden en buena parte con los tipos
           reales: la química sola separa las rocas, y esa es la base de la red neuronal de la Unidad 4.</p>
-        <div class="descargas"><a href="../rpubs/reg_08_multivariado.html">Documento R completo</a></div></div>
+        <div class="descargas"><a href="https://rpubs.com/rosemeri/reg-08-multivariado">Documento R en RPubs</a></div></div>
     </div>
   </section>
 </main>
@@ -192,7 +192,7 @@ addEventListener("DOMContentLoaded", () => {
       <td>${f.modelo}</td><td>${f.x}</td><td>${f.y}</td><td class="n">${Number(f.n).toLocaleString("es-EC")}</td>
       <td>${coma(f.ecuacion).replaceAll("+ -", "− ")}</td><td class="n">${f.r === "" || f.r === "NA" ? "—" : coma(Number(f.r).toFixed(3))}</td>
       <td class="n">${f.r2 === "" || f.r2 === "NA" ? "—" : coma(Number(f.r2).toFixed(1))}</td><td>${coma(f.pronostico)}</td>
-      <td><a href="../rpubs/${f.documento}.html">abrir</a></td></tr>`).join("");
+      <td><a href="https://rpubs.com/rosemeri/${f.documento.replaceAll('_', '-')}">abrir</a></td></tr>`).join("");
   });
 });
 </script>
