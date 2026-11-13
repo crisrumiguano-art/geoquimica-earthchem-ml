@@ -162,7 +162,8 @@ if (!file.exists("data/earthchem_limpio.csv.gz")) {
   download.file("https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz", "data/earthchem_limpio.csv.gz", mode = "wb")
 }
 base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
-poblacion <- base[["Zr (ppm)"]][base[["Sample Type"]] == "igneous:volcanic:mafic"]
+poblacion <- base[["Zr (ppm)"]]
+poblacion <- poblacion[base[["Sample Type"]] == "igneous:volcanic:mafic"]
 poblacion <- poblacion[!is.na(poblacion) & poblacion > 0]
 media_real <- mean(poblacion)
 c(media_real = media_real, dentro_del_intervalo = media_real >= IC[["inferior"]] & media_real <= IC[["superior"]])

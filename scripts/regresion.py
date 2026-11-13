@@ -593,6 +593,116 @@ que coinciden en buena parte con los tipos reales, lo que muestra que la químic
 fundamento de la red neuronal de la Unidad 4.
 '''
 
+LOGISTICA = '''
+## 2. Asignación de variables
+
+Como en la plantilla del curso, la regresión logística predice una variable **binaria** (0 o 1). Pregunta: ¿una roca
+volcánica se formó en un **margen convergente** (arco volcánico, 1) o no (dorsal o intraplaca, 0)? Variables
+explicativas: cinco óxidos mayores. Los magmas de arco se forman con agua de la placa que se hunde: tienen más Al2O3 y
+K2O y menos MgO que los de dorsal.
+
+```{r variables}
+oxidos <- c("SiO2 (wt%)", "Al2O3 (wt%)", "MgO (wt%)", "Na2O (wt%)", "K2O (wt%)")
+volcanica <- grepl("^igneous:volcanic", base[["Sample Type"]])
+datos <- na.omit(base[volcanica, c(oxidos, "Tectonic Group")])
+datos <- datos[datos[["Tectonic Group"]] != "mixto", ]
+colnames(datos) <- c("SiO2", "Al2O3", "MgO", "Na2O", "K2O", "grupo")
+datos$arco <- ifelse(datos$grupo == "margen convergente", 1, 0)   # 1 = margen convergente
+table(datos$arco)
+```
+
+## 3. Tabla de valores
+
+```{r tabla}
+knitr::kable(head(datos[, c("SiO2", "Al2O3", "MgO", "Na2O", "K2O", "arco")], 10), caption = "Tabla N° 1: primeras 10 filas")
+knitr::kable(aggregate(cbind(SiO2, Al2O3, MgO, Na2O, K2O) ~ arco, data = datos, FUN = mean), digits = 2,
+             caption = "Tabla N° 2: media de cada óxido en arco (1) y no arco (0)")
+```
+
+## 4. Entrenamiento y prueba
+
+El 80 % de las filas se usa para ajustar el modelo y el 20 % restante para probarlo con datos que no vio.
+
+```{r division}
+set.seed(2026)
+entrena <- sample(nrow(datos), round(0.8 * nrow(datos)))
+d_ent <- datos[entrena, ]
+d_prueba <- datos[-entrena, ]
+c(entrenamiento = nrow(d_ent), prueba = nrow(d_prueba))
+```
+
+## 5. Conjetura del modelo
+
+La regresión logística ajusta una combinación lineal z = b0 + b1·x1 + … + b5·x5 y la convierte en probabilidad con la
+función sigmoide, p = 1 / (1 + e^(−z)). Es una neurona con activación sigmoide: el puente hacia la Unidad 4.
+
+```{r conjetura}
+modelo <- glm(arco ~ SiO2 + Al2O3 + MgO + Na2O + K2O, data = d_ent, family = "binomial")
+summary(modelo)$coefficients
+round(exp(coef(modelo)), 3)                            # razón de momios: cuánto cambian las chances por cada 1 % del óxido
+```
+
+```{r sigmoide, fig.width = 8, fig.height = 5}
+z <- predict(modelo, d_prueba)                         # combinación lineal
+p <- 1 / (1 + exp(-z))                                 # probabilidad de ser arco
+plot(z, d_prueba$arco + runif(length(z), -0.04, 0.04), pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1,
+     xlim = quantile(z, c(0.005, 0.995)), main = "Gráfica N° 1: Curva sigmoide de la regresión logística",
+     xlab = "z = b0 + b1·SiO2 + … + b5·K2O", ylab = "Arco (1) o no (0)")
+curve(1 / (1 + exp(-x)), add = TRUE, col = "#d95926", lwd = 3)
+abline(h = 0.5, lty = 3, col = "gray50")
+```
+
+## 6. Test de aprobación
+
+Se clasifica como arco si p ≥ 0,5. La **matriz de confusión** cuenta aciertos y errores en los datos de prueba.
+
+```{r test}
+estimado <- ifelse(p >= 0.5, 1, 0)
+confusion <- table(real = d_prueba$arco, estimado = estimado)
+confusion
+exactitud <- sum(diag(confusion)) / sum(confusion) * 100
+sensibilidad <- confusion["1", "1"] / sum(confusion["1", ]) * 100     # arcos reconocidos
+especificidad <- confusion["0", "0"] / sum(confusion["0", ]) * 100    # no arcos reconocidos
+knitr::kable(data.frame(exactitud = round(exactitud, 1), sensibilidad = round(sensibilidad, 1),
+                        especificidad = round(especificidad, 1)), caption = "Tabla N° 3: test de aprobación (%)")
+```
+
+## 7. Restricciones
+
+Vale para rocas volcánicas con los cinco óxidos dentro del rango medido. Las clases no tienen el mismo tamaño (hay menos
+arcos), por eso se informan sensibilidad y especificidad además de la exactitud.
+
+## 8. Estimación de pronósticos
+
+**¿Qué probabilidad de ser de arco tiene una andesita con 59 % SiO2, 17 % Al2O3, 3 % MgO, 3,5 % Na2O y 1,5 % K2O? ¿Y un
+basalto de dorsal con 50 %, 15 %, 8 %, 2,5 % y 0,15 %?**
+
+```{r pronostico}
+nuevas <- data.frame(SiO2 = c(59, 50), Al2O3 = c(17, 15), MgO = c(3, 8), Na2O = c(3.5, 2.5), K2O = c(1.5, 0.15))
+p_nuevas <- predict(modelo, nuevas, type = "response")
+round(p_nuevas * 100, 1)                               # en %
+```
+
+## 9. Conclusión
+
+La regresión logística reconoce si una roca volcánica es de margen convergente en el `r round(exactitud, 1)` % de los
+casos de prueba (sensibilidad `r round(sensibilidad, 1)` %, especificidad `r round(especificidad, 1)` %). La andesita
+del ejemplo sale con `r round(p_nuevas[1] * 100)` % de probabilidad de ser de arco y el basalto de dorsal con
+`r round(p_nuevas[2] * 100)` %. La red neuronal de la Unidad 4 resuelve el mismo tipo de problema con tres clases y más
+exactitud, porque combina los óxidos de forma no lineal.
+
+```{r guardar, include = FALSE}
+if (dir.exists("docs/data")) {
+  dir.create("docs/data/regresion", showWarnings = FALSE)
+  write.csv(data.frame(documento = "reg_09_logistica_arco", modelo = "logístico", x = "SiO2, Al2O3, MgO, Na2O, K2O",
+                       y = "margen convergente (0/1)", n = nrow(datos), ecuacion = "p = 1 / (1 + e^(-z))",
+                       r = NA, r2 = NA, pronostico = paste0("andesita -> ", round(p_nuevas[1] * 100), " % arco; exactitud ",
+                       round(exactitud, 1), " %")),
+            "docs/data/regresion/reg_09_logistica_arco.csv", row.names = FALSE, fileEncoding = "UTF-8")
+}
+```
+'''
+
 COMUN = dict(filtro="", zoom="", zoom_x="", log_res="", eje_res="Residuo (y real - y del modelo)")
 ZOOM = ", xlim = c(0, quantile(x, 0.995)), ylim = c(0, quantile(y, 0.995))"  # zoom al 99,5 %; el modelo usa todos
 SILICATADAS = ("\nsilicatada <- {v} >= 35 & {v} <= 80                    # rocas silicatadas (restricción del dominio)\n"
@@ -621,6 +731,8 @@ def main():
                                                      autores=AUTORES, url=URL) + SERIE
     docs["reg_08_multivariado"] = CABECERA.format(titulo="Estadística multivariable: correlación, componentes principales y grupos",
                                                   autores=AUTORES, url=URL) + MULTIVARIADO
+    docs["reg_09_logistica_arco"] = CABECERA.format(titulo="Regresión logística: ¿roca de arco volcánico?",
+                                                    autores=AUTORES, url=URL) + LOGISTICA
     for nombre, texto in docs.items():
         (RMD / f"{nombre}.Rmd").write_text(texto, encoding="utf-8")
     solo = sys.argv[1:] or list(docs)

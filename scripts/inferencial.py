@@ -81,7 +81,7 @@ valores atípicos (regla de la caja) quedan fuera del ajuste: el modelo describe
 la base y se informan aquí.
 
 ```{{r tabla}}
-x <- muestra[["{col}"]]
+{calc_muestra}
 tipo <- muestra[["Sample Type"]]
 x <- x[tipo == "igneous:volcanic:mafic" & !is.na(x) & x > 0]   # basaltos con dato
 caja <- boxplot(x, plot = FALSE)                       # límites de la caja (bigotes)
@@ -113,7 +113,7 @@ Por la forma del histograma se conjetura un **modelo {modelo}**. `fitdistr()` es
 (máxima verosimilitud).
 
 ```{{r conjetura, fig.width = 8, fig.height = 4.8}}
-ajuste <- fitdistr(x, "{fit}")
+ajuste <- fitdistr(x, {fit})
 ajuste                                                 # parámetros estimados y su error estándar
 {param}
 techo <- max(h$density, {d_grid}) * 1.1                # alto del gráfico: que entren barras y curva
@@ -203,7 +203,8 @@ if (!file.exists("data/earthchem_limpio.csv.gz")) {{
   download.file("{url}data/earthchem_limpio.csv.gz", "data/earthchem_limpio.csv.gz", mode = "wb")
 }}
 base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
-poblacion <- base[["{col}"]][base[["Sample Type"]] == "igneous:volcanic:mafic"]
+{calc_base}
+poblacion <- poblacion[base[["Sample Type"]] == "igneous:volcanic:mafic"]
 poblacion <- poblacion[!is.na(poblacion) & poblacion > 0]
 media_real <- mean(poblacion)
 c(media_real = media_real, dentro_del_intervalo = media_real >= IC[["inferior"]] & media_real <= IC[["superior"]])
@@ -239,17 +240,34 @@ c(desviacion_de_las_medias = sd(medias), sigma_sobre_raiz_n = sd(poblacion) / sq
 '''
 
 MODELOS = {  # parámetros, densidad y acumulada de cada modelo continuo (Q = valor)
-    "normal": dict(fit="normal", param='media <- ajuste$estimate[["mean"]]\ndesv <- ajuste$estimate[["sd"]]',
+    "normal": dict(fit='"normal"', param='media <- ajuste$estimate[["mean"]]\ndesv <- ajuste$estimate[["sd"]]',
                    d="dnorm(Q, media, desv)", p="pnorm(Q, media, desv)", parametros='paste0("media = ", round(media, 3), "; desviación = ", round(desv, 3))',
                    texto="media = `r round(media, 2)` y desviación = `r round(desv, 2)`"),
-    "log-normal": dict(fit="lognormal", param='media_log <- ajuste$estimate[["meanlog"]]\ndesv_log <- ajuste$estimate[["sdlog"]]',
+    "log-normal": dict(fit='"lognormal"', param='media_log <- ajuste$estimate[["meanlog"]]\ndesv_log <- ajuste$estimate[["sdlog"]]',
                        d="dlnorm(Q, media_log, desv_log)", p="plnorm(Q, media_log, desv_log)",
                        parametros='paste0("media log = ", round(media_log, 3), "; desviación log = ", round(desv_log, 3))',
                        texto="media logarítmica = `r round(media_log, 3)` y desviación logarítmica = `r round(desv_log, 3)`"),
-    "exponencial": dict(fit="exponential", param='lambda <- ajuste$estimate[["rate"]]   # tasa',
+    "exponencial": dict(fit='"exponential"', param='lambda <- ajuste$estimate[["rate"]]   # tasa',
                         d="dexp(Q, lambda)", p="pexp(Q, lambda)", parametros='paste0("lambda = ", round(lambda, 3))',
                         texto="λ = `r round(lambda, 3)` (media 1/λ = `r round(1 / lambda, 2)`)"),
 }
+
+MODELOS["beta"] = dict(
+    fit='"beta", start = list(shape1 = 2, shape2 = 2)',   # la beta necesita valores de partida
+    param='a <- ajuste$estimate[["shape1"]]\nb <- ajuste$estimate[["shape2"]]',
+    d="dbeta(Q, a, b)", p="pbeta(Q, a, b)", parametros='paste0("a = ", round(a, 2), "; b = ", round(b, 2))',
+    texto="forma a = `r round(a, 2)` y forma b = `r round(b, 2)` (media a/(a+b) = `r round(a / (a + b), 3)`)")
+
+# Número de magnesio: Mg# = Mg / (Mg + Fe) en moles. Es una proporción (0 a 1): la variable natural para la beta.
+MG_NUMERO = """VAR <- DF[["FeOT (wt%)"]]                             # hierro total como FeO
+otra <- DF[["FeO (wt%)"]] + 0.8998 * DF[["Fe2O3 (wt%)"]]   # si falta, se calcula: FeOT = FeO + 0,8998·Fe2O3
+VAR[is.na(VAR)] <- otra[is.na(VAR)]
+otra <- 0.8998 * DF[["Fe2O3T (wt%)"]]
+VAR[is.na(VAR)] <- otra[is.na(VAR)]
+mg <- DF[["MgO (wt%)"]] / 40.30                       # moles de MgO (masa molar 40,30)
+fe <- VAR / 71.85                                      # moles de FeO (masa molar 71,85)
+VAR <- mg / (mg + fe)                                  # número de magnesio, entre 0 y 1
+VAR[VAR >= 1] <- NA                                    # sin hierro medido no hay Mg# (la beta exige < 1)"""
 
 CONTINUAS = [
     dict(nombre="inf_04_normal_SiO2", col="SiO2 (wt%)", etiqueta="SiO2", eje="SiO2 (wt%)", unidad="% en peso",
@@ -275,11 +293,23 @@ CONTINUAS = [
          titulo_p1="P(K2O < 0,2 %)", q1="0.2", lado1="menor",
          pregunta2="Si se analizan 50 basaltos nuevos, ¿cuántos tendrían entre 0,5 y 1 % de K2O?", a2="0.5", b2="1",
          conclusion="El potasio separa a los basaltos de dorsal (pobres en K2O) de los de arco e intraplaca."),
+    dict(nombre="inf_07_beta_Mg", col="Mg#", etiqueta="Mg#", eje="Mg# = Mg/(Mg+Fe)", unidad="(proporción)",
+         modelo="beta", tlc=False, calc=MG_NUMERO,
+         forma="El número de magnesio (Mg#) es la proporción de magnesio frente a magnesio más hierro: vale entre 0 y 1. "
+               "Mide qué tan primitivo es un magma (los magmas recién salidos del manto tienen Mg# cercano a 0,7). Una "
+               "variable acotada entre 0 y 1 se describe con el modelo beta, el único de la plantilla para proporciones.",
+         pregunta1="¿Cuál es la probabilidad de que un basalto tenga Mg# mayor que 0,65 (magma primitivo, poco evolucionado)?",
+         titulo_p1="P(Mg# > 0,65)", q1="0.65", lado1="mayor",
+         pregunta2="Si se analizan 50 basaltos nuevos, ¿cuántos tendrían Mg# entre 0,5 y 0,6?", a2="0.5", b2="0.6",
+         conclusion="La mayoría de los basaltos ya perdió parte de su magnesio al cristalizar olivino: no son magmas primitivos."),
 ]
 
 
 def continua(c):
     m = MODELOS[c["modelo"]]
+    calc = c.get("calc", 'VAR <- DF[["' + c["col"] + '"]]')
+    c = c | {"calc_muestra": calc.replace("DF", "muestra").replace("VAR", "x"),
+             "calc_base": calc.replace("DF", "base").replace("VAR", "poblacion")}
     d = lambda q: m["d"].replace("Q", q)  # noqa: E731
     p = lambda q: m["p"].replace("Q", q)  # noqa: E731
     p1 = p(c["q1"]) if c["lado1"] == "menor" else f"1 - {p(c['q1'])}"

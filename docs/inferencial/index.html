@@ -7,7 +7,7 @@
 <link rel="icon" href="../favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <title>Estadística inferencial — Geoquímica de rocas PetDB</title>
-<meta name="description" content="Unidad 2: modelos binomial, geométrico, Poisson, normal, log-normal y exponencial, pruebas de bondad de ajuste e intervalos de confianza.">
+<meta name="description" content="Unidad 2: modelos binomial, geométrico, Poisson, normal, log-normal, exponencial y beta, pruebas de bondad de ajuste e intervalos de confianza.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -62,7 +62,7 @@
           y se eligió el modelo que pasa la prueba y tiene sentido geológico. También se registra lo que no funcionó: el número
           de analitos no sigue un modelo de Poisson (su varianza, 122, es once veces su media, 10,8).</li>
         <li><b>La población se conoce.</b> Como se tiene la base completa, cada intervalo de confianza se comprueba con el valor
-          real. En los seis modelos, el valor real cae dentro del intervalo.</li>
+          real. En los siete modelos, el valor real cae dentro del intervalo.</li>
       </ol>
     </div>
   </section>
@@ -111,8 +111,8 @@
 
   <section class="cap" id="continuos">
     <div class="cab rev"><span class="num">04</span><h2>Modelos continuos</h2>
-      <p>Tres variables de los basaltos, cada una con un modelo distinto: un elemento mayor simétrico, un elemento traza con cola
-        larga y un álcali que casi siempre está cerca de cero.</p></div>
+      <p>Cuatro variables de los basaltos, cada una con un modelo distinto: un elemento mayor simétrico, un elemento traza con
+        cola larga, un álcali que casi siempre está cerca de cero y una proporción entre 0 y 1.</p></div>
 
     <div class="bloque rev">
       <figure class="grafica"><a href="../img/inferencial/inf_04_normal_SiO2-conjetura.png" target="_blank"><img src="../img/inferencial/inf_04_normal_SiO2-conjetura.png" alt="Histograma de SiO2 en basaltos con la curva normal" loading="lazy"></a></figure>
@@ -137,6 +137,15 @@
           18,31. Un basalto tiene menos de 0,2 % de K<sub>2</sub>O, como los de dorsal, con probabilidad <b>32,7 %</b>.</p>
         <div class="descargas"><a href="../rpubs/inf_06_exponencial_K2O.html">Documento R completo</a></div></div>
     </div>
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/inferencial/inf_07_beta_Mg-conjetura.png" target="_blank"><img src="../img/inferencial/inf_07_beta_Mg-conjetura.png" alt="Histograma del número de magnesio en basaltos con la curva beta" loading="lazy"></a></figure>
+      <div><h4>Mg# · beta</h4>
+        <p class="lectura">El número de magnesio, Mg# = Mg/(Mg + Fe) en moles, es una proporción entre 0 y 1 que mide qué tan
+          primitivo es un magma. Para una variable acotada entre 0 y 1 el modelo es la beta: a = 13,08 y b = 11,30 (media
+          0,54). χ² = 12,38 frente a 18,31. Un basalto tiene Mg# mayor que 0,65 (magma primitivo) con probabilidad
+          <b>12,9 %</b>: la mayoría ya perdió magnesio al cristalizar olivino.</p>
+        <div class="descargas"><a href="../rpubs/inf_07_beta_Mg.html">Documento R completo</a></div></div>
+    </div>
   </section>
 
   <section class="cap" id="ic">
@@ -150,7 +159,7 @@
     <p class="rev" style="color:var(--text-secondary);max-width:900px;margin-top:1.4rem">Izquierda: las medias de 1.000 muestras de
       30 basaltos forman una campana normal, con la desviación que predice el teorema (σ/√30). Derecha: el intervalo del 95 % para
       la media de SiO<sub>2</sub> en basaltos, calculado con la muestra, contiene la media real de la base completa (49,26 %). La
-      tabla del resumen muestra la misma comprobación para los seis modelos.</p>
+      tabla del resumen muestra la misma comprobación para los siete modelos.</p>
   </section>
 </main>
 
@@ -158,6 +167,7 @@
   <span class="academico">Proyecto <b>estrictamente académico</b>, sin fines comerciales, desarrollado para la asignatura Estadística y Probabilidades (FIGEMPA – Universidad Central del Ecuador).</span>
   <span>Datos: Astromaterials Data Synthesis / EarthChem PetDB (<a href="https://search.astromat.org/">search.astromat.org</a>), 13/10/2026, CC BY 4.0.</span>
   <span>Modelos y gráficas generados con R 4.6.</span>
+  <span><a class="repo" href="https://github.com/crisrumiguano-art/geoquimica-earthchem-ml"><img src="../img/logos/github.svg" alt="" width="14" height="14" style="vertical-align:-2px;filter:invert(1);margin-right:.35rem">Código y datos en GitHub</a></span>
 </footer>
 
 <script>

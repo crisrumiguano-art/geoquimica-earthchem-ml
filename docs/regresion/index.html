@@ -7,7 +7,7 @@
 <link rel="icon" href="../favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <title>Regresión — Geoquímica de rocas PetDB</title>
-<meta name="description" content="Unidad 3: regresión lineal, potencial, exponencial, logarítmica, polinómica y múltiple, y series de tiempo.">
+<meta name="description" content="Unidad 3: regresión lineal, potencial, exponencial, logarítmica, polinómica, múltiple y logística, series de tiempo y estadística multivariable.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -39,7 +39,7 @@
       pronóstico.</p>
     <nav class="indice rev" style="--d:3" aria-label="Secciones de la página">
       <a href="#metodo">01 Método</a><a href="#resumen">02 Resumen</a><a href="#simples">03 Modelos simples</a>
-      <a href="#multiple">04 Múltiple</a><a href="#serie">05 Serie de tiempo</a><a href="#multivariable">06 Multivariable</a>
+      <a href="#multiple">04 Múltiple</a><a href="#logistica">05 Logística</a><a href="#serie">06 Serie de tiempo</a><a href="#multivariable">07 Multivariable</a>
     </nav>
   </div>
 </header>
@@ -128,8 +128,23 @@
 
   </section>
 
+  <section class="cap" id="logistica">
+    <div class="cab rev"><span class="num">05</span><h2>Regresión logística</h2>
+      <p>Para una variable de dos valores (sí/no) la regresión da una probabilidad, con la curva sigmoide. Es la plantilla del
+        curso y el puente hacia la red neuronal: una neurona con activación sigmoide.</p></div>
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/regresion/reg_09_logistica_arco-sigmoide.png" target="_blank"><img src="../img/regresion/reg_09_logistica_arco-sigmoide.png" alt="Curva sigmoide con las rocas de arco y no arco" loading="lazy"></a></figure>
+      <div><h4>¿Roca de arco volcánico?</h4>
+        <p class="lectura">Con cinco óxidos mayores, el modelo dice si una roca volcánica se formó en un margen convergente.
+          En los datos de prueba acierta el <b>84,6 %</b>: reconoce el 95 % de las rocas que no son de arco y el 61,6 % de las
+          que sí (son la clase menor). Una andesita típica sale con 73 % de probabilidad de ser de arco; un basalto de dorsal,
+          con 20 %.</p>
+        <div class="descargas"><a href="../rpubs/reg_09_logistica_arco.html">Documento R completo</a></div></div>
+    </div>
+  </section>
+
   <section class="cap" id="serie">
-    <div class="cab rev"><span class="num">05</span><h2>Serie de tiempo</h2>
+    <div class="cab rev"><span class="num">06</span><h2>Serie de tiempo</h2>
       <p>Análisis publicados por año, de 1965 a 2024: tendencia por regresión, medias móviles y suavización exponencial, con
         pronóstico a cinco años.</p></div>
     <div class="bloque rev">
@@ -148,7 +163,7 @@
 
   </section>
   <section class="cap" id="multivariable">
-    <div class="cab rev"><span class="num">06</span><h2>Estadística multivariable</h2>
+    <div class="cab rev"><span class="num">07</span><h2>Estadística multivariable</h2>
       <p>Las ocho variables a la vez: matriz de correlación, componentes principales (PCA) y agrupamiento k-means.</p></div>
     <div class="bloque rev">
       <figure class="grafica"><a href="../img/regresion/reg_08_multivariado-biplot.png" target="_blank"><img src="../img/regresion/reg_08_multivariado-biplot.png" alt="Rocas en el plano de los dos primeros componentes principales, coloreadas por tipo" loading="lazy"></a></figure>
@@ -166,6 +181,7 @@
   <span class="academico">Proyecto <b>estrictamente académico</b>, sin fines comerciales, desarrollado para la asignatura Estadística y Probabilidades (FIGEMPA – Universidad Central del Ecuador).</span>
   <span>Datos: Astromaterials Data Synthesis / EarthChem PetDB (<a href="https://search.astromat.org/">search.astromat.org</a>), 13/10/2026, CC BY 4.0.</span>
   <span>Modelos y gráficas generados con R 4.6.</span>
+  <span><a class="repo" href="https://github.com/crisrumiguano-art/geoquimica-earthchem-ml"><img src="../img/logos/github.svg" alt="" width="14" height="14" style="vertical-align:-2px;filter:invert(1);margin-right:.35rem">Código y datos en GitHub</a></span>
 </footer>
 
 <script>
@@ -174,8 +190,8 @@ addEventListener("DOMContentLoaded", () => {
   fetch("../data/regresion.json", { cache: "no-cache" }).then(r => r.json()).then(filas => {
     document.querySelector("#t-resumen tbody").innerHTML = filas.map(f => `<tr>
       <td>${f.modelo}</td><td>${f.x}</td><td>${f.y}</td><td class="n">${Number(f.n).toLocaleString("es-EC")}</td>
-      <td>${coma(f.ecuacion).replaceAll("+ -", "− ")}</td><td class="n">${coma(Number(f.r).toFixed(3))}</td>
-      <td class="n">${coma(Number(f.r2).toFixed(1))}</td><td>${coma(f.pronostico)}</td>
+      <td>${coma(f.ecuacion).replaceAll("+ -", "− ")}</td><td class="n">${f.r === "" || f.r === "NA" ? "—" : coma(Number(f.r).toFixed(3))}</td>
+      <td class="n">${f.r2 === "" || f.r2 === "NA" ? "—" : coma(Number(f.r2).toFixed(1))}</td><td>${coma(f.pronostico)}</td>
       <td><a href="../rpubs/${f.documento}.html">abrir</a></td></tr>`).join("");
   });
 });

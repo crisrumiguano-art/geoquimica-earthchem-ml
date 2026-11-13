@@ -64,5 +64,16 @@
   "r": "0.846538880407153",
   "r2": "71.6628076040997",
   "pronostico": "La = 20, Sm = 5 -> Nd = 21.3"
+ },
+ {
+  "documento": "reg_09_logistica_arco",
+  "modelo": "logístico",
+  "x": "SiO2, Al2O3, MgO, Na2O, K2O",
+  "y": "margen convergente (0/1)",
+  "n": "36154",
+  "ecuacion": "p = 1 / (1 + e^(-z))",
+  "r": "NA",
+  "r2": "NA",
+  "pronostico": "andesita -> 73 % arco; exactitud 84.6 %"
  }
 ]
