@@ -15,3 +15,7 @@ data/earthchem_limpio.csv
 
 # gráficos del paso a paso cuando se corre con Rscript (en RStudio salen en el panel Plots)
 R/salidas/paso_a_paso_*.png
+
+# Intermedios de rmarkdown (render con clean = FALSE)
+docs/rpubs/*_files/
+R/**/*.knit.md
