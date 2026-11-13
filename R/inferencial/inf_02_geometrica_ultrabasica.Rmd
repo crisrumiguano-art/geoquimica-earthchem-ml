@@ -1,0 +1,162 @@
+---
+title: "Inferencia de una variable ordinal (clase según SiO2): modelo geométrico"
+subtitle: "Unidad 2 · Estadística inferencial · Geoquímica de rocas con datos de EarthChem PetDB"
+author: "Cristoffer Rumiguano, Ana Gabriela Fernández, Evelyn Bustamante, Jessica Haro, Jhonattan Ligña"
+date: "Noviembre de 2026"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+> Proyecto estrictamente académico (Estadística y Probabilidades, FIGEMPA – UCE). Datos: EarthChem PetDB (CC BY 4.0),
+> descargados el 13/10/2026. Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
+
+## 1. Carga de datos
+
+La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 análisis sorteados de los 159 760 de
+la base (semilla 2026). Con la base entera, el test de chi-cuadrado rechaza cualquier modelo por diferencias mínimas;
+con una muestra aleatoria mide lo que importa. La base completa se usa al final para comprobar el intervalo de confianza.
+
+```{r carga}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
+library(MASS)          # fitdistr(): estima los parámetros del modelo (viene con R)
+dir.create("data/muestras", recursive = TRUE, showWarnings = FALSE)
+if (!file.exists("data/muestras/muestra_aleatoria.csv")) {
+  download.file("https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/muestras/muestra_aleatoria.csv", "data/muestras/muestra_aleatoria.csv", mode = "wb")
+}
+muestra <- read.csv("data/muestras/muestra_aleatoria.csv", check.names = FALSE)
+dim(muestra)           # filas y columnas
+```
+
+## 2. Tabla de distribución de cantidad
+
+Variable **ordinal**: clase según SiO2 (ultrabásica < básica < intermedia < ácida). Se recorren los análisis en el orden del sorteo y se cuenta cuántos **no** son ultrabásicos antes de encontrar uno ultrabásico (el éxito). Ese número de fracasos es la variable aleatoria X.
+
+```{r tabla}
+x <- as.character(muestra[["SiO2 Class"]])
+x <- x[!is.na(x) & x != ""]                            # quita vacíos (en el orden del sorteo)
+exito <- x == "ultrabasica"                            # TRUE = rocas ultrabásicas
+c(casos = length(x), exitos = sum(exito), proporcion = mean(exito))
+posicion <- which(exito)                               # dónde aparece cada ultrabásica
+y <- diff(c(0, posicion)) - 1                          # fracasos antes de cada éxito
+Fo <- as.vector(table(factor(y, levels = 0:max(y))))   # cuántas veces salió 0, 1, 2, ...
+hi <- round(Fo / sum(Fo) * 100, 2)
+TDF <- data.frame(valor = 0:max(y), ni = Fo, hi)
+knitr::kable(TDF, caption = "Tabla N° 1: distribución de X = análisis antes de la primera roca ultrabásica")
+```
+
+## 3. Gráfica de distribución de cantidad
+
+```{r grafica, fig.width = 8, fig.height = 4.8}
+barplot(hi, names.arg = 0:max(y), col = "#86b6ef", border = "white", las = 1,
+        main = "Gráfica N° 1: Análisis revisados antes de una roca ultrabásica", xlab = "Análisis antes de la primera ultrabásica", ylab = "Porcentaje (%)")
+```
+
+## 4. Conjetura del modelo
+
+X cuenta los fracasos antes del primer éxito, en ensayos independientes con la misma probabilidad p: es el **modelo geométrico**. p se estima como 1 / (media + 1).
+
+```{r conjetura, fig.width = 8, fig.height = 4.8}
+p <- 1 / (mean(y) + 1)                                 # probabilidad de éxito estimada
+p
+valores <- 0:max(y)
+P <- dgeom(valores, p)                                        # probabilidad de cada valor según el modelo
+P[length(P)] <- 1 - pgeom(max(y) - 1, p)                                # el último valor acumula la cola ("o más")
+Fe <- P * length(y)                                    # frecuencia esperada
+# Para el chi-cuadrado cada clase debe esperar al menos 5 casos: los valores altos se juntan en una clase "o más"
+corte <- max(which(Fe >= 5))
+Fo2 <- c(Fo[1:(corte - 1)], sum(Fo[corte:length(Fo)]))
+Fe2 <- c(Fe[1:(corte - 1)], sum(Fe[corte:length(Fe)]))
+clase <- c(0:(corte - 2), paste0(corte - 1, " o más"))
+knitr::kable(data.frame(clase, Fo = Fo2, Fe = round(Fe2, 2)), caption = "Tabla N° 2: frecuencias observadas y esperadas")
+barplot(rbind(Fo2, Fe2), beside = TRUE, names.arg = clase, col = c("#86b6ef", "#d95926"), border = "white", las = 1,
+        ylim = c(0, max(Fo2, Fe2) * 1.2),
+        main = "Gráfica N° 2: Datos vs modelo geométrico", xlab = "Análisis antes de la primera ultrabásica", ylab = "Cantidad")
+legend("topright", c("observado (Fo)", "modelo (Fe)"), fill = c("#86b6ef", "#d95926"), bty = "n")
+```
+
+## 5. Test de aprobación
+
+```{r test, fig.width = 6, fig.height = 5}
+lim <- range(0, Fo2 / sum(Fo2) * 100, Fe2 / sum(Fo2) * 100)   # mismos ejes en x e y
+plot(Fo2 / sum(Fo2) * 100, Fe2 / sum(Fo2) * 100, pch = 19, col = "#3987e5", las = 1, xlim = lim, ylim = lim,
+     main = "Gráfica N° 3: Frecuencia observada vs esperada", xlab = "Observada (%)", ylab = "Esperada (%)")
+abline(a = 0, b = 1, col = "#d95926", lwd = 2)
+
+pearson <- cor(Fo2, Fe2) * 100
+gl <- length(Fo2) - 1
+x2 <- sum((Fo2 - Fe2)^2 / Fe2)
+umbral <- qchisq(0.95, gl)
+resultado <- ifelse(x2 < umbral, "se acepta el modelo", "se rechaza el modelo")
+knitr::kable(data.frame(Variable = "X = análisis antes de la primera roca ultrabásica", Pearson = round(pearson, 2), Chi_cuadrado = round(x2, 2),
+                        Umbral = round(umbral, 2), Resultado = resultado),
+             caption = "Tabla N° 3: pruebas de bondad de ajuste")
+```
+
+El chi-cuadrado (`r round(x2, 2)`) es `r ifelse(x2 < umbral, "menor", "mayor")` que el umbral (`r round(umbral, 2)`):
+`r resultado`. La correlación entre lo observado y lo esperado es de `r round(pearson, 1)` %.
+
+## 6. Estimación de probabilidades
+
+**¿Cuál es la probabilidad de encontrar la primera roca ultrabásica antes de revisar 5 análisis (X ≤ 4)?**
+
+```{r prob1, fig.width = 8, fig.height = 4.5}
+p1 <- pgeom(4, p)
+p1 * 100
+vp <- 0:15                                       # valores posibles que se dibujan
+Pp <- dgeom(vp, p)
+barplot(Pp * 100, names.arg = vp, las = 1, border = "white", col = ifelse(vp <= 4, "#d95926", "gray75"),
+        main = "Gráfica N° 4: P(X ≤ 4)", xlab = "Análisis antes de la primera ultrabásica", ylab = "Probabilidad (%)")
+legend("topright", paste0("P = ", round(p1 * 100, 2), " %"), bty = "n", cex = 1.1)
+```
+
+**En promedio, ¿cuántos análisis hay que revisar para encontrar una roca ultrabásica?**
+
+```{r prob2}
+c(fracasos_esperados = (1 - p) / p, analisis_a_revisar = 1 / p)
+```
+
+## 7. Intervalos de confianza
+
+Intervalo de confianza del 95 % para la **proporción poblacional** de rocas ultrabásicas (la p del modelo), con la aproximación normal: p ± z·√(p(1 − p)/n).
+
+```{r ic}
+p_m <- mean(exito)                                     # proporción en la muestra
+z <- qnorm(0.975)
+E <- z * sqrt(p_m * (1 - p_m) / length(exito))         # error máximo de estimación
+IC <- c(inferior = p_m - E, proporcion = p_m, superior = p_m + E)
+round(IC * 100, 2)                                     # en %
+```
+
+**Comprobación con la base completa.** La proporción real se conoce: ¿el intervalo la contiene?
+
+```{r comprobacion}
+if (!file.exists("data/earthchem_limpio.csv.gz")) {
+  download.file("https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz", "data/earthchem_limpio.csv.gz", mode = "wb")
+}
+base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
+todos <- as.character(base[["SiO2 Class"]])
+todos <- todos[!is.na(todos) & todos != ""]
+p_real <- mean(todos == "ultrabasica")
+c(proporcion_real = p_real, dentro_del_intervalo = p_real >= IC[["inferior"]] & p_real <= IC[["superior"]])
+```
+
+## 8. Conclusión
+
+El número de análisis antes de encontrar una roca ultrabásica sigue un **modelo geométrico** con p = `r round(p, 3)`: en promedio hay que revisar `r round(1 / p, 1)` análisis. El modelo pasa el test (chi-cuadrado `r round(x2, 2)` < umbral `r round(umbral, 2)`; Pearson
+`r round(pearson, 1)` %). Con el 95 % de confianza, la proporción poblacional de rocas ultrabásicas está entre
+`r round(IC[["inferior"]] * 100, 2)` % y `r round(IC[["superior"]] * 100, 2)` %, y la proporción real de la base
+(`r round(p_real * 100, 2)` %) `r ifelse(p_real >= IC[["inferior"]] & p_real <= IC[["superior"]], "cae dentro", "queda fuera")` del intervalo.
+
+```{r guardar, include = FALSE}
+if (dir.exists("docs/data")) {
+  dir.create("docs/data/inferencial", showWarnings = FALSE)
+  write.csv(data.frame(documento = "inf_02_geometrica_ultrabasica", variable = "X = análisis antes de la primera roca ultrabásica", tipo = "ordinal", modelo = "geométrico",
+                       parametros = paste0("p = ", round(p, 3)), n = length(y), chi2 = x2, umbral = umbral, pearson = pearson,
+                       ic = paste0("[", round(IC[["inferior"]] * 100, 2), " % ; ", round(IC[["superior"]] * 100, 2), " %]"), real = round(p_real * 100, 2)),
+            "docs/data/inferencial/inf_02_geometrica_ultrabasica.csv", row.names = FALSE, fileEncoding = "UTF-8")
+}
+```

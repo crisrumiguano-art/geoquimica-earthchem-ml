@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>Estadística inferencial — Geoquímica de rocas PetDB</title>
+<meta name="description" content="Unidad 2: modelos binomial, geométrico, Poisson, normal, log-normal y exponencial, pruebas de bondad de ajuste e intervalos de confianza.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/estilo.css">
+<script src="../assets/app.js" defer></script>
+</head>
+<body data-pagina="inferencial">
+
+<nav class="nav" id="nav" aria-label="Páginas del proyecto">
+  <a class="marca" href="../"><b>Pt</b>Geoquímica PetDB</a>
+  <ul>
+    <li><a data-p="inicio" href="../">Inicio</a></li>
+    <li><a data-p="descriptiva" href="../descriptiva/"><span class="u">U1</span>Descriptiva</a></li>
+    <li><a data-p="inferencial" href="./"><span class="u">U2</span>Inferencial</a></li>
+    <li><span class="pronto"><span class="u">U3</span>Regresión</span></li>
+    <li><span class="pronto"><span class="u">U4</span>Machine learning</span></li>
+    <li><a data-p="datos" href="../datos/">Datos</a></li>
+    <li><a data-p="equipo" href="../equipo/">Equipo</a></li>
+  </ul>
+</nav>
+
+<header class="cabecera">
+  <img src="../img/barco.jpg" alt="" aria-hidden="true">
+  <div class="hero-in">
+    <div class="ojo rev" style="--d:0">Unidad 2 · Lecciones 8 a 12</div>
+    <h1 class="rev" style="--d:1">Estadística <em>inferencial</em></h1>
+    <p class="lead rev" style="--d:2">De la muestra a la población: qué modelo de probabilidad describe cada variable, si pasa la
+      prueba de bondad de ajuste y entre qué valores está el parámetro de la población. Todo en R; cada modelo tiene su documento
+      con el código y los resultados.</p>
+    <nav class="indice rev" style="--d:3" aria-label="Secciones de la página">
+      <a href="#metodo">01 Método</a><a href="#resumen">02 Resumen</a><a href="#discretos">03 Modelos discretos</a>
+      <a href="#continuos">04 Modelos continuos</a><a href="#ic">05 Intervalos de confianza</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="cap" id="metodo">
+    <div class="cab rev"><span class="num">01</span><h2>Método</h2>
+      <p>Los mismos pasos para cada variable, como en la plantilla del curso: tabla y gráfica de la distribución, conjetura del
+        modelo, test de aprobación, cálculo de probabilidades, intervalo de confianza y conclusión.</p></div>
+    <div class="callout rev">
+      <h3>Por qué se trabaja con la muestra aleatoria y no con toda la base</h3>
+      <ol>
+        <li><b>Con 159.760 datos ningún modelo pasa.</b> El chi-cuadrado crece con el tamaño de la muestra: con la base entera,
+          diferencias mínimas e irrelevantes entre los datos y el modelo bastan para rechazarlo. Por eso la inferencia usa la
+          <b>muestra aleatoria simple de la Lección 3</b> (n = 1.061, semilla 2026).</li>
+        <li><b>Se separan los tipos de roca.</b> Mezclar basaltos, peridotitas y granitos da histogramas con varios picos que
+          ningún modelo simple describe. Las variables continuas se modelan en un estrato homogéneo: las <b>rocas volcánicas
+          máficas</b> (basaltos).</li>
+        <li><b>Prueba y error, documentado.</b> Se probaron 50 variables químicas con los modelos normal, log-normal y exponencial,
+          y se eligió el modelo que pasa la prueba y tiene sentido geológico. También se registra lo que no funcionó: el número
+          de analitos no sigue un modelo de Poisson (su varianza, 122, es once veces su media, 10,8).</li>
+        <li><b>La población se conoce.</b> Como se tiene la base completa, cada intervalo de confianza se comprueba con el valor
+          real. En los seis modelos, el valor real cae dentro del intervalo.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="cap" id="resumen">
+    <div class="cab rev"><span class="num">02</span><h2>Resumen de los modelos</h2>
+      <p>Un modelo se acepta cuando el chi-cuadrado calculado es menor que el umbral de la tabla (95 % de confianza).</p></div>
+    <div class="tabla rev"><table id="t-resumen"><thead><tr>
+      <th>Tipo</th><th>Variable aleatoria</th><th>Modelo</th><th>Parámetros</th><th class="n">n</th><th class="n">χ²</th>
+      <th class="n">Umbral</th><th class="n">Pearson (%)</th><th>Intervalo 95 %</th><th class="n">Valor real</th><th>Documento</th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="cap" id="discretos">
+    <div class="cab rev"><span class="num">03</span><h2>Modelos discretos</h2>
+      <p>Una variable nominal, una ordinal y una discreta. Los tres modelos cuentan sucesos en ensayos independientes, algo que
+        la muestra aleatoria garantiza porque los análisis se sortearon.</p></div>
+
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/inferencial/inf_01_binomial_ambiente-conjetura.png" target="_blank"><img src="../img/inferencial/inf_01_binomial_ambiente-conjetura.png" alt="Barras de frecuencias observadas y esperadas del modelo binomial" loading="lazy"></a></figure>
+      <div><h4>Nominal · binomial</h4>
+        <p class="lectura">Ambiente tectónico. En lotes de 10 análisis sorteados, X = cuántos son de <b>margen convergente</b>.
+          Es un conteo de éxitos en 10 ensayos con la misma probabilidad: modelo binomial con n = 10 y p = 0,206. χ² = 0,32 frente a
+          un umbral de 9,49. Probabilidad de que un lote tenga 3 o más: <b>33,9 %</b>. El documento incluye la ley de los grandes
+          números: la proporción acumulada se estabiliza alrededor de 0,21.</p>
+        <div class="descargas"><a href="../rpubs/inf_01_binomial_ambiente.html">Documento R completo</a></div></div>
+    </div>
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/inferencial/inf_02_geometrica_ultrabasica-conjetura.png" target="_blank"><img src="../img/inferencial/inf_02_geometrica_ultrabasica-conjetura.png" alt="Barras de frecuencias observadas y esperadas del modelo geométrico" loading="lazy"></a></figure>
+      <div><h4>Ordinal · geométrico</h4>
+        <p class="lectura">Clase según SiO<sub>2</sub>. X = cuántos análisis se revisan antes de encontrar la primera roca
+          <b>ultrabásica</b>: fracasos antes del primer éxito, modelo geométrico con p = 0,176. χ² = 1,41 frente a 9,49. En
+          promedio hay que revisar unos 6 análisis para dar con una ultrabásica, y hay un <b>62,1 %</b> de probabilidad de
+          encontrarla entre los primeros cinco.</p>
+        <div class="descargas"><a href="../rpubs/inf_02_geometrica_ultrabasica.html">Documento R completo</a></div></div>
+    </div>
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/inferencial/inf_03_poisson_intermedias-conjetura.png" target="_blank"><img src="../img/inferencial/inf_03_poisson_intermedias-conjetura.png" alt="Barras de frecuencias observadas y esperadas del modelo de Poisson" loading="lazy"></a></figure>
+      <div><h4>Discreta · Poisson</h4>
+        <p class="lectura">X = número de rocas volcánicas <b>intermedias</b> (andesitas) en un lote de 30 análisis: un evento
+          poco frecuente, con media 1,71 y varianza parecida, como exige el modelo de Poisson. χ² = 0,77 frente a 7,81. Un lote de
+          30 sin ninguna andesita tiene probabilidad <b>18,0 %</b>.</p>
+        <div class="descargas"><a href="../rpubs/inf_03_poisson_intermedias.html">Documento R completo</a></div></div>
+    </div>
+  </section>
+
+  <section class="cap" id="continuos">
+    <div class="cab rev"><span class="num">04</span><h2>Modelos continuos</h2>
+      <p>Tres variables de los basaltos, cada una con un modelo distinto: un elemento mayor simétrico, un elemento traza con cola
+        larga y un álcali que casi siempre está cerca de cero.</p></div>
+
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/inferencial/inf_04_normal_SiO2-conjetura.png" target="_blank"><img src="../img/inferencial/inf_04_normal_SiO2-conjetura.png" alt="Histograma de SiO2 en basaltos con la curva normal" loading="lazy"></a></figure>
+      <div><h4>SiO<sub>2</sub> · normal</h4>
+        <p class="lectura">Campana casi simétrica: modelo normal con media 49,79 % y desviación 1,77 %. χ² = 10,32 frente a 16,92;
+          correlación entre observado y esperado de 97,7 %. Probabilidad de que un basalto supere el 51 % de sílice:
+          <b>24,8 %</b>. El documento muestra también el Teorema del Límite Central con 1.000 muestras de 30 basaltos.</p>
+        <div class="descargas"><a href="../rpubs/inf_04_normal_SiO2.html">Documento R completo</a></div></div>
+    </div>
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/inferencial/inf_05_lognormal_Zr-conjetura.png" target="_blank"><img src="../img/inferencial/inf_05_lognormal_Zr-conjetura.png" alt="Histograma de Zr en basaltos con la curva log-normal" loading="lazy"></a></figure>
+      <div><h4>Zr · log-normal</h4>
+        <p class="lectura">Cola larga a la derecha, típica de los elementos traza: el logaritmo del circonio es normal. Media
+          logarítmica 4,657 y desviación logarítmica 0,556. χ² = 5,93 frente a 11,07. Un basalto supera los 150 ppm de Zr
+          (basaltos enriquecidos de islas oceánicas) con probabilidad <b>26,3 %</b>.</p>
+        <div class="descargas"><a href="../rpubs/inf_05_lognormal_Zr.html">Documento R completo</a></div></div>
+    </div>
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/inferencial/inf_06_exponencial_K2O-conjetura.png" target="_blank"><img src="../img/inferencial/inf_06_exponencial_K2O-conjetura.png" alt="Histograma de K2O en basaltos con la curva exponencial" loading="lazy"></a></figure>
+      <div><h4>K<sub>2</sub>O · exponencial</h4>
+        <p class="lectura">Máximo junto a cero y caída continua: modelo exponencial con λ = 1,98 (media 0,50 %). χ² = 8,29 frente a
+          18,31. Un basalto tiene menos de 0,2 % de K<sub>2</sub>O, como los de dorsal, con probabilidad <b>32,7 %</b>.</p>
+        <div class="descargas"><a href="../rpubs/inf_06_exponencial_K2O.html">Documento R completo</a></div></div>
+    </div>
+  </section>
+
+  <section class="cap" id="ic">
+    <div class="cab rev"><span class="num">05</span><h2>Intervalos de confianza</h2>
+      <p>Por el Teorema del Límite Central, la media de una muestra grande se distribuye normal con error estándar σ/√n. El
+        intervalo del 95 % es media ± 1,96·σ/√n; para proporciones, p ± 1,96·√(p(1−p)/n).</p></div>
+    <div class="graficos">
+      <figure class="grafica rev"><a href="../img/inferencial/inf_04_normal_SiO2-tlc.png" target="_blank"><img src="../img/inferencial/inf_04_normal_SiO2-tlc.png" alt="Histograma de medias de 1000 muestras con la curva normal" loading="lazy"></a></figure>
+      <figure class="grafica rev"><a href="../img/inferencial/inf_04_normal_SiO2-comprobacion.png" target="_blank"><img src="../img/inferencial/inf_04_normal_SiO2-comprobacion.png" alt="Intervalo de confianza de SiO2 y media real de la base" loading="lazy"></a></figure>
+    </div>
+    <p class="rev" style="color:var(--text-secondary);max-width:900px;margin-top:1.4rem">Izquierda: las medias de 1.000 muestras de
+      30 basaltos forman una campana normal, con la desviación que predice el teorema (σ/√30). Derecha: el intervalo del 95 % para
+      la media de SiO<sub>2</sub> en basaltos, calculado con la muestra, contiene la media real de la base completa (49,26 %). La
+      tabla del resumen muestra la misma comprobación para los seis modelos.</p>
+  </section>
+</main>
+
+<footer>
+  <span class="academico">Proyecto <b>estrictamente académico</b>, sin fines comerciales, desarrollado para la asignatura Estadística y Probabilidades (FIGEMPA – Universidad Central del Ecuador).</span>
+  <span>Datos: Astromaterials Data Synthesis / EarthChem PetDB (<a href="https://search.astromat.org/">search.astromat.org</a>), 13/10/2026, CC BY 4.0.</span>
+  <span>Modelos y gráficas generados con R 4.6.</span>
+</footer>
+
+<script>
+addEventListener("DOMContentLoaded", () => {
+  const coma = t => String(t).replace(/(\d)\.(\d)/g, "$1,$2");    // 0.206 -> 0,206
+  const num = (v, d) => Number(v).toLocaleString("es-EC", { minimumFractionDigits: d, maximumFractionDigits: d });
+  fetch("../data/inferencial.json", { cache: "no-cache" }).then(r => r.json()).then(filas => {
+    document.querySelector("#t-resumen tbody").innerHTML = filas.map(f => `<tr>
+      <td>${f.tipo}</td><td>${f.variable}</td><td>${f.modelo}</td><td>${coma(f.parametros)}</td><td class="n">${f.n}</td>
+      <td class="n">${num(f.chi2, 2)}</td><td class="n">${num(f.umbral, 2)}</td><td class="n">${num(f.pearson, 1)}</td>
+      <td>${coma(f.ic)}</td><td class="n">${coma(f.real)}${f.tipo === "continua" ? "" : " %"}</td>
+      <td><a href="../rpubs/${f.documento}.html">abrir</a></td></tr>`).join("");
+  });
+});
+</script>
+</body>
+</html>

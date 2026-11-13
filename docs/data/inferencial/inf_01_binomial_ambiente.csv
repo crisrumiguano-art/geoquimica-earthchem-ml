@@ -1,0 +1,2 @@
+"documento","variable","tipo","modelo","parametros","n","chi2","umbral","pearson","ic","real"
+"inf_01_binomial_ambiente","X = análisis de margen convergente en un lote de 10","nominal","binomial","n = 10; p = 0.206",106,0.315758267410269,9.48772903678115,98.9486084692326,"[18.13 % ; 23 %]",21.24

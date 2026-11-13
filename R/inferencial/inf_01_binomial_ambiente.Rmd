@@ -1,0 +1,178 @@
+---
+title: "Inferencia de una variable nominal (ambiente tectónico): modelo binomial"
+subtitle: "Unidad 2 · Estadística inferencial · Geoquímica de rocas con datos de EarthChem PetDB"
+author: "Cristoffer Rumiguano, Ana Gabriela Fernández, Evelyn Bustamante, Jessica Haro, Jhonattan Ligña"
+date: "Noviembre de 2026"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+> Proyecto estrictamente académico (Estadística y Probabilidades, FIGEMPA – UCE). Datos: EarthChem PetDB (CC BY 4.0),
+> descargados el 13/10/2026. Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
+
+## 1. Carga de datos
+
+La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 análisis sorteados de los 159 760 de
+la base (semilla 2026). Con la base entera, el test de chi-cuadrado rechaza cualquier modelo por diferencias mínimas;
+con una muestra aleatoria mide lo que importa. La base completa se usa al final para comprobar el intervalo de confianza.
+
+```{r carga}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
+library(MASS)          # fitdistr(): estima los parámetros del modelo (viene con R)
+dir.create("data/muestras", recursive = TRUE, showWarnings = FALSE)
+if (!file.exists("data/muestras/muestra_aleatoria.csv")) {
+  download.file("https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/muestras/muestra_aleatoria.csv", "data/muestras/muestra_aleatoria.csv", mode = "wb")
+}
+muestra <- read.csv("data/muestras/muestra_aleatoria.csv", check.names = FALSE)
+dim(muestra)           # filas y columnas
+```
+
+## 2. Tabla de distribución de cantidad
+
+Variable **nominal**: ambiente tectónico agrupado. Cada análisis es un ensayo con dos resultados: es de **margen convergente** (éxito) o no. La muestra se reparte, en el orden del sorteo, en lotes de 10 análisis y se cuenta cuántos de margen convergente hay en cada lote: ese conteo (0 a 10) es la variable aleatoria X.
+
+```{r tabla}
+x <- as.character(muestra[["Tectonic Group"]])
+x <- x[!is.na(x) & x != ""]                            # quita vacíos (en el orden del sorteo)
+exito <- x == "margen convergente"                            # TRUE = análisis de margen convergente
+c(casos = length(x), exitos = sum(exito), proporcion = mean(exito))
+lote <- 10
+B <- floor(length(exito) / lote)                      # número de lotes
+grupo <- rep(1:B, each = lote)                         # a qué lote va cada análisis
+y <- as.vector(tapply(exito[1:(B * lote)], grupo, sum))  # éxitos en cada lote
+Fo <- as.vector(table(factor(y, levels = 0:max(y))))   # cuántas veces salió 0, 1, 2, ...
+hi <- round(Fo / sum(Fo) * 100, 2)
+TDF <- data.frame(valor = 0:max(y), ni = Fo, hi)
+knitr::kable(TDF, caption = "Tabla N° 1: distribución de X = análisis de margen convergente en un lote de 10")
+```
+
+## 3. Gráfica de distribución de cantidad
+
+```{r grafica, fig.width = 8, fig.height = 4.8}
+barplot(hi, names.arg = 0:max(y), col = "#86b6ef", border = "white", las = 1,
+        main = "Gráfica N° 1: Margen convergente en lotes de 10 análisis", xlab = "Análisis de margen convergente en el lote", ylab = "Porcentaje (%)")
+```
+
+**Probabilidad clásica y ley de los grandes números.** Si se recorre la muestra en el orden del sorteo, la proporción
+de éxitos acumulada se acerca a la probabilidad real (la de la base completa) a medida que crece el número de casos.
+
+```{r lgn, fig.width = 8, fig.height = 4.5}
+frecuencia <- cumsum(exito) / seq_along(exito)         # proporción acumulada después de cada caso
+plot(frecuencia, type = "l", col = "#3987e5", lwd = 2, las = 1, ylim = c(0, 0.6),
+     main = "Gráfica N° 2: Ley de los grandes números", xlab = "Número de casos", ylab = "Proporción de éxitos")
+abline(h = mean(exito), col = "#d95926", lwd = 2, lty = 2)
+legend("topright", c("proporción acumulada", "proporción final de la muestra"), col = c("#3987e5", "#d95926"),
+       lty = c(1, 2), lwd = 2, bty = "n")
+```
+
+## 4. Conjetura del modelo
+
+X cuenta éxitos en un número fijo de ensayos independientes (n = 10) con la misma probabilidad p: es el **modelo binomial**. p se estima con la proporción de éxitos.
+
+```{r conjetura, fig.width = 8, fig.height = 4.8}
+n_ensayos <- lote
+p <- mean(y) / n_ensayos                               # probabilidad de éxito estimada
+p
+valores <- 0:max(y)
+P <- dbinom(valores, n_ensayos, p)                                        # probabilidad de cada valor según el modelo
+P[length(P)] <- 1 - pbinom(max(y) - 1, n_ensayos, p)                                # el último valor acumula la cola ("o más")
+Fe <- P * length(y)                                    # frecuencia esperada
+# Para el chi-cuadrado cada clase debe esperar al menos 5 casos: los valores altos se juntan en una clase "o más"
+corte <- max(which(Fe >= 5))
+Fo2 <- c(Fo[1:(corte - 1)], sum(Fo[corte:length(Fo)]))
+Fe2 <- c(Fe[1:(corte - 1)], sum(Fe[corte:length(Fe)]))
+clase <- c(0:(corte - 2), paste0(corte - 1, " o más"))
+knitr::kable(data.frame(clase, Fo = Fo2, Fe = round(Fe2, 2)), caption = "Tabla N° 2: frecuencias observadas y esperadas")
+barplot(rbind(Fo2, Fe2), beside = TRUE, names.arg = clase, col = c("#86b6ef", "#d95926"), border = "white", las = 1,
+        ylim = c(0, max(Fo2, Fe2) * 1.2),
+        main = "Gráfica N° 3: Datos vs modelo binomial", xlab = "Análisis de margen convergente en el lote", ylab = "Cantidad")
+legend("topright", c("observado (Fo)", "modelo (Fe)"), fill = c("#86b6ef", "#d95926"), bty = "n")
+```
+
+## 5. Test de aprobación
+
+```{r test, fig.width = 6, fig.height = 5}
+lim <- range(0, Fo2 / sum(Fo2) * 100, Fe2 / sum(Fo2) * 100)   # mismos ejes en x e y
+plot(Fo2 / sum(Fo2) * 100, Fe2 / sum(Fo2) * 100, pch = 19, col = "#3987e5", las = 1, xlim = lim, ylim = lim,
+     main = "Gráfica N° 4: Frecuencia observada vs esperada", xlab = "Observada (%)", ylab = "Esperada (%)")
+abline(a = 0, b = 1, col = "#d95926", lwd = 2)
+
+pearson <- cor(Fo2, Fe2) * 100
+gl <- length(Fo2) - 1
+x2 <- sum((Fo2 - Fe2)^2 / Fe2)
+umbral <- qchisq(0.95, gl)
+resultado <- ifelse(x2 < umbral, "se acepta el modelo", "se rechaza el modelo")
+knitr::kable(data.frame(Variable = "X = análisis de margen convergente en un lote de 10", Pearson = round(pearson, 2), Chi_cuadrado = round(x2, 2),
+                        Umbral = round(umbral, 2), Resultado = resultado),
+             caption = "Tabla N° 3: pruebas de bondad de ajuste")
+```
+
+El chi-cuadrado (`r round(x2, 2)`) es `r ifelse(x2 < umbral, "menor", "mayor")` que el umbral (`r round(umbral, 2)`):
+`r resultado`. La correlación entre lo observado y lo esperado es de `r round(pearson, 1)` %.
+
+## 6. Estimación de probabilidades
+
+**En un lote de 10 análisis tomados al azar, ¿cuál es la probabilidad de que haya 3 o más de margen convergente?**
+
+```{r prob1, fig.width = 8, fig.height = 4.5}
+p1 <- 1 - pbinom(2, n_ensayos, p)
+p1 * 100
+vp <- 0:10                                       # valores posibles que se dibujan
+Pp <- dbinom(vp, n_ensayos, p)
+barplot(Pp * 100, names.arg = vp, las = 1, border = "white", col = ifelse(vp >= 3, "#d95926", "gray75"),
+        main = "Gráfica N° 5: P(X ≥ 3) en un lote de 10", xlab = "Análisis de margen convergente en el lote", ylab = "Probabilidad (%)")
+legend("topright", paste0("P = ", round(p1 * 100, 2), " %"), bty = "n", cex = 1.1)
+```
+
+**Si se revisan 50 lotes de 10, ¿en cuántos no habría ningún análisis de margen convergente?**
+
+```{r prob2}
+p0 <- dbinom(0, n_ensayos, p)
+c(probabilidad = p0 * 100, lotes_esperados_de_50 = p0 * 50)
+```
+
+## 7. Intervalos de confianza
+
+Intervalo de confianza del 95 % para la **proporción poblacional** de análisis de margen convergente, con la aproximación normal (n grande): p ± z·√(p(1 − p)/n).
+
+```{r ic}
+p_m <- mean(exito)                                     # proporción en la muestra
+z <- qnorm(0.975)
+E <- z * sqrt(p_m * (1 - p_m) / length(exito))         # error máximo de estimación
+IC <- c(inferior = p_m - E, proporcion = p_m, superior = p_m + E)
+round(IC * 100, 2)                                     # en %
+```
+
+**Comprobación con la base completa.** La proporción real se conoce: ¿el intervalo la contiene?
+
+```{r comprobacion}
+if (!file.exists("data/earthchem_limpio.csv.gz")) {
+  download.file("https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz", "data/earthchem_limpio.csv.gz", mode = "wb")
+}
+base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
+todos <- as.character(base[["Tectonic Group"]])
+todos <- todos[!is.na(todos) & todos != ""]
+p_real <- mean(todos == "margen convergente")
+c(proporcion_real = p_real, dentro_del_intervalo = p_real >= IC[["inferior"]] & p_real <= IC[["superior"]])
+```
+
+## 8. Conclusión
+
+El número de análisis de margen convergente en un lote de 10 sigue un **modelo binomial** con n = 10 y p = `r round(p, 3)`. El modelo pasa el test (chi-cuadrado `r round(x2, 2)` < umbral `r round(umbral, 2)`; Pearson
+`r round(pearson, 1)` %). Con el 95 % de confianza, la proporción poblacional de análisis de margen convergente está entre
+`r round(IC[["inferior"]] * 100, 2)` % y `r round(IC[["superior"]] * 100, 2)` %, y la proporción real de la base
+(`r round(p_real * 100, 2)` %) `r ifelse(p_real >= IC[["inferior"]] & p_real <= IC[["superior"]], "cae dentro", "queda fuera")` del intervalo.
+
+```{r guardar, include = FALSE}
+if (dir.exists("docs/data")) {
+  dir.create("docs/data/inferencial", showWarnings = FALSE)
+  write.csv(data.frame(documento = "inf_01_binomial_ambiente", variable = "X = análisis de margen convergente en un lote de 10", tipo = "nominal", modelo = "binomial",
+                       parametros = paste0("n = 10; p = ", round(p, 3)), n = length(y), chi2 = x2, umbral = umbral, pearson = pearson,
+                       ic = paste0("[", round(IC[["inferior"]] * 100, 2), " % ; ", round(IC[["superior"]] * 100, 2), " %]"), real = round(p_real * 100, 2)),
+            "docs/data/inferencial/inf_01_binomial_ambiente.csv", row.names = FALSE, fileEncoding = "UTF-8")
+}
+```

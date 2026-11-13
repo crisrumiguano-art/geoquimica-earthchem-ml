@@ -1,0 +1,2 @@
+"documento","variable","tipo","modelo","parametros","n","chi2","umbral","pearson","ic","real"
+"inf_03_poisson_intermedias","X = rocas intermedias en un lote de 30","discreta","Poisson","lambda = 1.714",35,0.76841992135802,7.81472790325118,97.8211287558174,"[4.27 % ; 7.04 %]",5.83

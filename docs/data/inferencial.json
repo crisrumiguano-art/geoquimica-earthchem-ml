@@ -1,0 +1,80 @@
+[
+ {
+  "documento": "inf_01_binomial_ambiente",
+  "variable": "X = análisis de margen convergente en un lote de 10",
+  "tipo": "nominal",
+  "modelo": "binomial",
+  "parametros": "n = 10; p = 0.206",
+  "n": "106",
+  "chi2": "0.315758267410269",
+  "umbral": "9.48772903678115",
+  "pearson": "98.9486084692326",
+  "ic": "[18.13 % ; 23 %]",
+  "real": "21.24"
+ },
+ {
+  "documento": "inf_02_geometrica_ultrabasica",
+  "variable": "X = análisis antes de la primera roca ultrabásica",
+  "tipo": "ordinal",
+  "modelo": "geométrico",
+  "parametros": "p = 0.176",
+  "n": "64",
+  "chi2": "1.41301217320563",
+  "umbral": "9.48772903678115",
+  "pearson": "97.9668535681482",
+  "ic": "[13.33 % ; 20.98 %]",
+  "real": "16.46"
+ },
+ {
+  "documento": "inf_03_poisson_intermedias",
+  "variable": "X = rocas intermedias en un lote de 30",
+  "tipo": "discreta",
+  "modelo": "Poisson",
+  "parametros": "lambda = 1.714",
+  "n": "35",
+  "chi2": "0.76841992135802",
+  "umbral": "7.81472790325118",
+  "pearson": "97.8211287558174",
+  "ic": "[4.27 % ; 7.04 %]",
+  "real": "5.83"
+ },
+ {
+  "documento": "inf_04_normal_SiO2",
+  "variable": "SiO2",
+  "tipo": "continua",
+  "modelo": "normal",
+  "parametros": "media = 49.793; desviación = 1.774",
+  "n": "166",
+  "chi2": "10.3174469149617",
+  "umbral": "16.9189776046204",
+  "pearson": "97.6975719593988",
+  "ic": "[48.67 ; 50.12]",
+  "real": "49.257"
+ },
+ {
+  "documento": "inf_05_lognormal_Zr",
+  "variable": "Zr",
+  "tipo": "continua",
+  "modelo": "log-normal",
+  "parametros": "media log = 4.657; desviación log = 0.556",
+  "n": "177",
+  "chi2": "5.93189343443372",
+  "umbral": "11.0704976935164",
+  "pearson": "98.7949996107771",
+  "ic": "[122.03 ; 154]",
+  "real": "130.85"
+ },
+ {
+  "documento": "inf_06_exponencial_K2O",
+  "variable": "K2O",
+  "tipo": "continua",
+  "modelo": "exponencial",
+  "parametros": "lambda = 1.982",
+  "n": "180",
+  "chi2": "8.29376072106928",
+  "umbral": "18.3070380532751",
+  "pearson": "97.9165043895415",
+  "ic": "[0.61 ; 0.88]",
+  "real": "0.624"
+ }
+]
