@@ -11,6 +11,9 @@ python -I scripts/mapa.py               # -> data/gis/mapa_ubicacion.gpkg, docs/
 # R (ver abajo), y al final:
 python scripts/codigo_r.py              # -> docs/data/codigo_r.json + R/graficos/*.R
 python scripts/rpubs.py                 # -> R/rpubs/*.Rmd + docs/rpubs/*.html (rmarkdown + pandoc, ~3 min)
+python scripts/inferencial.py           # U2 -> R/inferencial, docs/rpubs/inf_*, docs/img/inferencial, inferencial.json
+python scripts/regresion.py             # U3 -> R/regresion, docs/rpubs/reg_*, docs/img/regresion, regresion.json
+/c/Users/dalem/venv-geoml/Scripts/python.exe scripts/notebooks.py   # U4: escribe y ejecuta notebooks/*.ipynb
 python scripts/informe_muestreo.py      # -> docs/informe_muestreo.docx/.pdf (tras R/04)
 python scripts/informe.py               # -> docs/informe_proyecto.docx/.pdf (Word por COM)
 ```
@@ -35,6 +38,11 @@ con `cmp`. Las amplitudes redondas se leen de `docs/data/tdf/`.
 
 `rpubs.py` parte cada script por sus marcas `# ---- N. Título ----`: no cambiarlas en `codigo_simple.py` sin
 revisar `TEXTOS` y `DOCUMENTOS`. Necesita `rmarkdown`, `knitr` y pandoc (instalado por winget).
+
+Los generadores de U2/U3 renderizan con `clean = FALSE` para copiar las figuras de `docs/rpubs/<doc>_files/` a
+`docs/img/...` y luego borran esa carpeta. Cada documento guarda un CSV resumen (chunk oculto `guardar`) que se junta
+en `docs/data/inferencial.json` / `regresion.json` para la tabla de la web. Antes de publicar, armar una hoja de
+contactos con PIL y mirar todas las figuras (ejes cortados, curvas fuera de escala, puntos extremos que aplastan).
 
 Trampas: `read.csv()` sobre el `.gz` se cae en Windows (usar `gzfile(..., encoding = "UTF-8")`); `Rscript -e` multilínea
 falla (escribir un `.R`). Comentarios didácticos: estilo `# QUÉ HACE / RECIBE / DEVUELVE` y notas cortas por línea; al

@@ -39,7 +39,7 @@
       pronóstico.</p>
     <nav class="indice rev" style="--d:3" aria-label="Secciones de la página">
       <a href="#metodo">01 Método</a><a href="#resumen">02 Resumen</a><a href="#simples">03 Modelos simples</a>
-      <a href="#multiple">04 Múltiple</a><a href="#serie">05 Serie de tiempo</a>
+      <a href="#multiple">04 Múltiple</a><a href="#serie">05 Serie de tiempo</a><a href="#multivariable">06 Multivariable</a>
     </nav>
   </div>
 </header>
@@ -146,6 +146,19 @@
         <div class="descargas"><a href="../rpubs/reg_07_serie_de_tiempo.html">Documento R completo</a></div></div>
     </div>
 
+  </section>
+  <section class="cap" id="multivariable">
+    <div class="cab rev"><span class="num">06</span><h2>Estadística multivariable</h2>
+      <p>Las ocho variables a la vez: matriz de correlación, componentes principales (PCA) y agrupamiento k-means.</p></div>
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/regresion/reg_08_multivariado-biplot.png" target="_blank"><img src="../img/regresion/reg_08_multivariado-biplot.png" alt="Rocas en el plano de los dos primeros componentes principales, coloreadas por tipo" loading="lazy"></a></figure>
+      <div><h4>Componentes principales</h4>
+        <p class="lectura">Los dos primeros componentes resumen el 58,7 % de la variación de los ocho óxidos. El CP1 opone el
+          MgO a la sílice y los álcalis: es el eje de la diferenciación magmática y ordena las rocas de ultramáficas (verde)
+          a félsicas (rojo). k-means, sin conocer el tipo de roca, forma grupos que coinciden en buena parte con los tipos
+          reales: la química sola separa las rocas, y esa es la base de la red neuronal de la Unidad 4.</p>
+        <div class="descargas"><a href="../rpubs/reg_08_multivariado.html">Documento R completo</a></div></div>
+    </div>
   </section>
 </main>
 

@@ -31,6 +31,9 @@ Regresión (lineal, exponencial, polinómica, potencial, logarítmica, múltiple
 | L5 | TDF cualitativas, discretas, continuas | TDF + histograma, ojiva, barras en R (hecho, `/descriptiva/`) |
 | L6 | Indicadores | indicadores, boxplots y error de agrupación en R (hecho para SiO2, MgO, Cr; ampliar a más variables) |
 | L7 | Exposición etapa I | sitio con descriptiva completa |
+| L8–L12 | Inferencial | `/inferencial/` + `R/inferencial/*.Rmd` (scripts/inferencial.py): binomial (nominal), geométrico (ordinal), Poisson (discreta), normal, log-normal y exponencial (continuas, en basaltos), chi-cuadrado, Pearson Fo–Fe, probabilidades, IC comprobados con la base completa, LGN y TLC (hecho) |
+| L13–L17 | Regresión y series | `/regresion/` + `R/regresion/*.Rmd` (scripts/regresion.py): lineal La–Ce, potencial Zr–Hf, exponencial SiO2–MgO, logarítmica MgO–SiO2, polinómica MgO–CaO, múltiple Nd~La+Sm (VIF, dummy, matricial), serie de tiempo de análisis por año, PCA y k-means (hecho) |
+| L18–L20 | Machine learning | `/ml/` + `notebooks/*.ipynb` (scripts/notebooks.py, Keras + Optuna como el proyecto modelo): regresión de log10(Ni) con óxidos mayores y clasificación del ambiente tectónico de rocas volcánicas |
 
 El docente demuestra en R/RStudio, QGIS y Python/Colab. **La estadística se entrega en R** (exigencia del docente):
 la carpeta `R/` sigue la estructura de sus plantillas (TDF con Li, Ls, MC, ni, hi, Ni/Hi ascendentes y descendentes;
@@ -77,6 +80,10 @@ R/funciones.R + 01/02/03_*.R                    estadística descriptiva (TDF, g
 R/graficos/NN_*.R                               un script SIMPLE por gráfico (sin funciones propias), generado por
                                                 scripts/codigo_r.py desde las plantillas de scripts/codigo_simple.py
 R/04_muestreo.R                                 muestreo (L3), simple, sin funciones -> data/muestras/*.csv, Muestreo.xlsx
+R/inferencial/*.Rmd, R/regresion/*.Rmd          Unidades 2 y 3 (generados por scripts/inferencial.py y regresion.py);
+                                                HTML en docs/rpubs/inf_*.html y reg_*.html, figuras en docs/img/inferencial|regresion
+notebooks/*.ipynb                               Unidad 4, Colab (generados y ejecutados por scripts/notebooks.py con
+                                                el venv C:/Users/dalem/venv-geoml: TensorFlow + Optuna)
 R/rpubs/*.Rmd                                   un R Markdown por variable (formato RPubs del proyecto modelo), generado por
                                                 scripts/rpubs.py desde R/graficos/; HTML en docs/rpubs/ (enlazados en la web)
 R/05_paso_a_paso.R                              SiO2 y ambiente tectónico SIN funciones propias, estilo plantilla
@@ -193,6 +200,7 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
   la plantilla `Analisis_SiO2.R`; el equipo no entendía las funciones (29/10/2026). Si se agrega un PNG en `docs/img/r/`
   con un prefijo nuevo, sumarlo a `SCRIPTS` en ese archivo.
 - Correcciones de la tabla de variables (11/11/2026, quitó 0,2): faltaba nombre corto; descripciones redundantes; una sola columna de dominio; rango mal definido (ahora `R={x/x ∈ R ^ min ≤ x ≤ max}` o las categorías observadas); **elevación = razón** y **edad geológica = intervalo** (las tres columnas de edad); faltaban variable de interés y de individuo. Proyecto modelo: https://geoquimicaglobal.framer.website/ (su tabla es un Google Sheet; su código R está en RPubs, un documento por variable). Nuestros equivalentes: `R/rpubs/*.Rmd` -> `docs/rpubs/*.html`; publicarlos en RPubs lo hace el equipo desde RStudio con su cuenta (Knit -> Publish).
+- Unidades 2–4 (12/11/2026), decisiones: la inferencia usa la **muestra aleatoria simple** de L3 (con 159 760 datos el chi-cuadrado rechaza todo); continuas en el estrato de basaltos (`igneous:volcanic:mafic`); atípicos fuera del ajuste como en la plantilla `Distribuciones.R`, pero no se borran de la base. Cada variable/par se eligió por **prueba y error** (50 químicas × 3 modelos; 28 pares × 5 modelos) y los documentos muestran la comparación y lo que falló (N Analytes no es Poisson). Regresión La–Ce excluye Ce/La fuera de 0,5–5 (puntos con distancia de Cook enorme); SiO2–MgO solo rocas silicatadas (SiO2 35–80). Las figuras se validan visualmente (hojas de contacto) antes de publicar.
 - El proyecto QGIS usa **shapefiles** (`data/gis/shp/`, 9 campos en muestras, anchos fijos con CAST en OGR SQL e índice
   `.qix`), no el GeoPackage: el equipo trabaja QGIS "de forma tradicional" y el gpkg de 35 MB le colgaba QGIS. El
   planteamiento del problema es **una sola redacción continua**, sin subtítulos ni columnas (cubre importancia, uso de

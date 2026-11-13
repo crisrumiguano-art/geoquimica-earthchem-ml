@@ -12,6 +12,15 @@ Una vez: `install.packages(c("e1071", "openxlsx"))`.
 | `rpubs/NN_*.Rmd` | Un documento R Markdown por variable (como el proyecto modelo en RPubs): código + resultado + conclusión. Abrir en RStudio, **Knit**, y **Publish → RPubs**. Instalar una vez `install.packages(c("rmarkdown", "knitr"))`. |
 | `05_paso_a_paso.R` | SiO2 y ambiente tectónico explicados línea por línea, con el estilo de la plantilla del docente. |
 
+## Unidades 2 y 3
+
+| Carpeta | Qué hay |
+|---|---|
+| `inferencial/` | 6 documentos: binomial, geométrico, Poisson, normal, log-normal, exponencial (chi-cuadrado, probabilidades, IC). Usan `data/muestras/muestra_aleatoria.csv`. |
+| `regresion/` | lineal, potencial, exponencial, logarítmica, polinómica, múltiple, serie de tiempo y multivariable (PCA, k-means). |
+
+Se abren igual que los de `rpubs/`: Knit y Publish. Paquetes: `install.packages(c("rmarkdown", "knitr"))` (MASS viene con R).
+
 ## Para regenerar toda la web de una vez (versión automática)
 
 `funciones.R` + `01_cualitativas.R`, `02_discretas.R`, `03_continuas.R` hacen los mismos cálculos para todas las

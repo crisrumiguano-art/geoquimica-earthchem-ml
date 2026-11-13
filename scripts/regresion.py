@@ -507,6 +507,92 @@ c(pares = length(x), fuera_de_0.5_a_5 = sum(!natural), porcentaje = round(mean(!
 c(pendiente_con_todos = coef(todos)[[2]], pendiente_sin_esos = coef(lm(y[natural] ~ x[natural]))[[2]])
 x <- x[natural]                                        # el modelo se ajusta sin ellos (no se borran de la base)
 y <- y[natural]"""
+MULTIVARIADO = '''
+## 2. Asignación de variables
+
+Los 8 óxidos mayores de las rocas ígneas con los 8 completos. Todos a la vez: ya no un par, sino la estructura completa
+de la química de la roca.
+
+```{r variables}
+oxidos <- c("SiO2 (wt%)", "Al2O3 (wt%)", "MgO (wt%)", "CaO (wt%)", "Na2O (wt%)", "K2O (wt%)", "P2O5 (wt%)", "MnO (wt%)")
+ignea <- grepl("^igneous", base[["Sample Type"]])
+datos <- na.omit(base[ignea, c(oxidos, "Sample Type")])
+X <- datos[, oxidos]
+colnames(X) <- sub(" [(]wt%[)]", "", colnames(X))      # nombres cortos: SiO2, Al2O3, ...
+tipo <- sub("igneous:", "", datos[["Sample Type"]])   # volcanic:mafic, plutonic:ultramafic, ...
+nrow(X)
+```
+
+## 3. Matriz de correlación
+
+```{r correlacion, fig.width = 7, fig.height = 6}
+R <- cor(X)
+knitr::kable(round(R, 2), caption = "Tabla N° 1: matriz de correlación de los óxidos mayores")
+colores <- colorRampPalette(c("#d95926", "white", "#3987e5"))(21)
+image(1:8, 1:8, R[, 8:1], col = colores, zlim = c(-1, 1), axes = FALSE, xlab = "", ylab = "",
+      main = "Gráfica N° 1: Matriz de correlación")
+axis(1, 1:8, colnames(R), las = 2); axis(2, 1:8, rev(colnames(R)), las = 1)
+text(rep(1:8, 8), rep(8:1, each = 8), sprintf("%.2f", R), cex = 0.75)
+```
+
+El SiO2 se opone al MgO (r = `r round(R["SiO2", "MgO"], 2)`), y los álcalis (Na2O, K2O) acompañan a la sílice: es la
+diferenciación magmática de la Unidad 3, ahora vista con todas las variables juntas.
+
+## 4. Análisis de componentes principales (PCA)
+
+El PCA reemplaza las 8 variables, muy correlacionadas, por unas pocas combinaciones nuevas (componentes) que no se
+correlacionan entre sí y resumen la mayor parte de la variación. Se estandariza cada óxido para que todos pesen igual.
+
+```{r pca, fig.width = 8, fig.height = 4.5}
+pca <- prcomp(X, scale. = TRUE)
+varianza <- pca$sdev^2 / sum(pca$sdev^2) * 100        # % de la variación que explica cada componente
+knitr::kable(data.frame(componente = paste0("CP", 1:8), varianza = round(varianza, 1), acumulada = round(cumsum(varianza), 1)),
+             caption = "Tabla N° 2: variación explicada por cada componente")
+barplot(varianza, names.arg = paste0("CP", 1:8), col = "#86b6ef", border = "white", las = 1,
+        main = "Gráfica N° 2: Variación explicada", ylab = "%")
+knitr::kable(round(pca$rotation[, 1:2], 3), caption = "Tabla N° 3: peso de cada óxido en CP1 y CP2")
+```
+
+```{r biplot, fig.width = 8, fig.height = 7}
+set.seed(2026)
+m <- sample(nrow(X), 6000)                             # 6000 rocas para que se vea
+grupo <- ifelse(grepl("ultramafic", tipo), "ultramáfica", ifelse(grepl("mafic", tipo), "máfica",
+                ifelse(grepl("intermediate", tipo), "intermedia", ifelse(grepl("felsic", tipo), "félsica", "otra"))))
+paleta <- c("ultramáfica" = "#1b5e20", "máfica" = "#3987e5", "intermedia" = "#e3a008", "félsica" = "#d95926", "otra" = "gray80")
+plot(pca$x[m, 1], pca$x[m, 2], pch = 16, cex = 0.5, col = paleta[grupo[m]], las = 1,
+     xlim = quantile(pca$x[, 1], c(0.002, 0.998)), ylim = quantile(pca$x[, 2], c(0.002, 0.998)),   # sin el 0,4 % extremo
+     main = "Gráfica N° 3: Las rocas en el plano CP1–CP2", xlab = paste0("CP1 (", round(varianza[1], 1), " %)"),
+     ylab = paste0("CP2 (", round(varianza[2], 1), " %)"))
+flechas <- pca$rotation[, 1:2] * 3                     # dirección de cada óxido
+arrows(0, 0, flechas[, 1], flechas[, 2], length = 0.08, lwd = 2)
+text(flechas[, 1] * 1.15, flechas[, 2] * 1.15, rownames(flechas), font = 2)
+legend("topright", names(paleta), col = paleta, pch = 16, bty = "n")
+```
+
+## 5. Agrupamiento k-means
+
+Sin decirle el tipo de roca, k-means reparte las rocas en k grupos de química parecida. Luego se compara con el tipo real.
+
+```{r kmeans, fig.width = 8, fig.height = 4.5}
+Z <- scale(X)
+set.seed(2026)
+inercia <- sapply(1:8, function(k) kmeans(Z, k, nstart = 5, iter.max = 50)$tot.withinss)
+plot(1:8, inercia / 1000, type = "b", pch = 16, col = "#3987e5", lwd = 2, las = 1,
+     main = "Gráfica N° 4: Método del codo", xlab = "Número de grupos (k)", ylab = "Variación dentro de los grupos (miles)")
+grupos <- kmeans(Z, 4, nstart = 10, iter.max = 50)$cluster
+tabla <- table(grupo_kmeans = grupos, tipo_de_roca = grupo)
+knitr::kable(tabla, caption = "Tabla N° 4: grupos de k-means frente al tipo de roca")
+```
+
+## 6. Conclusión
+
+Los ocho óxidos mayores están muy correlacionados: los dos primeros componentes principales resumen el
+`r round(cumsum(varianza)[2], 1)` % de la variación. El CP1 opone el magnesio a la sílice y los álcalis: es el eje de la
+diferenciación magmática y ordena las rocas de ultramáficas a félsicas. Sin conocer el tipo de roca, k-means forma grupos
+que coinciden en buena parte con los tipos reales, lo que muestra que la química sola separa las rocas; ese es el
+fundamento de la red neuronal de la Unidad 4.
+'''
+
 COMUN = dict(filtro="", zoom="", zoom_x="", log_res="", eje_res="Residuo (y real - y del modelo)")
 ZOOM = ", xlim = c(0, quantile(x, 0.995)), ylim = c(0, quantile(y, 0.995))"  # zoom al 99,5 %; el modelo usa todos
 SILICATADAS = ("\nsilicatada <- {v} >= 35 & {v} <= 80                    # rocas silicatadas (restricción del dominio)\n"
@@ -533,6 +619,8 @@ def main():
                                                  autores=AUTORES, url=URL) + MULTIPLE
     docs["reg_07_serie_de_tiempo"] = CABECERA.format(titulo="Serie de tiempo: análisis publicados por año",
                                                      autores=AUTORES, url=URL) + SERIE
+    docs["reg_08_multivariado"] = CABECERA.format(titulo="Estadística multivariable: correlación, componentes principales y grupos",
+                                                  autores=AUTORES, url=URL) + MULTIVARIADO
     for nombre, texto in docs.items():
         (RMD / f"{nombre}.Rmd").write_text(texto, encoding="utf-8")
     solo = sys.argv[1:] or list(docs)
