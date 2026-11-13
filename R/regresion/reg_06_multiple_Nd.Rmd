@@ -1,0 +1,152 @@
+---
+title: "Regresión lineal múltiple: neodimio, lantano y samario"
+subtitle: "Unidad 3 · Regresión · Geoquímica de rocas con datos de EarthChem PetDB"
+author: "Cristoffer Rumiguano, Ana Gabriela Fernández, Evelyn Bustamante, Jessica Haro, Jhonattan Ligña"
+date: "Noviembre de 2026"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+> Proyecto estrictamente académico (Estadística y Probabilidades, FIGEMPA – UCE). Datos: EarthChem PetDB (CC BY 4.0),
+> descargados el 13/10/2026. Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
+
+## 1. Carga de datos
+
+Se usa la base completa (159 760 análisis). Para cada par se toman solo las filas que tienen **los dos** datos: no se
+inventa ningún valor que falte.
+
+```{r carga}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
+if (!file.exists("data/earthchem_limpio.csv.gz")) {
+  dir.create("data", showWarnings = FALSE)
+  download.file("https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz", "data/earthchem_limpio.csv.gz", mode = "wb")
+}
+base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
+dim(base)
+```
+
+## 2. Asignación de variables
+
+**y = Nd (ppm)**, explicada por **x1 = La (ppm)** y **x2 = Sm (ppm)**: el neodimio está entre el lantano y el samario
+en la serie de las tierras raras, así que debería poder estimarse con sus dos vecinos. Además se agrega una variable
+cualitativa, el ambiente tectónico, como **variable ficticia (dummy)**.
+
+```{r variables}
+datos <- data.frame(Nd = base[["Nd (ppm)"]], La = base[["La (ppm)"]], Sm = base[["Sm (ppm)"]],
+                    grupo = base[["Tectonic Group"]])
+datos <- na.omit(datos)                                # filas con todo completo
+datos <- datos[datos$Nd > 0 & datos$La > 0 & datos$Sm > 0 & datos$grupo != "mixto", ]
+nrow(datos)
+```
+
+## 3. Tabla de valores
+
+```{r tabla}
+knitr::kable(head(datos, 10), caption = "Tabla N° 1: primeras 10 filas")
+```
+
+## 4. Diagrama de dispersión y matriz de correlación
+
+```{r dispersion, fig.width = 8, fig.height = 7}
+set.seed(2026)
+dibujo <- datos[sample(nrow(datos), 3000), c("Nd", "La", "Sm")]   # 3000 puntos para que se vea
+dibujo <- dibujo[dibujo$Nd < quantile(datos$Nd, 0.995), ]          # sin el 0,5 % más extremo
+pairs(dibujo, pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.3), main = "Gráfica N° 1: Dispersión por pares")
+R <- cor(datos[, c("Nd", "La", "Sm")])
+knitr::kable(round(R, 3), caption = "Tabla N° 2: matriz de correlación")
+```
+
+Las dos explicativas están muy correlacionadas entre sí (La–Sm r = `r round(R["La", "Sm"], 2)`): es
+**multicolinealidad**. No impide predecir, pero hace que los coeficientes por separado sean menos estables.
+
+```{r vif}
+r2_La_Sm <- summary(lm(La ~ Sm, data = datos))$r.squared
+VIF <- 1 / (1 - r2_La_Sm)                              # factor de inflación de la varianza
+VIF                                                    # más de 10 = multicolinealidad fuerte
+```
+
+## 5. Conjetura del modelo
+
+Modelo lineal múltiple: y = a + b1·x1 + b2·x2. En forma matricial, β = (XᵀX)⁻¹·Xᵀy; `lm()` hace ese cálculo.
+
+```{r conjetura}
+modelo <- lm(Nd ~ La + Sm, data = datos)
+coef(modelo)
+# El mismo cálculo con matrices:
+X <- cbind(1, datos$La, datos$Sm)
+beta <- solve(t(X) %*% X) %*% t(X) %*% datos$Nd
+round(t(beta), 4)
+```
+
+```{r plano, fig.width = 8, fig.height = 5.5}
+predicho <- predict(modelo)
+plot(predicho, datos$Nd, pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1,
+     xlim = c(0, quantile(datos$Nd, 0.995)), ylim = c(0, quantile(datos$Nd, 0.995)),   # zoom al 99,5 %
+     main = "Gráfica N° 2: Nd real vs Nd del modelo", xlab = "Nd del modelo (ppm)", ylab = "Nd real (ppm)")
+abline(a = 0, b = 1, col = "#d95926", lwd = 3)
+```
+
+**Con variable ficticia.** El ambiente tectónico entra como dos columnas 0/1 (la tercera categoría es la referencia).
+
+```{r dummy}
+modelo_dummy <- lm(Nd ~ La + Sm + grupo, data = datos)
+round(coef(modelo_dummy), 4)
+c(R2_sin_dummy = summary(modelo)$r.squared, R2_con_dummy = summary(modelo_dummy)$r.squared)
+```
+
+## 6. Test de aprobación
+
+```{r test}
+R2 <- summary(modelo)$r.squared * 100
+r <- sqrt(R2 / 100)                                    # correlación múltiple
+knitr::kable(data.frame(modelo = "múltiple", R = round(r, 4), R2_porcentaje = round(R2, 2)),
+             caption = "Tabla N° 3: test de aprobación")
+```
+
+```{r residuos, fig.width = 8, fig.height = 4.5}
+plot(predicho, residuals(modelo), pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1,
+     xlim = c(0, quantile(datos$Nd, 0.995)), ylim = quantile(residuals(modelo), c(0.0025, 0.9975)),
+     main = "Gráfica N° 3: Residuos", xlab = "Nd del modelo (ppm)", ylab = "Residuo (ppm)")
+abline(h = 0, col = "#d95926", lwd = 2)
+```
+
+## 7. Restricciones
+
+Las concentraciones son positivas: el modelo vale dentro del rango medido de La y Sm, y para combinaciones
+que existen en la naturaleza (La y Sm suben juntos; un La muy alto con Sm muy bajo no se da).
+
+```{r restricciones}
+sapply(datos[, c("La", "Sm")], range)
+```
+
+## 8. Estimación de pronósticos
+
+**Si una roca tiene 20 ppm de La y 5 ppm de Sm, ¿cuánto Nd se espera?**
+
+```{r pronostico}
+nuevo <- data.frame(La = 20, Sm = 5)
+y0 <- predict(modelo, nuevo)
+y0
+```
+
+## 9. Conclusión
+
+El Nd se representa con un **modelo lineal múltiple**: y = `r round(coef(modelo)[1], 3)` + `r round(coef(modelo)[2], 3)`·x1 +
+`r round(coef(modelo)[3], 3)`·x2, donde x1 es La y x2 es Sm. El modelo explica el `r round(R2, 1)` % de la variación del
+Nd. Para La = 20 ppm y Sm = 5 ppm se espera Nd ≈ `r round(y0, 2)` ppm. Agregar el ambiente tectónico como variable
+ficticia casi no mejora el ajuste: las tierras raras se mueven juntas en cualquier ambiente.
+
+```{r guardar, include = FALSE}
+if (dir.exists("docs/data")) {
+  dir.create("docs/data/regresion", showWarnings = FALSE)
+  write.csv(data.frame(documento = "reg_06_multiple_Nd", modelo = "múltiple", x = "La (ppm), Sm (ppm)", y = "Nd (ppm)",
+                       n = nrow(datos), ecuacion = paste0("y = ", round(coef(modelo)[1], 3), " + ", round(coef(modelo)[2], 3),
+                       "x1 + ", round(coef(modelo)[3], 3), "x2"), r = r, r2 = R2,
+                       pronostico = paste0("La = 20, Sm = 5 -> Nd = ", round(y0, 2))),
+            "docs/data/regresion/reg_06_multiple_Nd.csv", row.names = FALSE, fileEncoding = "UTF-8")
+}
+```

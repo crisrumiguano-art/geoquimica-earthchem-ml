@@ -1,0 +1,68 @@
+[
+ {
+  "documento": "reg_01_lineal_La_Ce",
+  "modelo": "lineal",
+  "x": "La (ppm)",
+  "y": "Ce (ppm)",
+  "n": "30921",
+  "ecuacion": "y = 6.87 + 1.675x",
+  "r": "0.96990326987462",
+  "r2": "94.071235291348",
+  "pronostico": "x = 20 -> y = 40.36"
+ },
+ {
+  "documento": "reg_02_potencial_Zr_Hf",
+  "modelo": "potencial",
+  "x": "Zr (ppm)",
+  "y": "Hf (ppm)",
+  "n": "20521",
+  "ecuacion": "y = 0.0402 x^0.906",
+  "r": "0.966169773554448",
+  "r2": "93.3484031330252",
+  "pronostico": "x = 150 -> y = 3.76"
+ },
+ {
+  "documento": "reg_03_exponencial_SiO2_MgO",
+  "modelo": "exponencial",
+  "x": "SiO2 (wt%)",
+  "y": "MgO (wt%)",
+  "n": "53630",
+  "ecuacion": "y = 10738.97 e^(-0.1455x)",
+  "r": "-0.879017583663225",
+  "r2": "77.2671912389136",
+  "pronostico": "x = 60 -> y = 1.73"
+ },
+ {
+  "documento": "reg_04_logaritmica_MgO_SiO2",
+  "modelo": "logarítmico",
+  "x": "MgO (wt%)",
+  "y": "SiO2 (wt%)",
+  "n": "53630",
+  "ecuacion": "y = 61.236 + -5.31 ln(x)",
+  "r": "-0.879017583663225",
+  "r2": "77.2671912389136",
+  "pronostico": "x = 3 -> y = 55.4"
+ },
+ {
+  "documento": "reg_05_polinomica_MgO_CaO",
+  "modelo": "polinómico",
+  "x": "MgO (wt%)",
+  "y": "CaO (wt%)",
+  "n": "54414",
+  "ecuacion": "y = 2.043 + 1.771x + -0.0855x² + 0.00102x³",
+  "r": "0.798711493775336",
+  "r2": "63.7940050288829",
+  "pronostico": "x = 8 -> y = 11.26"
+ },
+ {
+  "documento": "reg_06_multiple_Nd",
+  "modelo": "múltiple",
+  "x": "La (ppm), Sm (ppm)",
+  "y": "Nd (ppm)",
+  "n": "26765",
+  "ecuacion": "y = 1.71 + 0.368x1 + 2.447x2",
+  "r": "0.846538880407153",
+  "r2": "71.6628076040997",
+  "pronostico": "La = 20, Sm = 5 -> Nd = 21.3"
+ }
+]

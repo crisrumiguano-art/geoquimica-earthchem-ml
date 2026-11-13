@@ -1,0 +1,145 @@
+---
+title: "Regresión exponencial: sílice y magnesio"
+subtitle: "Unidad 3 · Regresión · Geoquímica de rocas con datos de EarthChem PetDB"
+author: "Cristoffer Rumiguano, Ana Gabriela Fernández, Evelyn Bustamante, Jessica Haro, Jhonattan Ligña"
+date: "Noviembre de 2026"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+> Proyecto estrictamente académico (Estadística y Probabilidades, FIGEMPA – UCE). Datos: EarthChem PetDB (CC BY 4.0),
+> descargados el 13/10/2026. Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
+
+## 1. Carga de datos
+
+Se usa la base completa (159 760 análisis). Para cada par se toman solo las filas que tienen **los dos** datos: no se
+inventa ningún valor que falte.
+
+```{r carga}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
+if (!file.exists("data/earthchem_limpio.csv.gz")) {
+  dir.create("data", showWarnings = FALSE)
+  download.file("https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz", "data/earthchem_limpio.csv.gz", mode = "wb")
+}
+base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
+dim(base)
+```
+
+## 2. Asignación de variables
+
+**x = SiO2 (wt%)** (variable independiente) e **y = MgO (wt%)** (variable dependiente). Cuando un magma se enfría, primero cristalizan el olivino y el piroxeno, ricos en magnesio: el líquido que queda tiene cada vez más sílice y menos magnesio (diferenciación magmática).
+
+```{r variables}
+x <- base[["SiO2 (wt%)"]]
+y <- base[["MgO (wt%)"]]
+completos <- !is.na(x) & !is.na(y) & x > 0 & y > 0    # filas con los dos datos
+x <- x[completos]
+y <- y[completos]
+silicatada <- x >= 35 & x <= 80                    # rocas silicatadas (restricción del dominio)
+x <- x[silicatada]
+y <- y[silicatada]
+length(x)                                              # número de pares
+```
+
+## 3. Tabla de pares de valores
+
+```{r tabla}
+knitr::kable(head(data.frame(x, y), 10), caption = "Tabla N° 1: primeros 10 pares de valores (SiO2 (wt%), MgO (wt%))")
+knitr::kable(data.frame(variable = c("SiO2 (wt%)", "MgO (wt%)"), minimo = c(min(x), min(y)), media = c(mean(x), mean(y)),
+                        maximo = c(max(x), max(y))), digits = 2, caption = "Tabla N° 2: resumen de los pares")
+```
+
+## 4. Diagrama de dispersión
+
+```{r dispersion, fig.width = 8, fig.height = 5.5}
+plot(x, y, pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1,
+     main = "Gráfica N° 1: Diagrama de dispersión", xlab = "SiO2 (wt%)", ylab = "MgO (wt%)")
+```
+
+El MgO cae rápido al principio y después cada vez más lento: una curva que se aplana, no una recta.
+
+## 5. Conjetura del modelo
+
+Una caída que se aplana es la forma de un **modelo exponencial**, y = a·e^(b·x), con b negativo: log y = log a + b·x. Antes de elegir se probaron los cinco modelos con este par (prueba y error): el coeficiente de
+correlación de cada uno sale de la recta ajustada a las variables transformadas.
+
+```{r prueba}
+r_modelos <- c(lineal = cor(x, y),                     # y = a + b·x
+               potencial = cor(log(x), log(y)),        # y = a·x^b      -> log y = log a + b·log x
+               exponencial = cor(x, log(y)),           # y = a·e^(b·x)  -> log y = log a + b·x
+               logaritmico = cor(log(x), y),           # y = a + b·ln x
+               polinomico = sqrt(summary(lm(y ~ x + I(x^2) + I(x^3)))$r.squared))  # y = a + b·x + c·x² + d·x³
+knitr::kable(data.frame(modelo = names(r_modelos), r = round(r_modelos, 3), r2_porcentaje = round(r_modelos^2 * 100, 1)),
+             row.names = FALSE, caption = "Tabla N° 3: correlación de cada modelo con este par")
+```
+
+```{r conjetura, fig.width = 8, fig.height = 5.5}
+modelo <- lm(log(y) ~ x)
+a <- exp(coef(modelo)[[1]])
+b <- coef(modelo)[[2]]
+c(a = a, b = b)
+plot(x, y, pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1,
+     main = "Gráfica N° 2: Regresión exponencial", xlab = "SiO2 (wt%)", ylab = "MgO (wt%)")
+curve(a * exp(b * x), from = min(x), to = max(x), add = TRUE, col = "#d95926", lwd = 3)
+legend("topright", c("datos", "y = a·e^(b·x)"), col = c(rgb(0.22, 0.53, 0.9), "#d95926"),
+       pch = c(16, NA), lwd = c(NA, 3), bty = "n")
+```
+
+## 6. Test de aprobación
+
+El coeficiente de correlación de Pearson (r) mide qué tan fuerte es la relación: |r| cerca de 1 es fuerte. El
+coeficiente de determinación (r² en %) dice qué parte de la variación de y explica el modelo.
+
+```{r test}
+r <- cor(x, log(y))
+r2 <- r^2 * 100
+knitr::kable(data.frame(modelo = "exponencial", r = round(r, 4), r2_porcentaje = round(r2, 2),
+                        fuerza = ifelse(abs(r) >= 0.7, "fuerte", ifelse(abs(r) >= 0.4, "moderada", "débil"))),
+             caption = "Tabla N° 4: test de aprobación")
+```
+
+```{r residuos, fig.width = 8, fig.height = 4.5}
+residuo <- log(y) - log(a * exp(b * x))                                   # lo que el modelo no explica
+plot(x, residuo, pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1,
+     ylim = quantile(residuo, c(0.0025, 0.9975)),           # sin el 0,5 % más extremo, para que se vea
+     main = "Gráfica N° 3: Residuos del modelo", xlab = "SiO2 (wt%)", ylab = "Residuo en logaritmo (ln y real - ln y del modelo)")
+abline(h = 0, col = "#d95926", lwd = 2)
+```
+
+## 7. Restricciones
+
+El modelo se ajustó solo con rocas silicatadas (SiO2 entre 35 y 80 %): por debajo hay carbonatitas, sulfuros o análisis parciales, que no siguen esta tendencia. Da siempre y > 0, pero fuera de ese rango no vale: con SiO2 = 0 daría miles de % de MgO.
+
+```{r restricciones}
+c(x_min_datos = min(x), x_max_datos = max(x), y_en_x_100 = a * exp(b * 100))
+```
+
+## 8. Estimación de pronósticos
+
+**Si una roca tiene 60 % de SiO2 (una andesita), ¿cuánto MgO se espera?**
+
+```{r pronostico}
+x0 <- 60
+y0 <- a * exp(b * x0)
+y0
+```
+
+## 9. Conclusión
+
+Entre SiO2 (wt%) e MgO (wt%) existe una relación que se representa con un **modelo exponencial**: y = `r round(a, 2)`·e^(`r round(b, 4)`·x), donde x es SiO2 (wt%)
+e y es MgO (wt%). La correlación es `r ifelse(abs(r) >= 0.7, "fuerte", ifelse(abs(r) >= 0.4, "moderada", "débil"))`
+(r = `r round(r, 3)`): MgO (wt%) depende de SiO2 (wt%) en un `r round(r2, 1)` % y el `r round(100 - r2, 1)` % restante se debe a
+otros factores que este modelo no considera. Si SiO2 (wt%) vale `r x0`, se espera MgO (wt%) ≈ `r round(y0, 2)`. A más sílice, menos magnesio: es la huella de la diferenciación magmática.
+
+```{r guardar, include = FALSE}
+if (dir.exists("docs/data")) {
+  dir.create("docs/data/regresion", showWarnings = FALSE)
+  write.csv(data.frame(documento = "reg_03_exponencial_SiO2_MgO", modelo = "exponencial", x = "SiO2 (wt%)", y = "MgO (wt%)", n = length(x),
+                       ecuacion = paste0("y = ", round(a, 2), " e^(", round(b, 4), "x)"), r = r, r2 = r2, pronostico = paste0("x = ", x0, " -> y = ", round(y0, 2))),
+            "docs/data/regresion/reg_03_exponencial_SiO2_MgO.csv", row.names = FALSE, fileEncoding = "UTF-8")
+}
+```

@@ -1,0 +1,2 @@
+"documento","modelo","x","y","n","ecuacion","r","r2","pronostico"
+"reg_04_logaritmica_MgO_SiO2","logarítmico","MgO (wt%)","SiO2 (wt%)",53630,"y = 61.236 + -5.31 ln(x)",-0.879017583663225,77.2671912389136,"x = 3 -> y = 55.4"

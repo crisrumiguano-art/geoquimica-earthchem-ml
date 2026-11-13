@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>Regresión — Geoquímica de rocas PetDB</title>
+<meta name="description" content="Unidad 3: regresión lineal, potencial, exponencial, logarítmica, polinómica y múltiple, y series de tiempo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/estilo.css">
+<script src="../assets/app.js" defer></script>
+</head>
+<body data-pagina="regresion">
+
+<nav class="nav" id="nav" aria-label="Páginas del proyecto">
+  <a class="marca" href="../"><b>Pt</b>Geoquímica PetDB</a>
+  <ul>
+    <li><a data-p="inicio" href="../">Inicio</a></li>
+    <li><a data-p="descriptiva" href="../descriptiva/"><span class="u">U1</span>Descriptiva</a></li>
+    <li><a data-p="inferencial" href="../inferencial/"><span class="u">U2</span>Inferencial</a></li>
+    <li><a data-p="regresion" href="./"><span class="u">U3</span>Regresión</a></li>
+    <li><span class="pronto"><span class="u">U4</span>Machine learning</span></li>
+    <li><a data-p="datos" href="../datos/">Datos</a></li>
+    <li><a data-p="equipo" href="../equipo/">Equipo</a></li>
+  </ul>
+</nav>
+
+<header class="cabecera">
+  <img src="../img/andes.jpg" alt="" aria-hidden="true">
+  <div class="hero-in">
+    <div class="ojo rev" style="--d:0">Unidad 3 · Lecciones 13 a 17</div>
+    <h1 class="rev" style="--d:1">Modelos de <em>regresión</em></h1>
+    <p class="lead rev" style="--d:2">Cómo cambia un elemento cuando cambia otro. Seis modelos con pares de variables que tienen
+      sentido geológico, más una serie de tiempo. Cada uno con su documento en R: dispersión, conjetura, test, restricciones y
+      pronóstico.</p>
+    <nav class="indice rev" style="--d:3" aria-label="Secciones de la página">
+      <a href="#metodo">01 Método</a><a href="#resumen">02 Resumen</a><a href="#simples">03 Modelos simples</a>
+      <a href="#multiple">04 Múltiple</a><a href="#serie">05 Serie de tiempo</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="cap" id="metodo">
+    <div class="cab rev"><span class="num">01</span><h2>Método</h2>
+      <p>Los modelos no lineales se ajustan como en la plantilla del curso: se transforman las variables con logaritmos hasta
+        que la relación es una recta y se ajusta esa recta con mínimos cuadrados.</p></div>
+    <div class="callout rev">
+      <h3>Cómo se eligió cada par (prueba y error)</h3>
+      <ol>
+        <li><b>Se probaron los cinco modelos en 28 pares</b> de óxidos y elementos, en toda la base y en los basaltos. Cada
+          documento muestra la tabla con la correlación de los cinco modelos para su par: el elegido es el que mejor ajusta.</li>
+        <li><b>Solo filas con los dos datos.</b> Ningún valor faltante se inventa; cada par usa entre 20.000 y 54.000 análisis.</li>
+        <li><b>Los logaritmos cambian todo.</b> Circonio y hafnio tienen r = 0,15 en escala normal, porque unos pocos valores
+          extremos dominan, y r = 0,97 en logaritmos.</li>
+        <li><b>Puntos influyentes.</b> En lantano–cerio, unos pocos análisis con una razón Ce/La imposible en rocas naturales (por
+          ejemplo 1.000 ppm de La y 26 de Ce) tiran la recta; se detectan con la distancia de Cook y el ajuste usa el 97 % de los
+          pares, los de Ce/La entre 0,5 y 5. En sílice–magnesio el modelo se restringe a rocas silicatadas (SiO<sub>2</sub> entre
+          35 y 80 %). Nada se borra de la base.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="cap" id="resumen">
+    <div class="cab rev"><span class="num">02</span><h2>Resumen de los modelos</h2>
+      <p>r² en % es la parte de la variación de y que explica el modelo; el resto se debe a factores que el modelo no considera.</p></div>
+    <div class="tabla rev"><table id="t-resumen"><thead><tr>
+      <th>Modelo</th><th>x</th><th>y</th><th class="n">n</th><th>Ecuación</th><th class="n">r</th><th class="n">r² (%)</th>
+      <th>Pronóstico</th><th>Documento</th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="cap" id="simples">
+    <div class="cab rev"><span class="num">03</span><h2>Modelos simples</h2>
+      <p>Una variable explica a otra. Los dos primeros relacionan elementos «gemelos»; los otros tres, la diferenciación
+        magmática: a medida que un magma se enfría pierde magnesio y gana sílice.</p></div>
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/regresion/reg_01_lineal_La_Ce-conjetura.png" target="_blank"><img src="../img/regresion/reg_01_lineal_La_Ce-conjetura.png" alt="Dispersión de La y Ce con la recta de regresión" loading="lazy"></a></figure>
+      <div><h4>Lineal · lantano → cerio</h4>
+        <p class="lectura">Ce = 6,87 + 1,675·La, con r = 0,970: el cerio depende del lantano en un 94 %. Son tierras raras vecinas que entran y salen juntas de los minerales. El documento incluye la deducción de los estimadores por mínimos cuadrados a mano (b = Sxy/Sxx) y la covarianza.</p>
+        <div class="descargas"><a href="../rpubs/reg_01_lineal_La_Ce.html">Documento R completo</a></div></div>
+    </div>
+
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/regresion/reg_02_potencial_Zr_Hf-conjetura.png" target="_blank"><img src="../img/regresion/reg_02_potencial_Zr_Hf-conjetura.png" alt="Dispersión log-log de Zr y Hf con la curva potencial" loading="lazy"></a></figure>
+      <div><h4>Potencial · circonio → hafnio</h4>
+        <p class="lectura">Hf = 0,0402·Zr<sup>0,906</sup>, r = 0,966 en logaritmos (0,15 en escala normal). El hafnio es el gemelo del circonio y los dos viven en el circón. Para 150 ppm de Zr se esperan 3,8 ppm de Hf.</p>
+        <div class="descargas"><a href="../rpubs/reg_02_potencial_Zr_Hf.html">Documento R completo</a></div></div>
+    </div>
+
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/regresion/reg_03_exponencial_SiO2_MgO-conjetura.png" target="_blank"><img src="../img/regresion/reg_03_exponencial_SiO2_MgO-conjetura.png" alt="Dispersión de SiO2 y MgO con la curva exponencial" loading="lazy"></a></figure>
+      <div><h4>Exponencial · sílice → magnesio</h4>
+        <p class="lectura">MgO = 10.739·e<sup>−0,1455·SiO₂</sup>, r = −0,879: el magnesio cae rápido cuando sube la sílice y después se aplana. Una andesita con 60 % de SiO<sub>2</sub> tendría 1,7 % de MgO.</p>
+        <div class="descargas"><a href="../rpubs/reg_03_exponencial_SiO2_MgO.html">Documento R completo</a></div></div>
+    </div>
+
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/regresion/reg_04_logaritmica_MgO_SiO2-conjetura.png" target="_blank"><img src="../img/regresion/reg_04_logaritmica_MgO_SiO2-conjetura.png" alt="Dispersión de MgO y SiO2 con la curva logarítmica" loading="lazy"></a></figure>
+      <div><h4>Logarítmico · magnesio → sílice</h4>
+        <p class="lectura">SiO₂ = 61,24 − 5,31·ln(MgO), r = −0,879. La misma diferenciación vista desde el otro lado, como en la plantilla del curso. Restricción: más allá de MgO = e<sup>−a/b</sup> el modelo daría sílice negativa.</p>
+        <div class="descargas"><a href="../rpubs/reg_04_logaritmica_MgO_SiO2.html">Documento R completo</a></div></div>
+    </div>
+
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/regresion/reg_05_polinomica_MgO_CaO-conjetura.png" target="_blank"><img src="../img/regresion/reg_05_polinomica_MgO_CaO-conjetura.png" alt="Dispersión de MgO y CaO con la curva cúbica" loading="lazy"></a></figure>
+      <div><h4>Polinómico · magnesio → calcio</h4>
+        <p class="lectura">El CaO sube hasta un máximo cerca de 14 % de MgO (basaltos, con plagioclasa y clinopiroxeno) y baja en las peridotitas (olivino, casi sin calcio). Una recta da r = −0,28; el polinomio de grado 3, r = 0,80. Fuera del rango medido el polinomio se dispara.</p>
+        <div class="descargas"><a href="../rpubs/reg_05_polinomica_MgO_CaO.html">Documento R completo</a></div></div>
+    </div>
+
+  </section>
+
+  <section class="cap" id="multiple">
+    <div class="cab rev"><span class="num">04</span><h2>Regresión múltiple</h2>
+      <p>Dos o más variables explican a otra. El documento muestra la forma matricial β = (XᵀX)⁻¹Xᵀy, la multicolinealidad (VIF),
+        una variable ficticia (ambiente tectónico) y el análisis de residuos.</p></div>
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/regresion/reg_06_multiple_Nd-plano.png" target="_blank"><img src="../img/regresion/reg_06_multiple_Nd-plano.png" alt="Nd real frente a Nd estimado por el modelo múltiple" loading="lazy"></a></figure>
+      <div><h4>Neodimio ← lantano + samario</h4>
+        <p class="lectura">Nd = 1,71 + 0,368·La + 2,447·Sm, R = 0,847 (R² = 71,7 %). El neodimio está entre el lantano y el samario en la serie de las tierras raras. La y Sm están muy correlacionados entre sí (multicolinealidad), y agregar el ambiente tectónico como variable ficticia casi no mejora el ajuste.</p>
+        <div class="descargas"><a href="../rpubs/reg_06_multiple_Nd.html">Documento R completo</a></div></div>
+    </div>
+
+  </section>
+
+  <section class="cap" id="serie">
+    <div class="cab rev"><span class="num">05</span><h2>Serie de tiempo</h2>
+      <p>Análisis publicados por año, de 1965 a 2024: tendencia por regresión, medias móviles y suavización exponencial, con
+        pronóstico a cinco años.</p></div>
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/regresion/reg_07_serie_de_tiempo-tendencia.png" target="_blank"><img src="../img/regresion/reg_07_serie_de_tiempo-tendencia.png" alt="Serie anual de análisis publicados con tendencia lineal y cuadrática" loading="lazy"></a></figure>
+      <div><h4>Componentes y tendencia</h4>
+        <p class="lectura">La serie crece de largo plazo, con ciclos de varios años (campañas de perforación oceánica) y picos aislados de trabajos que publican miles de análisis juntos. Con datos anuales no hay estacionalidad: se usa un modelo aditivo.</p>
+        <div class="descargas"><a href="../rpubs/reg_07_serie_de_tiempo.html">Documento R completo</a></div></div>
+    </div>
+
+    <div class="bloque rev">
+      <figure class="grafica"><a href="../img/regresion/reg_07_serie_de_tiempo-pronostico.png" target="_blank"><img src="../img/regresion/reg_07_serie_de_tiempo-pronostico.png" alt="Pronóstico 2025-2029 con tres técnicas" loading="lazy"></a></figure>
+      <div><h4>Pronóstico 2025–2029</h4>
+        <p class="lectura">La tendencia cuadrática, la media móvil de 5 años y la suavización de Holt dan entre 2.700 y 3.400 análisis por año. Los métodos que siguen el nivel reciente son los más prudentes para un dato que depende de campañas y de los autores que cargan sus datos.</p>
+        <div class="descargas"><a href="../rpubs/reg_07_serie_de_tiempo.html">Documento R completo</a></div></div>
+    </div>
+
+  </section>
+</main>
+
+<footer>
+  <span class="academico">Proyecto <b>estrictamente académico</b>, sin fines comerciales, desarrollado para la asignatura Estadística y Probabilidades (FIGEMPA – Universidad Central del Ecuador).</span>
+  <span>Datos: Astromaterials Data Synthesis / EarthChem PetDB (<a href="https://search.astromat.org/">search.astromat.org</a>), 13/10/2026, CC BY 4.0.</span>
+  <span>Modelos y gráficas generados con R 4.6.</span>
+</footer>
+
+<script>
+addEventListener("DOMContentLoaded", () => {
+  const coma = t => String(t).replace(/(\d)\.(\d)/g, "$1,$2");
+  fetch("../data/regresion.json", { cache: "no-cache" }).then(r => r.json()).then(filas => {
+    document.querySelector("#t-resumen tbody").innerHTML = filas.map(f => `<tr>
+      <td>${f.modelo}</td><td>${f.x}</td><td>${f.y}</td><td class="n">${Number(f.n).toLocaleString("es-EC")}</td>
+      <td>${coma(f.ecuacion).replaceAll("+ -", "− ")}</td><td class="n">${coma(Number(f.r).toFixed(3))}</td>
+      <td class="n">${coma(Number(f.r2).toFixed(1))}</td><td>${coma(f.pronostico)}</td>
+      <td><a href="../rpubs/${f.documento}.html">abrir</a></td></tr>`).join("");
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+"documento","modelo","x","y","n","ecuacion","r","r2","pronostico"
+"reg_03_exponencial_SiO2_MgO","exponencial","SiO2 (wt%)","MgO (wt%)",53630,"y = 10738.97 e^(-0.1455x)",-0.879017583663225,77.2671912389136,"x = 60 -> y = 1.73"

@@ -1,0 +1,118 @@
+---
+title: "Serie de tiempo: análisis publicados por año"
+subtitle: "Unidad 3 · Regresión · Geoquímica de rocas con datos de EarthChem PetDB"
+author: "Cristoffer Rumiguano, Ana Gabriela Fernández, Evelyn Bustamante, Jessica Haro, Jhonattan Ligña"
+date: "Noviembre de 2026"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+> Proyecto estrictamente académico (Estadística y Probabilidades, FIGEMPA – UCE). Datos: EarthChem PetDB (CC BY 4.0),
+> descargados el 13/10/2026. Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
+
+## 1. Carga de datos
+
+Se usa la base completa (159 760 análisis). Para cada par se toman solo las filas que tienen **los dos** datos: no se
+inventa ningún valor que falte.
+
+```{r carga}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
+if (!file.exists("data/earthchem_limpio.csv.gz")) {
+  dir.create("data", showWarnings = FALSE)
+  download.file("https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz", "data/earthchem_limpio.csv.gz", mode = "wb")
+}
+base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
+dim(base)
+```
+
+## 2. La serie
+
+Cantidad de análisis de la base publicados cada año, de 1965 a 2024 (2025 está incompleto porque la base se descargó
+en octubre de 2026 y las publicaciones tardan en cargarse).
+
+```{r serie}
+anio <- base[["Publication Year"]]
+conteo <- table(factor(anio, levels = 1965:2024))
+serie <- ts(as.vector(conteo), start = 1965)           # serie de tiempo anual
+knitr::kable(data.frame(anio = 1965:2024, analisis = as.vector(conteo))[seq(1, 60, by = 5), ], row.names = FALSE,
+             caption = "Tabla N° 1: análisis publicados (cada 5 años)")
+plot(serie, lwd = 2, col = "#3987e5", las = 1, main = "Gráfica N° 1: Análisis publicados por año",
+     xlab = "Año", ylab = "Análisis")
+```
+
+## 3. Componentes
+
+- **Tendencia**: la serie crece de largo plazo (más laboratorios y técnicas más rápidas, como el ICP-MS desde 1990).
+- **Ciclo**: subidas y bajadas de varios años, ligadas a grandes campañas de perforación oceánica (DSDP, ODP, IODP).
+- **Aleatoriedad**: picos de un solo año por trabajos que publican miles de análisis juntos.
+- **Estacionalidad**: no se puede ver, porque el dato es anual (la estacionalidad se repite dentro del año).
+
+Por eso se usa un **modelo aditivo**: serie = tendencia + ciclo + aleatoriedad.
+
+## 4. Tendencia por regresión
+
+```{r tendencia}
+t <- 1:length(serie)
+lineal <- lm(as.vector(serie) ~ t)
+cuadratica <- lm(as.vector(serie) ~ t + I(t^2))
+c(R2_lineal = summary(lineal)$r.squared, R2_cuadratica = summary(cuadratica)$r.squared)
+plot(serie, lwd = 2, col = "gray60", las = 1, main = "Gráfica N° 2: Tendencia", xlab = "Año", ylab = "Análisis")
+lines(1965:2024, fitted(lineal), col = "#3987e5", lwd = 2)
+lines(1965:2024, fitted(cuadratica), col = "#d95926", lwd = 2)
+legend("topleft", c("serie", "tendencia lineal", "tendencia cuadrática"), col = c("gray60", "#3987e5", "#d95926"),
+       lwd = 2, bty = "n")
+```
+
+## 5. Medias móviles
+
+Cada valor se reemplaza por el promedio de los 5 años centrados en él: se borra la aleatoriedad y queda la tendencia
+con el ciclo.
+
+```{r moviles}
+movil <- stats::filter(serie, rep(1 / 5, 5), sides = 2)    # media móvil de 5 años
+plot(serie, lwd = 1, col = "gray60", las = 1, main = "Gráfica N° 3: Media móvil de 5 años", xlab = "Año", ylab = "Análisis")
+lines(movil, col = "#3987e5", lwd = 3)
+```
+
+## 6. Suavización exponencial
+
+Cada pronóstico mezcla el último dato con el pronóstico anterior; `HoltWinters()` elige el peso (α) y, con tendencia,
+también β (método de Holt).
+
+```{r suavizacion}
+holt <- HoltWinters(serie, gamma = FALSE)              # sin estacionalidad
+c(alfa = holt$alpha, beta = holt$beta)
+plot(holt, las = 1, main = "Gráfica N° 4: Suavización exponencial (Holt)", xlab = "Año", ylab = "Análisis")
+```
+
+## 7. Pronóstico 2025–2029
+
+```{r pronostico}
+futuro <- 2025:2029
+p_lineal <- predict(lineal, data.frame(t = length(serie) + 1:5))
+p_cuad <- predict(cuadratica, data.frame(t = length(serie) + 1:5))
+p_movil <- rep(mean(tail(serie, 5)), 5)                # media de los últimos 5 años
+p_holt <- predict(holt, n.ahead = 5)
+pron <- data.frame(anio = futuro, tendencia_lineal = round(p_lineal), tendencia_cuadratica = round(p_cuad),
+                   media_movil = round(p_movil), holt = round(as.vector(p_holt)))
+knitr::kable(pron, caption = "Tabla N° 2: pronóstico con las tres técnicas")
+plot(serie, xlim = c(1965, 2029), ylim = range(0, serie, pron[, -1]), lwd = 2, col = "gray60", las = 1,
+     main = "Gráfica N° 5: Pronóstico", xlab = "Año", ylab = "Análisis")
+lines(futuro, pron$tendencia_cuadratica, col = "#d95926", lwd = 2, type = "b", pch = 16)
+lines(futuro, pron$media_movil, col = "#3987e5", lwd = 2, type = "b", pch = 17)
+lines(futuro, pron$holt, col = "#1baa9b", lwd = 2, type = "b", pch = 15)
+legend("topleft", c("serie", "tendencia cuadrática", "media móvil", "Holt"), col = c("gray60", "#d95926", "#3987e5", "#1baa9b"),
+       lwd = 2, bty = "n")
+```
+
+## 8. Conclusión
+
+La cantidad de análisis publicados por año crece de largo plazo, con ciclos y picos de un año. La tendencia cuadrática
+explica el `r round(summary(cuadratica)$r.squared * 100, 1)` % de la variación. Los tres métodos dan pronósticos
+distintos: la tendencia sigue subiendo, mientras que la media móvil y Holt se quedan cerca del nivel de los últimos años.
+Con datos de publicaciones, que dependen de campañas y de cuántos autores cargan sus datos a PetDB, el pronóstico más
+prudente es el de los métodos que siguen el nivel reciente.

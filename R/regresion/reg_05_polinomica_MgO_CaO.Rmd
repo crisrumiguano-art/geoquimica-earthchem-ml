@@ -1,0 +1,148 @@
+---
+title: "Regresión polinómica: magnesio y calcio"
+subtitle: "Unidad 3 · Regresión · Geoquímica de rocas con datos de EarthChem PetDB"
+author: "Cristoffer Rumiguano, Ana Gabriela Fernández, Evelyn Bustamante, Jessica Haro, Jhonattan Ligña"
+date: "Noviembre de 2026"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+> Proyecto estrictamente académico (Estadística y Probabilidades, FIGEMPA – UCE). Datos: EarthChem PetDB (CC BY 4.0),
+> descargados el 13/10/2026. Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
+
+## 1. Carga de datos
+
+Se usa la base completa (159 760 análisis). Para cada par se toman solo las filas que tienen **los dos** datos: no se
+inventa ningún valor que falte.
+
+```{r carga}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
+if (!file.exists("data/earthchem_limpio.csv.gz")) {
+  dir.create("data", showWarnings = FALSE)
+  download.file("https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz", "data/earthchem_limpio.csv.gz", mode = "wb")
+}
+base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
+dim(base)
+```
+
+## 2. Asignación de variables
+
+**x = MgO (wt%)** (variable independiente) e **y = CaO (wt%)** (variable dependiente). El calcio sube con el magnesio en los basaltos (plagioclasa y clinopiroxeno) y vuelve a bajar en las peridotitas, donde domina el olivino, que casi no lleva calcio.
+
+```{r variables}
+x <- base[["MgO (wt%)"]]
+y <- base[["CaO (wt%)"]]
+completos <- !is.na(x) & !is.na(y) & x > 0 & y > 0    # filas con los dos datos
+x <- x[completos]
+y <- y[completos]
+length(x)                                              # número de pares
+```
+
+## 3. Tabla de pares de valores
+
+```{r tabla}
+knitr::kable(head(data.frame(x, y), 10), caption = "Tabla N° 1: primeros 10 pares de valores (MgO (wt%), CaO (wt%))")
+knitr::kable(data.frame(variable = c("MgO (wt%)", "CaO (wt%)"), minimo = c(min(x), min(y)), media = c(mean(x), mean(y)),
+                        maximo = c(max(x), max(y))), digits = 2, caption = "Tabla N° 2: resumen de los pares")
+```
+
+## 4. Diagrama de dispersión
+
+```{r dispersion, fig.width = 8, fig.height = 5.5}
+plot(x, y, pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1,
+     main = "Gráfica N° 1: Diagrama de dispersión", xlab = "MgO (wt%)", ylab = "CaO (wt%)")
+```
+
+El CaO sube hasta un máximo cerca de 14 % de MgO y después baja: una curva con joroba. Una recta no puede seguirla (r lineal = −0,28).
+
+## 5. Conjetura del modelo
+
+Una curva que sube y baja es la forma de un **modelo polinómico**, aquí de grado 3: y = a + b·x + c·x² + d·x³. Antes de elegir se probaron los cinco modelos con este par (prueba y error): el coeficiente de
+correlación de cada uno sale de la recta ajustada a las variables transformadas.
+
+```{r prueba}
+r_modelos <- c(lineal = cor(x, y),                     # y = a + b·x
+               potencial = cor(log(x), log(y)),        # y = a·x^b      -> log y = log a + b·log x
+               exponencial = cor(x, log(y)),           # y = a·e^(b·x)  -> log y = log a + b·x
+               logaritmico = cor(log(x), y),           # y = a + b·ln x
+               polinomico = sqrt(summary(lm(y ~ x + I(x^2) + I(x^3)))$r.squared))  # y = a + b·x + c·x² + d·x³
+knitr::kable(data.frame(modelo = names(r_modelos), r = round(r_modelos, 3), r2_porcentaje = round(r_modelos^2 * 100, 1)),
+             row.names = FALSE, caption = "Tabla N° 3: correlación de cada modelo con este par")
+```
+
+```{r conjetura, fig.width = 8, fig.height = 5.5}
+modelo <- lm(y ~ x + I(x^2) + I(x^3))
+a <- coef(modelo)[[1]]
+b <- coef(modelo)[[2]]
+c <- coef(modelo)[[3]]
+d <- coef(modelo)[[4]]
+c(a = a, b = b, c = c, d = d)
+plot(x, y, pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1,
+     main = "Gráfica N° 2: Regresión polinómico", xlab = "MgO (wt%)", ylab = "CaO (wt%)")
+curve(a + b * x + c * x^2 + d * x^3, from = min(x), to = max(x), add = TRUE, col = "#d95926", lwd = 3)
+legend("topright", c("datos", "y = a + b·x + c·x² + d·x³"), col = c(rgb(0.22, 0.53, 0.9), "#d95926"),
+       pch = c(16, NA), lwd = c(NA, 3), bty = "n")
+```
+
+## 6. Test de aprobación
+
+El coeficiente de correlación de Pearson (r) mide qué tan fuerte es la relación: |r| cerca de 1 es fuerte. El
+coeficiente de determinación (r² en %) dice qué parte de la variación de y explica el modelo.
+
+```{r test}
+r <- sqrt(summary(modelo)$r.squared)
+r2 <- r^2 * 100
+knitr::kable(data.frame(modelo = "polinómico", r = round(r, 4), r2_porcentaje = round(r2, 2),
+                        fuerza = ifelse(abs(r) >= 0.7, "fuerte", ifelse(abs(r) >= 0.4, "moderada", "débil"))),
+             caption = "Tabla N° 4: test de aprobación")
+```
+
+```{r residuos, fig.width = 8, fig.height = 4.5}
+residuo <- y - (a + b * x + c * x^2 + d * x^3)                                   # lo que el modelo no explica
+plot(x, residuo, pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1,
+     ylim = quantile(residuo, c(0.0025, 0.9975)),           # sin el 0,5 % más extremo, para que se vea
+     main = "Gráfica N° 3: Residuos del modelo", xlab = "MgO (wt%)", ylab = "Residuo (y real - y del modelo)")
+abline(h = 0, col = "#d95926", lwd = 2)
+```
+
+## 7. Restricciones
+
+Un polinomio se dispara fuera del rango de los datos (riesgo de sobreajuste si se sube el grado). Además el CaO debe ser positivo: se busca dónde la curva baja de cero.
+
+```{r restricciones}
+xs <- seq(min(x), max(x), length.out = 2000)
+ys <- a + b * xs + c * xs^2 + d * xs^3
+c(x_min_datos = min(x), x_max_datos = max(x),
+  primer_x_con_y_negativo = if (any(ys < 0)) xs[which(ys < 0)[1]] else NA,
+  x_del_maximo = xs[which.max(ys)])
+```
+
+## 8. Estimación de pronósticos
+
+**Si un basalto tiene 8 % de MgO, ¿cuánto CaO se espera?**
+
+```{r pronostico}
+x0 <- 8
+y0 <- a + b * x0 + c * x0^2 + d * x0^3
+y0
+```
+
+## 9. Conclusión
+
+Entre MgO (wt%) e CaO (wt%) existe una relación que se representa con un **modelo polinómico**: y = `r round(a, 3)` + `r round(b, 3)`·x + (`r round(c, 4)`)·x² + `r signif(d, 3)`·x³, donde x es MgO (wt%)
+e y es CaO (wt%). La correlación es `r ifelse(abs(r) >= 0.7, "fuerte", ifelse(abs(r) >= 0.4, "moderada", "débil"))`
+(r = `r round(r, 3)`): CaO (wt%) depende de MgO (wt%) en un `r round(r2, 1)` % y el `r round(100 - r2, 1)` % restante se debe a
+otros factores que este modelo no considera. Si MgO (wt%) vale `r x0`, se espera CaO (wt%) ≈ `r round(y0, 2)`. Una sola curva describe dos tipos de roca distintos: basaltos a la izquierda del máximo y peridotitas a la derecha.
+
+```{r guardar, include = FALSE}
+if (dir.exists("docs/data")) {
+  dir.create("docs/data/regresion", showWarnings = FALSE)
+  write.csv(data.frame(documento = "reg_05_polinomica_MgO_CaO", modelo = "polinómico", x = "MgO (wt%)", y = "CaO (wt%)", n = length(x),
+                       ecuacion = paste0("y = ", round(a, 3), " + ", round(b, 3), "x + ", round(c, 4), "x² + ", signif(d, 3), "x³"), r = r, r2 = r2, pronostico = paste0("x = ", x0, " -> y = ", round(y0, 2))),
+            "docs/data/regresion/reg_05_polinomica_MgO_CaO.csv", row.names = FALSE, fileEncoding = "UTF-8")
+}
+```

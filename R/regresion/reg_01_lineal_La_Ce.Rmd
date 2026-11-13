@@ -1,0 +1,164 @@
+---
+title: "Regresión lineal: lantano y cerio"
+subtitle: "Unidad 3 · Regresión · Geoquímica de rocas con datos de EarthChem PetDB"
+author: "Cristoffer Rumiguano, Ana Gabriela Fernández, Evelyn Bustamante, Jessica Haro, Jhonattan Ligña"
+date: "Noviembre de 2026"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+> Proyecto estrictamente académico (Estadística y Probabilidades, FIGEMPA – UCE). Datos: EarthChem PetDB (CC BY 4.0),
+> descargados el 13/10/2026. Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
+
+## 1. Carga de datos
+
+Se usa la base completa (159 760 análisis). Para cada par se toman solo las filas que tienen **los dos** datos: no se
+inventa ningún valor que falte.
+
+```{r carga}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
+if (!file.exists("data/earthchem_limpio.csv.gz")) {
+  dir.create("data", showWarnings = FALSE)
+  download.file("https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz", "data/earthchem_limpio.csv.gz", mode = "wb")
+}
+base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
+dim(base)
+```
+
+## 2. Asignación de variables
+
+**x = La (ppm)** (variable independiente) e **y = Ce (ppm)** (variable dependiente). Son tierras raras vecinas en la tabla periódica, con radio iónico y carga casi iguales: entran y salen juntas de los minerales, así que su proporción casi no cambia (Ce ≈ 2·La). Unos pocos análisis tienen La cercano a 1 000 ppm con apenas 26 ppm de Ce, una razón imposible en rocas naturales (errores de carga o anomalías de Ce extremas): tienen una distancia de Cook enorme y tiran la recta hacia abajo. Se ajusta con las rocas de razón Ce/La entre 0,5 y 5.
+
+```{r variables}
+x <- base[["La (ppm)"]]
+y <- base[["Ce (ppm)"]]
+completos <- !is.na(x) & !is.na(y) & x > 0 & y > 0    # filas con los dos datos
+x <- x[completos]
+y <- y[completos]
+# Influencia: la distancia de Cook mide cuánto cambia la recta si se quita cada punto
+todos <- lm(y ~ x)
+cook <- cooks.distance(todos)
+head(data.frame(La = x, Ce = y, cook = round(cook, 2))[order(-cook), ], 5)   # los 5 puntos más influyentes
+razon <- y / x                                         # Ce/La: en rocas naturales está entre 0,5 y 5
+natural <- razon >= 0.5 & razon <= 5
+c(pares = length(x), fuera_de_0.5_a_5 = sum(!natural), porcentaje = round(mean(!natural) * 100, 1))
+c(pendiente_con_todos = coef(todos)[[2]], pendiente_sin_esos = coef(lm(y[natural] ~ x[natural]))[[2]])
+x <- x[natural]                                        # el modelo se ajusta sin ellos (no se borran de la base)
+y <- y[natural]
+length(x)                                              # número de pares
+```
+
+## 3. Tabla de pares de valores
+
+```{r tabla}
+knitr::kable(head(data.frame(x, y), 10), caption = "Tabla N° 1: primeros 10 pares de valores (La (ppm), Ce (ppm))")
+knitr::kable(data.frame(variable = c("La (ppm)", "Ce (ppm)"), minimo = c(min(x), min(y)), media = c(mean(x), mean(y)),
+                        maximo = c(max(x), max(y))), digits = 2, caption = "Tabla N° 2: resumen de los pares")
+```
+
+## 4. Diagrama de dispersión
+
+```{r dispersion, fig.width = 8, fig.height = 5.5}
+plot(x, y, pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1, xlim = c(0, quantile(x, 0.995)), ylim = c(0, quantile(y, 0.995)),
+     main = "Gráfica N° 1: Diagrama de dispersión", xlab = "La (ppm)", ylab = "Ce (ppm)")
+```
+
+Los puntos forman una franja recta que sale del origen: a más La, más Ce.
+
+## 5. Conjetura del modelo
+
+La nube es recta: se conjetura un **modelo lineal**, y = a + b·x. Antes de elegir se probaron los cinco modelos con este par (prueba y error): el coeficiente de
+correlación de cada uno sale de la recta ajustada a las variables transformadas.
+
+```{r prueba}
+r_modelos <- c(lineal = cor(x, y),                     # y = a + b·x
+               potencial = cor(log(x), log(y)),        # y = a·x^b      -> log y = log a + b·log x
+               exponencial = cor(x, log(y)),           # y = a·e^(b·x)  -> log y = log a + b·x
+               logaritmico = cor(log(x), y),           # y = a + b·ln x
+               polinomico = sqrt(summary(lm(y ~ x + I(x^2) + I(x^3)))$r.squared))  # y = a + b·x + c·x² + d·x³
+knitr::kable(data.frame(modelo = names(r_modelos), r = round(r_modelos, 3), r2_porcentaje = round(r_modelos^2 * 100, 1)),
+             row.names = FALSE, caption = "Tabla N° 3: correlación de cada modelo con este par")
+```
+
+```{r conjetura, fig.width = 8, fig.height = 5.5}
+modelo <- lm(y ~ x)
+a <- coef(modelo)[[1]]                              # intercepto
+b <- coef(modelo)[[2]]                              # pendiente
+c(a = a, b = b)
+plot(x, y, pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1, xlim = c(0, quantile(x, 0.995)), ylim = c(0, quantile(y, 0.995)),
+     main = "Gráfica N° 2: Regresión lineal", xlab = "La (ppm)", ylab = "Ce (ppm)")
+curve(a + b * x, from = min(x), to = max(x), add = TRUE, col = "#d95926", lwd = 3)
+legend("topleft", c("datos", "y = a + b·x"), col = c(rgb(0.22, 0.53, 0.9), "#d95926"),
+       pch = c(16, NA), lwd = c(NA, 3), bty = "n")
+```
+
+**Mínimos cuadrados a mano.** La recta que hace mínima la suma de los residuos al cuadrado tiene pendiente
+b = Sxy / Sxx e intercepto a = ȳ − b·x̄. Da lo mismo que `lm()`:
+
+```{r manual}
+Sxy <- sum((x - mean(x)) * (y - mean(y)))              # suma de productos cruzados
+Sxx <- sum((x - mean(x))^2)                            # suma de cuadrados de x
+b_manual <- Sxy / Sxx
+a_manual <- mean(y) - b_manual * mean(x)
+covarianza <- Sxy / (length(x) - 1)
+c(a_manual = a_manual, b_manual = b_manual, a_lm = a, b_lm = b, covarianza = covarianza)
+```
+
+## 6. Test de aprobación
+
+El coeficiente de correlación de Pearson (r) mide qué tan fuerte es la relación: |r| cerca de 1 es fuerte. El
+coeficiente de determinación (r² en %) dice qué parte de la variación de y explica el modelo.
+
+```{r test}
+r <- cor(x, y)
+r2 <- r^2 * 100
+knitr::kable(data.frame(modelo = "lineal", r = round(r, 4), r2_porcentaje = round(r2, 2),
+                        fuerza = ifelse(abs(r) >= 0.7, "fuerte", ifelse(abs(r) >= 0.4, "moderada", "débil"))),
+             caption = "Tabla N° 4: test de aprobación")
+```
+
+```{r residuos, fig.width = 8, fig.height = 4.5}
+residuo <- y - (a + b * x)                                   # lo que el modelo no explica
+plot(x, residuo, pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1, xlim = c(0, quantile(x, 0.995)),
+     ylim = quantile(residuo, c(0.0025, 0.9975)),           # sin el 0,5 % más extremo, para que se vea
+     main = "Gráfica N° 3: Residuos del modelo", xlab = "La (ppm)", ylab = "Residuo (y real - y del modelo)")
+abline(h = 0, col = "#d95926", lwd = 2)
+```
+
+## 7. Restricciones
+
+Se ajusta con rocas de razón Ce/La entre 0,5 y 5 (el 97 % de los pares). Una concentración no puede ser negativa: y > 0 exige x > −a/b. El modelo solo vale dentro del rango medido de La; fuera de él es extrapolar.
+
+```{r restricciones}
+c(x_minimo_valido = max(0, -a / b), x_min_datos = min(x), x_max_datos = max(x))
+```
+
+## 8. Estimación de pronósticos
+
+**Si un basalto tiene 20 ppm de La, ¿cuánto Ce se espera?**
+
+```{r pronostico}
+x0 <- 20
+y0 <- a + b * x0
+y0
+```
+
+## 9. Conclusión
+
+Entre La (ppm) e Ce (ppm) existe una relación que se representa con un **modelo lineal**: y = `r round(a, 3)` + `r round(b, 3)`·x, donde x es La (ppm)
+e y es Ce (ppm). La correlación es `r ifelse(abs(r) >= 0.7, "fuerte", ifelse(abs(r) >= 0.4, "moderada", "débil"))`
+(r = `r round(r, 3)`): Ce (ppm) depende de La (ppm) en un `r round(r2, 1)` % y el `r round(100 - r2, 1)` % restante se debe a
+otros factores que este modelo no considera. Si La (ppm) vale `r x0`, se espera Ce (ppm) ≈ `r round(y0, 2)`. El Ce es casi el doble del La en las rocas, como se espera de dos tierras raras livianas.
+
+```{r guardar, include = FALSE}
+if (dir.exists("docs/data")) {
+  dir.create("docs/data/regresion", showWarnings = FALSE)
+  write.csv(data.frame(documento = "reg_01_lineal_La_Ce", modelo = "lineal", x = "La (ppm)", y = "Ce (ppm)", n = length(x),
+                       ecuacion = paste0("y = ", round(a, 3), " + ", round(b, 3), "x"), r = r, r2 = r2, pronostico = paste0("x = ", x0, " -> y = ", round(y0, 2))),
+            "docs/data/regresion/reg_01_lineal_La_Ce.csv", row.names = FALSE, fileEncoding = "UTF-8")
+}
+```

@@ -1,0 +1,2 @@
+"documento","modelo","x","y","n","ecuacion","r","r2","pronostico"
+"reg_06_multiple_Nd","múltiple","La (ppm), Sm (ppm)","Nd (ppm)",26765,"y = 1.71 + 0.368x1 + 2.447x2",0.846538880407153,71.6628076040997,"La = 20, Sm = 5 -> Nd = 21.3"

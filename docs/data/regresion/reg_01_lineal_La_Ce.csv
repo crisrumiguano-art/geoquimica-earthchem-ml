@@ -1,0 +1,2 @@
+"documento","modelo","x","y","n","ecuacion","r","r2","pronostico"
+"reg_01_lineal_La_Ce","lineal","La (ppm)","Ce (ppm)",30921,"y = 6.87 + 1.675x",0.96990326987462,94.071235291348,"x = 20 -> y = 40.36"

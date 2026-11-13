@@ -1,0 +1,2 @@
+"documento","modelo","x","y","n","ecuacion","r","r2","pronostico"
+"reg_02_potencial_Zr_Hf","potencial","Zr (ppm)","Hf (ppm)",20521,"y = 0.0402 x^0.906",0.966169773554448,93.3484031330252,"x = 150 -> y = 3.76"

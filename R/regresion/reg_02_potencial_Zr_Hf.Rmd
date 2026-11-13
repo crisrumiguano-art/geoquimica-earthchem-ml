@@ -1,0 +1,142 @@
+---
+title: "Regresión potencial: circonio y hafnio"
+subtitle: "Unidad 3 · Regresión · Geoquímica de rocas con datos de EarthChem PetDB"
+author: "Cristoffer Rumiguano, Ana Gabriela Fernández, Evelyn Bustamante, Jessica Haro, Jhonattan Ligña"
+date: "Noviembre de 2026"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+> Proyecto estrictamente académico (Estadística y Probabilidades, FIGEMPA – UCE). Datos: EarthChem PetDB (CC BY 4.0),
+> descargados el 13/10/2026. Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
+
+## 1. Carga de datos
+
+Se usa la base completa (159 760 análisis). Para cada par se toman solo las filas que tienen **los dos** datos: no se
+inventa ningún valor que falte.
+
+```{r carga}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
+if (!file.exists("data/earthchem_limpio.csv.gz")) {
+  dir.create("data", showWarnings = FALSE)
+  download.file("https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz", "data/earthchem_limpio.csv.gz", mode = "wb")
+}
+base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
+dim(base)
+```
+
+## 2. Asignación de variables
+
+**x = Zr (ppm)** (variable independiente) e **y = Hf (ppm)** (variable dependiente). El hafnio es el «gemelo» del circonio: los dos se alojan en el circón y casi nunca se separan.
+
+```{r variables}
+x <- base[["Zr (ppm)"]]
+y <- base[["Hf (ppm)"]]
+completos <- !is.na(x) & !is.na(y) & x > 0 & y > 0    # filas con los dos datos
+x <- x[completos]
+y <- y[completos]
+length(x)                                              # número de pares
+```
+
+## 3. Tabla de pares de valores
+
+```{r tabla}
+knitr::kable(head(data.frame(x, y), 10), caption = "Tabla N° 1: primeros 10 pares de valores (Zr (ppm), Hf (ppm))")
+knitr::kable(data.frame(variable = c("Zr (ppm)", "Hf (ppm)"), minimo = c(min(x), min(y)), media = c(mean(x), mean(y)),
+                        maximo = c(max(x), max(y))), digits = 2, caption = "Tabla N° 2: resumen de los pares")
+```
+
+## 4. Diagrama de dispersión
+
+```{r dispersion, fig.width = 8, fig.height = 5.5}
+plot(x, y, pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1, log = "xy",
+     main = "Gráfica N° 1: Diagrama de dispersión", xlab = "Zr (ppm)", ylab = "Hf (ppm)")
+```
+
+Con ejes logarítmicos los puntos forman una recta. En escala normal la correlación lineal es de apenas 0,15, porque unos pocos valores extremos (más de 10 000 ppm) dominan; en logaritmos todos los órdenes de magnitud pesan igual.
+
+## 5. Conjetura del modelo
+
+Una recta en ejes log-log es un **modelo potencial**, y = a·x^b: log y = log a + b·log x. Antes de elegir se probaron los cinco modelos con este par (prueba y error): el coeficiente de
+correlación de cada uno sale de la recta ajustada a las variables transformadas.
+
+```{r prueba}
+r_modelos <- c(lineal = cor(x, y),                     # y = a + b·x
+               potencial = cor(log(x), log(y)),        # y = a·x^b      -> log y = log a + b·log x
+               exponencial = cor(x, log(y)),           # y = a·e^(b·x)  -> log y = log a + b·x
+               logaritmico = cor(log(x), y),           # y = a + b·ln x
+               polinomico = sqrt(summary(lm(y ~ x + I(x^2) + I(x^3)))$r.squared))  # y = a + b·x + c·x² + d·x³
+knitr::kable(data.frame(modelo = names(r_modelos), r = round(r_modelos, 3), r2_porcentaje = round(r_modelos^2 * 100, 1)),
+             row.names = FALSE, caption = "Tabla N° 3: correlación de cada modelo con este par")
+```
+
+```{r conjetura, fig.width = 8, fig.height = 5.5}
+modelo <- lm(log(y) ~ log(x))
+a <- exp(coef(modelo)[[1]])                         # a = e^(intercepto)
+b <- coef(modelo)[[2]]                               # exponente
+c(a = a, b = b)
+plot(x, y, pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1, log = "xy",
+     main = "Gráfica N° 2: Regresión potencial", xlab = "Zr (ppm)", ylab = "Hf (ppm)")
+curve(a * x^b, from = min(x), to = max(x), add = TRUE, col = "#d95926", lwd = 3)
+legend("topleft", c("datos", "y = a·x^b"), col = c(rgb(0.22, 0.53, 0.9), "#d95926"),
+       pch = c(16, NA), lwd = c(NA, 3), bty = "n")
+```
+
+## 6. Test de aprobación
+
+El coeficiente de correlación de Pearson (r) mide qué tan fuerte es la relación: |r| cerca de 1 es fuerte. El
+coeficiente de determinación (r² en %) dice qué parte de la variación de y explica el modelo.
+
+```{r test}
+r <- cor(log(x), log(y))
+r2 <- r^2 * 100
+knitr::kable(data.frame(modelo = "potencial", r = round(r, 4), r2_porcentaje = round(r2, 2),
+                        fuerza = ifelse(abs(r) >= 0.7, "fuerte", ifelse(abs(r) >= 0.4, "moderada", "débil"))),
+             caption = "Tabla N° 4: test de aprobación")
+```
+
+```{r residuos, fig.width = 8, fig.height = 4.5}
+residuo <- log(y) - log(a * x^b)                                   # lo que el modelo no explica
+plot(x, residuo, pch = 16, cex = 0.4, col = rgb(0.22, 0.53, 0.9, 0.25), las = 1, log = "x",
+     ylim = quantile(residuo, c(0.0025, 0.9975)),           # sin el 0,5 % más extremo, para que se vea
+     main = "Gráfica N° 3: Residuos del modelo", xlab = "Zr (ppm)", ylab = "Residuo en logaritmo (ln y real - ln y del modelo)")
+abline(h = 0, col = "#d95926", lwd = 2)
+```
+
+## 7. Restricciones
+
+El modelo exige x > 0 (no existe el logaritmo de cero ni de un negativo) y da siempre y > 0. Se aplica dentro del rango medido.
+
+```{r restricciones}
+c(x_debe_ser_mayor_que = 0, x_min_datos = min(x), x_max_datos = max(x))
+```
+
+## 8. Estimación de pronósticos
+
+**Si una roca tiene 150 ppm de Zr, ¿cuánto Hf se espera?**
+
+```{r pronostico}
+x0 <- 150
+y0 <- a * x0^b
+y0
+```
+
+## 9. Conclusión
+
+Entre Zr (ppm) e Hf (ppm) existe una relación que se representa con un **modelo potencial**: y = `r round(a, 4)`·x^`r round(b, 3)`, donde x es Zr (ppm)
+e y es Hf (ppm). La correlación es `r ifelse(abs(r) >= 0.7, "fuerte", ifelse(abs(r) >= 0.4, "moderada", "débil"))`
+(r = `r round(r, 3)`): Hf (ppm) depende de Zr (ppm) en un `r round(r2, 1)` % y el `r round(100 - r2, 1)` % restante se debe a
+otros factores que este modelo no considera. Si Zr (ppm) vale `r x0`, se espera Hf (ppm) ≈ `r round(y0, 2)`. La razón Zr/Hf es casi constante (alrededor de 40) en las rocas de la Tierra.
+
+```{r guardar, include = FALSE}
+if (dir.exists("docs/data")) {
+  dir.create("docs/data/regresion", showWarnings = FALSE)
+  write.csv(data.frame(documento = "reg_02_potencial_Zr_Hf", modelo = "potencial", x = "Zr (ppm)", y = "Hf (ppm)", n = length(x),
+                       ecuacion = paste0("y = ", round(a, 4), " x^", round(b, 3)), r = r, r2 = r2, pronostico = paste0("x = ", x0, " -> y = ", round(y0, 2))),
+            "docs/data/regresion/reg_02_potencial_Zr_Hf.csv", row.names = FALSE, fileEncoding = "UTF-8")
+}
+```

@@ -1,0 +1,2 @@
+"documento","modelo","x","y","n","ecuacion","r","r2","pronostico"
+"reg_05_polinomica_MgO_CaO","polinómico","MgO (wt%)","CaO (wt%)",54414,"y = 2.043 + 1.771x + -0.0855x² + 0.00102x³",0.798711493775336,63.7940050288829,"x = 8 -> y = 11.26"
