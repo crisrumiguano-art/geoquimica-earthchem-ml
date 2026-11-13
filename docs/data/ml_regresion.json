@@ -1,0 +1,32 @@
+{
+ "regresion": {
+  "n": 7133,
+  "r2": 0.835,
+  "rmse_log": 0.235,
+  "mae_log": 0.163,
+  "hiperparametros": {
+   "capas": 2,
+   "neuronas": 32,
+   "tasa_aprendizaje": 0.00301,
+   "abandono": 0.01265
+  },
+  "comparacion": [
+   {
+    "modelo": "Exponencial: Ni ~ MgO (Unidad 3)",
+    "R2": 0.579
+   },
+   {
+    "modelo": "Lineal múltiple: 8 óxidos",
+    "R2": 0.693
+   },
+   {
+    "modelo": "Red neuronal: 8 óxidos",
+    "R2": 0.835
+   }
+  ],
+  "ejemplos": {
+   "basalto": 125.0,
+   "peridotita": 2098.0
+  }
+ }
+}

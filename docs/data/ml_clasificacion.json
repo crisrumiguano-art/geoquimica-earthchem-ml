@@ -1,0 +1,34 @@
+{
+ "clasificacion": {
+  "n": 31603,
+  "exactitud": 0.867,
+  "kappa": 0.799,
+  "hiperparametros": {
+   "neuronas": 256,
+   "tasa_aprendizaje": 0.00193,
+   "abandono": 0.07078
+  },
+  "por_clase": {
+   "dorsal y corteza oceanica": 0.847,
+   "intraplaca y rift": 0.883,
+   "margen convergente": 0.866
+  },
+  "comparacion": [
+   {
+    "modelo": "Regresión logística",
+    "exactitud": 0.744,
+    "kappa": 0.617
+   },
+   {
+    "modelo": "Red neuronal",
+    "exactitud": 0.867,
+    "kappa": 0.799
+   }
+  ],
+  "ejemplos": {
+   "basalto de dorsal (MORB)": "dorsal y corteza oceanica",
+   "basalto de isla oceánica": "intraplaca y rift",
+   "andesita de arco": "margen convergente"
+  }
+ }
+}

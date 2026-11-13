@@ -140,6 +140,7 @@ print("error de validación (MSE):", round(estudio.best_value, 4))'''),
 plt.figure(figsize=(8, 4))
 plt.plot(pruebas["number"], pruebas["value"], "o", color="#3987e5", label="cada prueba")
 plt.plot(pruebas["number"], pruebas["value"].cummin(), color="#d95926", lw=2, label="mejor hasta ahí")
+plt.xticks(pruebas["number"])
 plt.xlabel("Prueba de Optuna"); plt.ylabel("Error de validación (MSE)"); plt.legend()
 plt.title("Gráfica N° 1: Búsqueda de hiperparámetros con Optuna")
 guardar("reg_optuna"); plt.show()'''),
@@ -153,7 +154,8 @@ print("épocas entrenadas:", len(historia.history["loss"]))'''),
     code('''plt.figure(figsize=(8, 4))
 plt.plot(historia.history["loss"], color="#3987e5", lw=2, label="entrenamiento")
 plt.plot(historia.history["val_loss"], color="#d95926", lw=2, label="validación")
-plt.xlabel("Época"); plt.ylabel("Error (MSE)"); plt.legend()
+plt.yscale("log")                                # escala log: se ve también el final, no solo la caída inicial
+plt.xlabel("Época"); plt.ylabel("Error (MSE, escala log)"); plt.legend()
 plt.title("Gráfica N° 2: Curvas de aprendizaje")
 guardar("reg_curvas"); plt.show()'''),
     md("""Si las dos curvas bajan juntas y se estabilizan, la red aprendió sin **sobreajuste** (memorizar el entrenamiento).
@@ -226,7 +228,8 @@ La red neuronal estima el **log10 del níquel** a partir de los ocho óxidos may
 nunca vio, bastante más que el mejor modelo de una sola variable de la Unidad 3 y que la regresión lineal múltiple. La
 diferencia viene de que la red combina los óxidos de forma no lineal: el Ni depende sobre todo del olivino (MgO), pero el
 SiO₂, el CaO y el Al₂O₃ ayudan a separar peridotitas, basaltos y rocas evolucionadas. Límites: solo vale para rocas
-parecidas a las de PetDB (sobre todo oceánicas) y su error típico es de un factor cercano a 1,5–2 en ppm."""),
+parecidas a las de PetDB (sobre todo oceánicas) y su error típico es de un factor cercano a 1,5 en ppm (el Ni estimado
+suele estar entre dos tercios y una vez y media del real)."""),
 ]
 
 CLASIFICACION = [
@@ -373,9 +376,12 @@ if WEB:
     md("""## 8. Conclusión
 
 Con solo los ocho óxidos mayores, la red reconoce el ambiente tectónico de una roca volcánica en más de 8 de cada 10
-casos que nunca vio, con un kappa que indica un acuerdo bueno, por encima de la regresión logística. Los márgenes
-convergentes se distinguen mejor (más K₂O y Al₂O₃, menos MgO); dorsal e intraplaca se confunden más porque los dos son
-basaltos de manto. Límite: la base tiene más rocas oceánicas que continentales, así que la red refleja ese sesgo."""),
+casos que nunca vio, con un kappa cercano a 0,8 (acuerdo muy bueno), muy por encima de la regresión logística. Los tres
+ambientes se reconocen parecido (86–88 % de aciertos por clase); la confusión más frecuente es tomar un margen
+convergente por dorsal, porque los dos tienen basaltos pobres en potasio. En las curvas de aprendizaje, la pérdida de
+validación deja de bajar hacia la época 20 mientras la de entrenamiento sigue bajando: es el comienzo del sobreajuste, y
+la parada temprana se queda con los pesos de la mejor época. Límite: la base tiene más rocas oceánicas que
+continentales, así que la red refleja ese sesgo."""),
 ]
 
 

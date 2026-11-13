@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>Machine learning — Geoquímica de rocas PetDB</title>
+<meta name="description" content="Unidad 4: redes neuronales de regresión y clasificación con TensorFlow y Optuna, en Google Colab.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/estilo.css">
+<script src="../assets/app.js" defer></script>
+</head>
+<body data-pagina="ml">
+
+<nav class="nav" id="nav" aria-label="Páginas del proyecto">
+  <a class="marca" href="../"><b>Pt</b>Geoquímica PetDB</a>
+  <ul>
+    <li><a data-p="inicio" href="../">Inicio</a></li>
+    <li><a data-p="descriptiva" href="../descriptiva/"><span class="u">U1</span>Descriptiva</a></li>
+    <li><a data-p="inferencial" href="../inferencial/"><span class="u">U2</span>Inferencial</a></li>
+    <li><a data-p="regresion" href="../regresion/"><span class="u">U3</span>Regresión</a></li>
+    <li><a data-p="ml" href="./"><span class="u">U4</span>Machine learning</a></li>
+    <li><a data-p="datos" href="../datos/">Datos</a></li>
+    <li><a data-p="equipo" href="../equipo/">Equipo</a></li>
+  </ul>
+</nav>
+
+<header class="cabecera">
+  <img src="../img/nucleos.jpg" alt="" aria-hidden="true">
+  <div class="hero-in">
+    <div class="ojo rev" style="--d:0">Unidad 4 · Lecciones 18 a 20</div>
+    <h1 class="rev" style="--d:1">Machine <em>learning</em></h1>
+    <p class="lead rev" style="--d:2">Dos redes neuronales con la química de las rocas: una estima el níquel (regresión) y otra
+      reconoce el ambiente tectónico (clasificación). Cada una en un notebook de Google Colab que se abre y se ejecuta desde el
+      navegador.</p>
+    <nav class="indice rev" style="--d:3" aria-label="Secciones de la página">
+      <a href="#objetivo">01 Objetivo</a><a href="#neurona">02 La neurona</a><a href="#regresion-ml">03 Regresión</a>
+      <a href="#clasificacion">04 Clasificación</a><a href="#comparacion">05 Frente a la Unidad 3</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="cap" id="objetivo">
+    <div class="cab rev"><span class="num">01</span><h2>Objetivo del modelo</h2>
+      <p>Aplicar redes neuronales a la base de PetDB para dos tareas que la regresión clásica resuelve mal porque dependen de
+        muchas variables a la vez y de forma no lineal.</p></div>
+    <div class="duo">
+      <div class="callout rev"><h3>Regresión: níquel</h3>
+        <p>Estimar la concentración de <b>níquel</b>, un metal crítico, a partir de los ocho óxidos mayores (SiO<sub>2</sub>,
+          Al<sub>2</sub>O<sub>3</sub>, MgO, CaO, Na<sub>2</sub>O, K<sub>2</sub>O, P<sub>2</sub>O<sub>5</sub>, MnO), que se miden
+          en casi todos los análisis. Hiperparámetros elegidos con <b>Optuna</b>.</p>
+        <div class="descargas"><a href="https://colab.research.google.com/github/crisrumiguano-art/geoquimica-earthchem-ml/blob/main/notebooks/01_regresion_niquel.ipynb">Abrir en Colab</a><a href="https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/blob/main/notebooks/01_regresion_niquel.ipynb">Ver con resultados</a></div></div>
+      <div class="callout rev"><h3>Clasificación: ambiente tectónico</h3>
+        <p>Reconocer si una roca volcánica se formó en una <b>dorsal</b>, en un ambiente de <b>intraplaca</b> o en un <b>margen
+          convergente</b>, solo con sus óxidos mayores: lo que hacen los diagramas de discriminación de los geólogos, pero con
+          las ocho variables a la vez.</p>
+        <div class="descargas"><a href="https://colab.research.google.com/github/crisrumiguano-art/geoquimica-earthchem-ml/blob/main/notebooks/02_clasificacion_ambiente.ipynb">Abrir en Colab</a><a href="https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/blob/main/notebooks/02_clasificacion_ambiente.ipynb">Ver con resultados</a></div></div>
+    </div>
+    <div class="callout rev">
+      <h3>Prompt inicial</h3>
+      <p><i>«Con la base EarthChem PetDB limpia (159.760 análisis de roca total), construir en Python con TensorFlow una red
+        neuronal de regresión que estime log10(Ni) a partir de los ocho óxidos mayores y otra de clasificación que reconozca el
+        ambiente tectónico de las rocas volcánicas (dorsal, intraplaca, margen convergente). Usar solo filas completas, dividir
+        en entrenamiento, validación y prueba, normalizar con los datos de entrenamiento, balancear las clases, elegir los
+        hiperparámetros con Optuna, mostrar las curvas de aprendizaje y evaluar con R², RMSE, exactitud, kappa y matriz de
+        confusión; comparar con los modelos de la Unidad 3 y terminar con una predicción interactiva.»</i></p>
+      <p style="margin-top:.8rem">Antes de fijar los dos problemas se probaron otros (prueba y error): clasificar el tipo de roca
+        da 80 % de exactitud pero con más de 20 clases muy desbalanceadas; la clase según SiO<sub>2</sub> da 99 %, porque la red solo
+        tiene que leer el SiO<sub>2</sub>; estimar CaO o MgO con los demás óxidos es casi trivial (R² 0,87–0,97) porque los
+        óxidos suman 100 %. El níquel y el ambiente tectónico son retos de verdad.</p>
+    </div>
+  </section>
+
+  <section class="cap" id="neurona">
+    <div class="cab rev"><span class="num">02</span><h2>De la regresión a la red neuronal</h2>
+      <p>Una neurona es una regresión lineal múltiple seguida de una función de activación.</p></div>
+    <div class="callout rev">
+      <ol>
+        <li><b>La neurona</b> (McCulloch y Pitts, 1943) suma las entradas multiplicadas por pesos, y = w₁x₁ + … + w₈x₈ + b, y
+          aplica una <b>activación</b>: ReLU deja pasar los positivos y convierte los negativos en 0. Esa curva es lo que permite
+          a la red aprender relaciones no lineales.</li>
+        <li><b>El perceptrón</b> (Rosenblatt, 1958) es una neurona que aprende sus pesos. Con activación sigmoide es la
+          <b>regresión logística</b>; con softmax y varias salidas clasifica en varias clases.</li>
+        <li><b>La red</b> apila neuronas en capas. Se entrena con <b>retropropagación</b> (1986): se calcula el error de la
+          salida (pérdida), se reparte hacia atrás cuánto aportó cada peso y se corrige cada peso un poco en la dirección que
+          baja el error (<b>descenso del gradiente</b>). Una pasada por todos los datos es una <b>época</b>.</li>
+        <li><b>Preprocesamiento:</b> normalizar cada variable, codificar las categorías como números, balancear clases y dividir
+          los datos en entrenamiento, validación y prueba con una semilla fija para que el resultado se pueda repetir.</li>
+        <li><b>Diagnóstico:</b> si el error de validación sube mientras baja el de entrenamiento, la red memoriza
+          (<b>sobreajuste</b>); si los dos quedan altos, es demasiado simple (<b>subajuste</b>).</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="cap" id="regresion-ml">
+    <div class="cab rev"><span class="num">03</span><h2>Regresión: níquel</h2>
+      <p id="txt-reg">Resultados en los datos de prueba (15 % que la red nunca vio).</p></div>
+    <div class="graficos">
+      <figure class="grafica rev"><a href="../img/ml/reg_optuna.png" target="_blank"><img src="../img/ml/reg_optuna.png" alt="Error de validación en cada prueba de Optuna" loading="lazy"></a></figure>
+      <figure class="grafica rev"><a href="../img/ml/reg_curvas.png" target="_blank"><img src="../img/ml/reg_curvas.png" alt="Curvas de aprendizaje de entrenamiento y validación" loading="lazy"></a></figure>
+      <figure class="grafica rev"><a href="../img/ml/reg_real_vs_estimado.png" target="_blank"><img src="../img/ml/reg_real_vs_estimado.png" alt="Níquel real frente al estimado por la red" loading="lazy"></a></figure>
+      <figure class="grafica rev"><a href="../img/ml/reg_comparacion.png" target="_blank"><img src="../img/ml/reg_comparacion.png" alt="R² de la red frente a los modelos clásicos" loading="lazy"></a></figure>
+    </div>
+  </section>
+
+  <section class="cap" id="clasificacion">
+    <div class="cab rev"><span class="num">04</span><h2>Clasificación: ambiente tectónico</h2>
+      <p id="txt-clas">Resultados en los datos de prueba.</p></div>
+    <div class="graficos">
+      <figure class="grafica rev"><a href="../img/ml/clas_curvas.png" target="_blank"><img src="../img/ml/clas_curvas.png" alt="Curvas de aprendizaje de la red de clasificación" loading="lazy"></a></figure>
+      <figure class="grafica rev"><a href="../img/ml/clas_confusion.png" target="_blank"><img src="../img/ml/clas_confusion.png" alt="Matriz de confusión de los tres ambientes tectónicos" loading="lazy"></a></figure>
+    </div>
+  </section>
+
+  <section class="cap" id="comparacion">
+    <div class="cab rev"><span class="num">05</span><h2>Frente a la Unidad 3</h2>
+      <p>Con los mismos datos de prueba, la red neuronal se compara con la regresión clásica y con la regresión logística.</p></div>
+    <div class="tabla rev"><table id="t-comp"><thead><tr><th>Problema</th><th>Modelo</th><th class="n">Resultado</th></tr></thead>
+      <tbody></tbody></table></div>
+    <div class="graficos" style="margin-top:1.4rem"><figure class="grafica rev"><a href="../img/ml/clas_comparacion.png" target="_blank"><img src="../img/ml/clas_comparacion.png" alt="Exactitud y kappa de la red frente a la regresión logística" loading="lazy"></a></figure></div>
+  </section>
+</main>
+
+<footer>
+  <span class="academico">Proyecto <b>estrictamente académico</b>, sin fines comerciales, desarrollado para la asignatura Estadística y Probabilidades (FIGEMPA – Universidad Central del Ecuador).</span>
+  <span>Datos: Astromaterials Data Synthesis / EarthChem PetDB (<a href="https://search.astromat.org/">search.astromat.org</a>), 13/10/2026, CC BY 4.0.</span>
+  <span>Redes neuronales con TensorFlow / Keras y Optuna (Python).</span>
+</footer>
+
+<script>
+addEventListener("DOMContentLoaded", async () => {
+  const n = (v, d = 3) => Number(v).toLocaleString("es-EC", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const [r, c] = await Promise.all(["../data/ml_regresion.json", "../data/ml_clasificacion.json"]
+    .map(u => fetch(u, { cache: "no-cache" }).then(x => x.json())));
+  const R = r.regresion, C = c.clasificacion;
+  document.getElementById("txt-reg").innerHTML = `${R.n.toLocaleString("es-EC")} análisis con los ocho óxidos y Ni. En los
+    datos de prueba la red explica el <b>${n(R.r2 * 100, 1)} %</b> de la variación de log10(Ni) (R² = ${n(R.r2)}); su error
+    típico es un factor de ${n(10 ** R.mae_log, 2)} en ppm. Optuna eligió ${R.hiperparametros.capas} capa(s) desde
+    ${R.hiperparametros.neuronas} neuronas, tasa de aprendizaje ${n(R.hiperparametros.tasa_aprendizaje, 4)} y abandono
+    ${n(R.hiperparametros.abandono, 2)}. Un basalto típico daría ${Math.round(R.ejemplos.basalto)} ppm de Ni y una peridotita
+    ${Math.round(R.ejemplos.peridotita).toLocaleString("es-EC")} ppm.`;
+  document.getElementById("txt-clas").innerHTML = `${C.n.toLocaleString("es-EC")} rocas volcánicas. Exactitud
+    <b>${n(C.exactitud * 100, 1)} %</b> y kappa de Cohen <b>${n(C.kappa, 2)}</b> en datos de prueba. F1 por clase:
+    ${Object.entries(C.por_clase).map(([k, v]) => `${k} ${n(v, 2)}`).join(" · ")}.`;
+  const filas = [...R.comparacion.map(f => ["Regresión de Ni", f.modelo, "R² = " + n(f.R2)]),
+                 ...C.comparacion.map(f => ["Clasificación tectónica", f.modelo, `exactitud ${n(f.exactitud * 100, 1)} % · kappa ${n(f.kappa, 2)}`])];
+  document.querySelector("#t-comp tbody").innerHTML = filas.map(f => `<tr><td>${f[0]}</td><td>${f[1]}</td><td class="n">${f[2]}</td></tr>`).join("");
+});
+</script>
+</body>
+</html>
