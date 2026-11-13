@@ -284,3 +284,11 @@ footer { width: min(var(--max), 100% - 2.5rem); margin: 7rem auto 0; padding: 2r
 .tec b { font-weight: 600; }
 .tec p { margin: .2rem 0 0; color: var(--text-secondary); font-size: .85rem; line-height: 1.4; }
 footer .repo { color: var(--text-secondary); }
+
+/* Lista de documentos en RPubs (página Datos) */
+.rpubs-grupos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+.rpubs-grupo { background: var(--surface-1); border: 1px solid var(--line); padding: 1.3rem 1.4rem; }
+.rpubs-grupo h3 { font: .75rem var(--mono); color: var(--oro); letter-spacing: .1em; text-transform: uppercase; margin: 0 0 .8rem; }
+.rpubs-grupo ol { margin: 0; padding-left: 1.2rem; }
+.rpubs-grupo li { margin-bottom: .45rem; font-size: .9rem; color: var(--text-secondary); }
+@media (max-width: 900px) { .rpubs-grupos { grid-template-columns: 1fr; } }
