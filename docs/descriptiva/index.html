@@ -58,7 +58,7 @@
           analiza químicamente en su totalidad.</p>
         <div class="formula">X<sub>i</sub>, i = 1, 2, 3, …</div></div>
       <div class="conj rev"><div class="letra">M</div><h3>Muestra</h3>
-        <p>Los análisis de roca total registrados en EarthChem PetDB, descargados el 13 de octubre de 2026. Cada análisis es un
+        <p>Las porciones de roca total registradas en EarthChem PetDB, descargadas el 13 de octubre de 2026. Cada porción de roca es un
           <b>caso</b> de estudio.</p>
         <div class="formula">M = { x / x ∈ U ∧ x está registrada en EarthChem PetDB (13/10/2026) }<br>M ⊂ U · Card(M) = n = 159.760<br>casos x<sub>i</sub>, i = 1, 2, …, 159.760</div></div>
     </div>
@@ -72,7 +72,7 @@
 
   <section class="cap" id="variables">
     <div class="cab rev"><span class="num">02</span><h2>Tabla de variables</h2>
-      <p>Cada columna de la base es una variable. Se clasifican según lo que miden y la escala en que se expresan. El <b>dominio</b> dice qué valores puede tomar la variable en teoría; el <b>rango</b>, qué valores toma de verdad en la base (mínimo y máximo, o las categorías observadas). La <b>variable de interés</b> marca las que se usan en el estudio (los identificadores no) y la <b>variable de individuo</b> dice de quién es cada valor: de cada análisis de roca total.</p></div>
+      <p>Cada columna de la base es una variable. Se clasifican según lo que miden y la escala en que se expresan. El <b>dominio</b> dice qué valores puede tomar la variable en teoría; el <b>rango</b>, qué valores toma de verdad en la base (mínimo y máximo, o las categorías observadas). La <b>variable de interés</b> marca las que se usan en el estudio (los identificadores no) y la <b>variable de individuo</b> dice de quién es cada valor: de cada porción de roca.</p></div>
     <div class="clases rev" id="clases"></div>
     <div class="filtros rev">
       <button class="chip" aria-pressed="true" data-f="">Todas</button>
@@ -83,7 +83,7 @@
       <input class="buscar" type="search" placeholder="Buscar variable o elemento…" aria-label="Buscar variable">
     </div>
     <div class="tabla rev"><table id="vars"><thead><tr>
-      <th class="n">N°</th><th>Nombre</th><th>Nombre corto</th><th>Nombre en español</th><th>Descripción</th><th>Tipo</th><th>Subtipo</th><th>Dominio</th><th>Rango</th><th>Instrumento</th><th>Unidad</th><th>Escala</th><th>Variable de interés</th><th>Variable de individuo</th><th class="n">% dato</th>
+      <th class="n">N°</th><th>Nombre</th><th>Nombre corto</th><th>Nombre en español</th><th>Descripción</th><th>Tipo</th><th>Subtipo</th><th>Dominio</th><th>Rango</th><th>Instrumento</th><th>Unidad</th><th>Escala</th><th>Variable de interés</th><th>Variable de individuo</th>
     </tr></thead><tbody></tbody></table></div>
     <div class="descargas"><a href="https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/tabla_variables.xlsx">Descargar la tabla de variables (Excel)</a></div>
   </section>
@@ -324,7 +324,7 @@ addEventListener("DOMContentLoaded", () => {
     document.getElementById("clases").innerHTML = Object.keys(def).map(k =>
       `<div class="clase"><div class="n">${v.filter(r => sub(r) === k).length}</div><div class="t">${def[k][0]}</div>
        <h3>${k[0].toUpperCase() + k.slice(1)}</h3><p>${def[k][1]}. Ej.: ${ex[k]}.</p></div>`).join("");
-    const cols = ["N°", "Variable", "Nombre corto", "Variable (español)", "Descripción", "Tipo", "Subtipo", "Dominio", "Rango", "Instrumento / método", "Unidad", "Escala de medición", "Variable de interés", "Variable de individuo", "% con dato"];
+    const cols = ["N°", "Variable", "Nombre corto", "Variable (español)", "Descripción", "Tipo", "Subtipo", "Dominio", "Rango", "Instrumento / método", "Unidad", "Escala de medición", "Variable de interés", "Variable de individuo"];
     const cuerpo = document.querySelector("#vars tbody");
     let filtro = "", texto = "";
     const pintar = () => {

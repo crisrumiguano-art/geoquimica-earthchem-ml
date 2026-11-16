@@ -171,7 +171,7 @@ OTRAS = {
                        "cualitativa", "nominal", "nominal", "derivada de Tectonic Setting", "—",
                        "D={dorsal y corteza oceánica, intraplaca y rift, margen convergente, mixto}", True),
     "Alteration Grade": ("GRADO_ALTER", "Grado de alteración",
-                         "Escala derivada del texto del autor: 0 fresca, 1 leve, 2 moderada, 3 extensa, 4 casi total, 5 total",
+                         "Escala ordenada derivada del texto del autor: fresca < leve < moderada < extensa < casi total < total",
                          "cualitativa", "ordinal", "ordinal", "derivada de Sample Alteration", "—",
                          "D={0, 1, 2, 3, 4, 5}", True),
     "SiO2 Class": ("CLASE_SIO2", "Clase según SiO2",
@@ -184,14 +184,43 @@ OTRAS = {
                    "D={x/x ∈ Z ^ x ≥ 0}", True),
 }
 
-# Rangos cualitativos con pocas categorías: se enumeran (en español).
-ENUMERADOS = {
-    "Analyzed Material": "{roca total, roca total o vidrio sin especificar}",
-    "Tectonic Group": "{dorsal y corteza oceánica, intraplaca y rift, margen convergente, mixto}",
-    "Alteration Grade": "{0, 1, 2, 3, 4, 5}",
-    "SiO2 Class": "{ultrabásica, básica, intermedia, ácida}",
+# Variables cualitativas: dominio = categorías posibles; rango = categorías que aparecen en la base (observación del
+# docente, 16/11/2026: el dominio y el rango van como conjuntos de categorías, no como definiciones ni conteos).
+# Con pocas categorías se enumeran; con muchas, se nombra el conjunto.
+CUALITATIVAS = {
+    "Sample Name": ("D={x / x ∈ códigos de identificación de muestras}",
+                    "R={x / x ∈ códigos de muestra ^ x ∈ base de datos}"),
+    "Sample URL": ("D={x / x ∈ direcciones web de fichas de PetDB}",
+                   "R={x / x ∈ direcciones web de PetDB ^ x ∈ base de datos}"),
+    "Citation": ("D={x / x ∈ artículos científicos publicados}",
+                 "R={x / x ∈ artículos científicos ^ x ∈ base de datos}"),
+    "Analyzed Material": ("D={roca total, vidrio, mineral, roca total o vidrio sin especificar}",
+                          "R={roca total, roca total o vidrio sin especificar}"),
+    "Sample Type": ("D={x / x ∈ clases de roca: ígneas, metamórficas, sedimentarias y otras}",
+                    "R={x / x ∈ clases de roca ^ x ∈ base de datos}"),
+    "Sample SubType": ("D={x / x ∈ nombres petrográficos de roca}",
+                       "R={x / x ∈ nombres de roca ^ x ∈ base de datos}"),
+    "Geographic Features": ("D={x / x ∈ océanos, países y regiones de la Tierra}",
+                            "R={x / x ∈ océanos, países y regiones ^ x ∈ base de datos}"),
+    "Tectonic Setting": ("D={x / x ∈ ambientes tectónicos}",
+                         "R={x / x ∈ ambientes tectónicos ^ x ∈ base de datos}"),
+    "Rock Texture": ("D={x / x ∈ texturas petrográficas}",
+                     "R={x / x ∈ texturas petrográficas ^ x ∈ base de datos}"),
+    "Sample Alteration": ("D={fresca, levemente alterada, moderadamente alterada, extensamente alterada, casi totalmente alterada, totalmente alterada}",
+                          "R={fresca, levemente alterada, moderadamente alterada, extensamente alterada, casi totalmente alterada, totalmente alterada}"),
+    "Geologic Age": ("D={x / x ∈ unidades de la Tabla Cronoestratigráfica Internacional}",
+                     "R={x / x ∈ unidades cronoestratigráficas ^ x ∈ base de datos}"),
+    "Expedition": ("D={x / x ∈ campañas de muestreo}",
+                   "R={x / x ∈ campañas de muestreo ^ x ∈ base de datos}"),
+    "Tectonic Group": ("D={dorsal y corteza oceánica, intraplaca y rift, margen convergente, mixto}",
+                       "R={dorsal y corteza oceánica, intraplaca y rift, margen convergente, mixto}"),
+    "Alteration Grade": ("D={fresca, leve, moderada, extensa, casi total, total}",
+                         "R={fresca, leve, moderada, extensa, casi total, total}"),
+    "SiO2 Class": ("D={ultrabásica, básica, intermedia, ácida}",
+                   "R={ultrabásica, básica, intermedia, ácida}"),
 }
-INDIVIDUO = "de cada uno de los análisis químicos de roca total de la base EarthChem PetDB"
+# El individuo es la porción de roca, no el análisis (observación del docente, 16/11/2026)
+INDIVIDUO = "de cada una de las porciones de roca de la base EarthChem PetDB"
 
 
 def metodos_crudos(cruda, columnas):
@@ -219,13 +248,7 @@ def rango(s, subtipo):
         return f"R={{x/x ∈ R ^ {s.min():g} ≤ x ≤ {s.max():g}}}"
     if subtipo == "discreta":
         return f"R={{x/x ∈ Z ^ {s.min():g} ≤ x ≤ {s.max():g}}}"
-    if s.name in ENUMERADOS:
-        return f"R={ENUMERADOS[s.name]}"
-    rango_ = f"R={{x/x ∈ D ^ x está en la base}}: {s.nunique()} valores distintos"
-    top = [str(v).strip('"') for v in s.value_counts().index[:3]]
-    if max(map(len, top)) > 40:  # citas y enlaces: ejemplos demasiado largos para la tabla
-        return rango_
-    return f"{rango_} (más frecuentes: {', '.join(top)})"
+    return CUALITATIVAS[s.name][1]
 
 
 def main(cruda):
@@ -236,6 +259,8 @@ def main(cruda):
     for n, c in enumerate(df.columns, 1):
         if c in OTRAS:
             corto, espanol, desc, tipo, sub, escala, inst, unidad, dominio, interes = OTRAS[c]
+            if c in CUALITATIVAS:
+                dominio = CUALITATIVAS[c][0]
         else:
             simbolo, unidad = c.split(" (")[0], c.split("(")[1].rstrip(")")
             corto = f"{simbolo.upper()}_{'PCT' if unidad == 'wt%' else 'PPM'}"
@@ -254,8 +279,7 @@ def main(cruda):
                       "Descripción": desc, "Tipo": tipo, "Subtipo": sub, "Dominio": dominio,
                       "Rango": rango(df[c], sub), "Instrumento / método": inst, "Unidad": unidad,
                       "Escala de medición": escala, "Variable de interés": "SI" if interes else "NO",
-                      "Variable de individuo": f"{c} {INDIVIDUO}",
-                      "% con dato": round(100 * df[c].notna().mean(), 1)})
+                      "Variable de individuo": f"{c} {INDIVIDUO}"})
     tabla = pd.DataFrame(filas)
     excel = tabla.rename(columns={"Variable": "Nombre", "Variable (español)": "Nombre en español",
                                   "Instrumento / método": "Instrumento", "Unidad": "Sistema de unidades de medida"})
