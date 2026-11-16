@@ -33,7 +33,7 @@ DOCUMENTOS = [
      "La mayoría de las rocas son básicas (45 a 52 % de SiO2), es decir basaltos y gabros, las rocas más comunes de "
      "la corteza oceánica. Al ser ordinal, la tabla lleva frecuencias acumuladas."),
     ("04_grado_de_alteracion", "Grado de alteración (Alteration Grade)", "cualitativa ordinal", ["04"],
-     "Casi la mitad de los análisis informados son de rocas frescas. Los de rocas muy alteradas se deben usar con "
+     "Casi la mitad de las rocas con dato de alteración está fresca. Los de rocas muy alteradas se deben usar con "
      "cuidado en los elementos que el agua mueve con facilidad (K, Rb, Ba)."),
     ("05_anio_de_publicacion", "Año de publicación (Publication Year)", "cuantitativa discreta", ["05"],
      "La mayor parte de los datos es posterior a 1990: la producción creció con las técnicas modernas de laboratorio "
@@ -140,7 +140,7 @@ def rmd(nombre, titulo, subtipo, scripts, conclusion):
     d.texto("> Proyecto estrictamente académico. Datos: EarthChem PetDB (CC BY 4.0), descargados el 13/10/2026. "
             "Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/")
     d.texto("## 1. Carga de datos y librerías")
-    d.texto("Se lee la base limpia (159 760 análisis de roca total × 75 variables). La primera vez se descarga del "
+    d.texto("Se lee la base limpia (159 760 porciones de roca × 75 variables). La primera vez se descarga del "
             "repositorio del proyecto (26 MB).")
     d.chunk(["knitr::opts_chunk$set(",
              "  echo = TRUE,          # muestra el código en el documento",

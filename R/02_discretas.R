@@ -12,7 +12,7 @@ CASOS <- list(
 )
 
 libro <- createWorkbook()   # Excel vacío
-n_graf <- 1                 # número de la próxima gráfica
+n_graf <- 9                 # número de la próxima gráfica (las cualitativas usan 1 a 8)
 for (c in CASOS) {          # repite para cada variable
   x <- base[[c$col]]        # saca la columna
   x <- x[!is.na(x)]         # quita vacíos

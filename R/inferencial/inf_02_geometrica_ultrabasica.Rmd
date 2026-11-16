@@ -16,7 +16,7 @@ output:
 
 ## 1. Carga de datos
 
-La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 análisis sorteados de los 159 760 de
+La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 porciones de roca sorteadas de las 159 760 de
 la base (semilla 2026). Con la base entera, el test de chi-cuadrado rechaza cualquier modelo por diferencias mínimas;
 con una muestra aleatoria mide lo que importa. La base completa se usa al final para comprobar el intervalo de confianza.
 
@@ -33,7 +33,7 @@ dim(muestra)           # filas y columnas
 
 ## 2. Tabla de distribución de cantidad
 
-Variable **ordinal**: clase según SiO2 (ultrabásica < básica < intermedia < ácida). Se recorren los análisis en el orden del sorteo y se cuenta cuántos **no** son ultrabásicos antes de encontrar uno ultrabásico (el éxito). Ese número de fracasos es la variable aleatoria X.
+Variable **ordinal**: clase según SiO2 (ultrabásica < básica < intermedia < ácida). Se recorren los porciones de roca en el orden del sorteo y se cuenta cuántas **no** son ultrabásicas antes de encontrar una ultrabásico (el éxito). Ese número de fracasos es la variable aleatoria X.
 
 ```{r tabla}
 x <- as.character(muestra[["SiO2 Class"]])
@@ -45,14 +45,14 @@ y <- diff(c(0, posicion)) - 1                          # fracasos antes de cada 
 Fo <- as.vector(table(factor(y, levels = 0:max(y))))   # cuántas veces salió 0, 1, 2, ...
 hi <- round(Fo / sum(Fo) * 100, 2)
 TDF <- data.frame(valor = 0:max(y), ni = Fo, hi)
-knitr::kable(TDF, caption = "Tabla N° 1: distribución de X = análisis antes de la primera roca ultrabásica")
+knitr::kable(TDF, caption = "Tabla N° 1: distribución de X = porciones de roca antes de la primera ultrabásica")
 ```
 
 ## 3. Gráfica de distribución de cantidad
 
 ```{r grafica, fig.width = 8, fig.height = 4.8}
 barplot(hi, names.arg = 0:max(y), col = "#86b6ef", border = "white", las = 1,
-        main = "Gráfica N° 1: Análisis revisados antes de una roca ultrabásica", xlab = "Análisis antes de la primera ultrabásica", ylab = "Porcentaje (%)")
+        main = "Gráfica N° 1: Porciones de roca revisadas antes de una ultrabásica", xlab = "Análisis antes de la primera ultrabásica", ylab = "Porcentaje (%)")
 ```
 
 ## 4. Conjetura del modelo
@@ -91,7 +91,7 @@ gl <- length(Fo2) - 1
 x2 <- sum((Fo2 - Fe2)^2 / Fe2)
 umbral <- qchisq(0.95, gl)
 resultado <- ifelse(x2 < umbral, "se acepta el modelo", "se rechaza el modelo")
-knitr::kable(data.frame(Variable = "X = análisis antes de la primera roca ultrabásica", Pearson = round(pearson, 2), Chi_cuadrado = round(x2, 2),
+knitr::kable(data.frame(Variable = "X = porciones de roca antes de la primera ultrabásica", Pearson = round(pearson, 2), Chi_cuadrado = round(x2, 2),
                         Umbral = round(umbral, 2), Resultado = resultado),
              caption = "Tabla N° 3: pruebas de bondad de ajuste")
 ```
@@ -101,7 +101,7 @@ El chi-cuadrado (`r round(x2, 2)`) es `r ifelse(x2 < umbral, "menor", "mayor")` 
 
 ## 6. Estimación de probabilidades
 
-**¿Cuál es la probabilidad de encontrar la primera roca ultrabásica antes de revisar 5 análisis (X ≤ 4)?**
+**¿Cuál es la probabilidad de encontrar la primera roca ultrabásica antes de revisar 5 porciones de roca (X ≤ 4)?**
 
 ```{r prob1, fig.width = 8, fig.height = 4.5}
 p1 <- pgeom(4, p)
@@ -113,7 +113,7 @@ barplot(Pp * 100, names.arg = vp, las = 1, border = "white", col = ifelse(vp <= 
 legend("topright", paste0("P = ", round(p1 * 100, 2), " %"), bty = "n", cex = 1.1)
 ```
 
-**En promedio, ¿cuántos análisis hay que revisar para encontrar una roca ultrabásica?**
+**En promedio, ¿cuántas porciones de roca hay que revisar para encontrar una ultrabásica?**
 
 ```{r prob2}
 c(fracasos_esperados = (1 - p) / p, analisis_a_revisar = 1 / p)
@@ -146,7 +146,7 @@ c(proporcion_real = p_real, dentro_del_intervalo = p_real >= IC[["inferior"]] & 
 
 ## 8. Conclusión
 
-El número de análisis antes de encontrar una roca ultrabásica sigue un **modelo geométrico** con p = `r round(p, 3)`: en promedio hay que revisar `r round(1 / p, 1)` análisis. El modelo pasa el test (chi-cuadrado `r round(x2, 2)` < umbral `r round(umbral, 2)`; Pearson
+El número de porciones de roca antes de encontrar una ultrabásica sigue un **modelo geométrico** con p = `r round(p, 3)`: en promedio hay que revisar `r round(1 / p, 1)` porciones de roca. El modelo pasa el test (chi-cuadrado `r round(x2, 2)` < umbral `r round(umbral, 2)`; Pearson
 `r round(pearson, 1)` %). Con el 95 % de confianza, la proporción poblacional de rocas ultrabásicas está entre
 `r round(IC[["inferior"]] * 100, 2)` % y `r round(IC[["superior"]] * 100, 2)` %, y la proporción real de la base
 (`r round(p_real * 100, 2)` %) `r ifelse(p_real >= IC[["inferior"]] & p_real <= IC[["superior"]], "cae dentro", "queda fuera")` del intervalo.
@@ -154,7 +154,7 @@ El número de análisis antes de encontrar una roca ultrabásica sigue un **mode
 ```{r guardar, include = FALSE}
 if (dir.exists("docs/data")) {
   dir.create("docs/data/inferencial", showWarnings = FALSE)
-  write.csv(data.frame(documento = "inf_02_geometrica_ultrabasica", variable = "X = análisis antes de la primera roca ultrabásica", tipo = "ordinal", modelo = "geométrico",
+  write.csv(data.frame(documento = "inf_02_geometrica_ultrabasica", variable = "X = porciones de roca antes de la primera ultrabásica", tipo = "ordinal", modelo = "geométrico",
                        parametros = paste0("p = ", round(p, 3)), n = length(y), chi2 = x2, umbral = umbral, pearson = pearson,
                        ic = paste0("[", round(IC[["inferior"]] * 100, 2), " % ; ", round(IC[["superior"]] * 100, 2), " %]"), real = round(p_real * 100, 2)),
             "docs/data/inferencial/inf_02_geometrica_ultrabasica.csv", row.names = FALSE, fileEncoding = "UTF-8")

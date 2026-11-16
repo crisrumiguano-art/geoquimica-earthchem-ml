@@ -1,7 +1,7 @@
 [
  {
   "documento": "inf_01_binomial_ambiente",
-  "variable": "X = análisis de margen convergente en un lote de 10",
+  "variable": "X = porciones de roca de margen convergente en un lote de 10",
   "tipo": "nominal",
   "modelo": "binomial",
   "parametros": "n = 10; p = 0.206",
@@ -14,7 +14,7 @@
  },
  {
   "documento": "inf_02_geometrica_ultrabasica",
-  "variable": "X = análisis antes de la primera roca ultrabásica",
+  "variable": "X = porciones de roca antes de la primera ultrabásica",
   "tipo": "ordinal",
   "modelo": "geométrico",
   "parametros": "p = 0.176",

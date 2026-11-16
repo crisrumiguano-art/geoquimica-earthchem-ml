@@ -16,7 +16,7 @@ output:
 
 ## 1. Carga de datos
 
-La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 análisis sorteados de los 159 760 de
+La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 porciones de roca sorteadas de las 159 760 de
 la base (semilla 2026). Con la base entera, el test de chi-cuadrado rechaza cualquier modelo por diferencias mínimas;
 con una muestra aleatoria mide lo que importa. La base completa se usa al final para comprobar el intervalo de confianza.
 
@@ -33,12 +33,12 @@ dim(muestra)           # filas y columnas
 
 ## 2. Tabla de distribución de cantidad
 
-Variable **nominal**: ambiente tectónico agrupado. Cada análisis es un ensayo con dos resultados: es de **margen convergente** (éxito) o no. La muestra se reparte, en el orden del sorteo, en lotes de 10 análisis y se cuenta cuántos de margen convergente hay en cada lote: ese conteo (0 a 10) es la variable aleatoria X.
+Variable **nominal**: ambiente tectónico agrupado. Cada porción de roca es un ensayo con dos resultados: es de **margen convergente** (éxito) o no. La muestra se reparte, en el orden del sorteo, en lotes de 10 porciones de roca y se cuenta cuántas de margen convergente hay en cada lote: ese conteo (0 a 10) es la variable aleatoria X.
 
 ```{r tabla}
 x <- as.character(muestra[["Tectonic Group"]])
 x <- x[!is.na(x) & x != ""]                            # quita vacíos (en el orden del sorteo)
-exito <- x == "margen convergente"                            # TRUE = análisis de margen convergente
+exito <- x == "margen convergente"                            # TRUE = porciones de roca de margen convergente
 c(casos = length(x), exitos = sum(exito), proporcion = mean(exito))
 lote <- 10
 B <- floor(length(exito) / lote)                      # número de lotes
@@ -47,14 +47,14 @@ y <- as.vector(tapply(exito[1:(B * lote)], grupo, sum))  # éxitos en cada lote
 Fo <- as.vector(table(factor(y, levels = 0:max(y))))   # cuántas veces salió 0, 1, 2, ...
 hi <- round(Fo / sum(Fo) * 100, 2)
 TDF <- data.frame(valor = 0:max(y), ni = Fo, hi)
-knitr::kable(TDF, caption = "Tabla N° 1: distribución de X = análisis de margen convergente en un lote de 10")
+knitr::kable(TDF, caption = "Tabla N° 1: distribución de X = porciones de roca de margen convergente en un lote de 10")
 ```
 
 ## 3. Gráfica de distribución de cantidad
 
 ```{r grafica, fig.width = 8, fig.height = 4.8}
 barplot(hi, names.arg = 0:max(y), col = "#86b6ef", border = "white", las = 1,
-        main = "Gráfica N° 1: Margen convergente en lotes de 10 análisis", xlab = "Análisis de margen convergente en el lote", ylab = "Porcentaje (%)")
+        main = "Gráfica N° 1: Margen convergente en lotes de 10 porciones de roca", xlab = "Análisis de margen convergente en el lote", ylab = "Porcentaje (%)")
 ```
 
 **Probabilidad clásica y ley de los grandes números.** Si se recorre la muestra en el orden del sorteo, la proporción
@@ -106,7 +106,7 @@ gl <- length(Fo2) - 1
 x2 <- sum((Fo2 - Fe2)^2 / Fe2)
 umbral <- qchisq(0.95, gl)
 resultado <- ifelse(x2 < umbral, "se acepta el modelo", "se rechaza el modelo")
-knitr::kable(data.frame(Variable = "X = análisis de margen convergente en un lote de 10", Pearson = round(pearson, 2), Chi_cuadrado = round(x2, 2),
+knitr::kable(data.frame(Variable = "X = porciones de roca de margen convergente en un lote de 10", Pearson = round(pearson, 2), Chi_cuadrado = round(x2, 2),
                         Umbral = round(umbral, 2), Resultado = resultado),
              caption = "Tabla N° 3: pruebas de bondad de ajuste")
 ```
@@ -116,7 +116,7 @@ El chi-cuadrado (`r round(x2, 2)`) es `r ifelse(x2 < umbral, "menor", "mayor")` 
 
 ## 6. Estimación de probabilidades
 
-**En un lote de 10 análisis tomados al azar, ¿cuál es la probabilidad de que haya 3 o más de margen convergente?**
+**En un lote de 10 porciones de roca tomadas al azar, ¿cuál es la probabilidad de que haya 3 o más de margen convergente?**
 
 ```{r prob1, fig.width = 8, fig.height = 4.5}
 p1 <- 1 - pbinom(2, n_ensayos, p)
@@ -128,7 +128,7 @@ barplot(Pp * 100, names.arg = vp, las = 1, border = "white", col = ifelse(vp >= 
 legend("topright", paste0("P = ", round(p1 * 100, 2), " %"), bty = "n", cex = 1.1)
 ```
 
-**Si se revisan 50 lotes de 10, ¿en cuántos no habría ningún análisis de margen convergente?**
+**Si se revisan 50 lotes de 10, ¿en cuántos no habría ninguna porción de roca de margen convergente?**
 
 ```{r prob2}
 p0 <- dbinom(0, n_ensayos, p)
@@ -137,7 +137,7 @@ c(probabilidad = p0 * 100, lotes_esperados_de_50 = p0 * 50)
 
 ## 7. Intervalos de confianza
 
-Intervalo de confianza del 95 % para la **proporción poblacional** de análisis de margen convergente, con la aproximación normal (n grande): p ± z·√(p(1 − p)/n).
+Intervalo de confianza del 95 % para la **proporción poblacional** de porciones de roca de margen convergente, con la aproximación normal (n grande): p ± z·√(p(1 − p)/n).
 
 ```{r ic}
 p_m <- mean(exito)                                     # proporción en la muestra
@@ -162,15 +162,15 @@ c(proporcion_real = p_real, dentro_del_intervalo = p_real >= IC[["inferior"]] & 
 
 ## 8. Conclusión
 
-El número de análisis de margen convergente en un lote de 10 sigue un **modelo binomial** con n = 10 y p = `r round(p, 3)`. El modelo pasa el test (chi-cuadrado `r round(x2, 2)` < umbral `r round(umbral, 2)`; Pearson
-`r round(pearson, 1)` %). Con el 95 % de confianza, la proporción poblacional de análisis de margen convergente está entre
+El número de porciones de roca de margen convergente en un lote de 10 sigue un **modelo binomial** con n = 10 y p = `r round(p, 3)`. El modelo pasa el test (chi-cuadrado `r round(x2, 2)` < umbral `r round(umbral, 2)`; Pearson
+`r round(pearson, 1)` %). Con el 95 % de confianza, la proporción poblacional de porciones de roca de margen convergente está entre
 `r round(IC[["inferior"]] * 100, 2)` % y `r round(IC[["superior"]] * 100, 2)` %, y la proporción real de la base
 (`r round(p_real * 100, 2)` %) `r ifelse(p_real >= IC[["inferior"]] & p_real <= IC[["superior"]], "cae dentro", "queda fuera")` del intervalo.
 
 ```{r guardar, include = FALSE}
 if (dir.exists("docs/data")) {
   dir.create("docs/data/inferencial", showWarnings = FALSE)
-  write.csv(data.frame(documento = "inf_01_binomial_ambiente", variable = "X = análisis de margen convergente en un lote de 10", tipo = "nominal", modelo = "binomial",
+  write.csv(data.frame(documento = "inf_01_binomial_ambiente", variable = "X = porciones de roca de margen convergente en un lote de 10", tipo = "nominal", modelo = "binomial",
                        parametros = paste0("n = 10; p = ", round(p, 3)), n = length(y), chi2 = x2, umbral = umbral, pearson = pearson,
                        ic = paste0("[", round(IC[["inferior"]] * 100, 2), " % ; ", round(IC[["superior"]] * 100, 2), " %]"), real = round(p_real * 100, 2)),
             "docs/data/inferencial/inf_01_binomial_ambiente.csv", row.names = FALSE, fileEncoding = "UTF-8")

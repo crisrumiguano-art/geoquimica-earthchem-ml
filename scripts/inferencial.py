@@ -43,7 +43,7 @@ output:
 
 ## 1. Carga de datos
 
-La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 análisis sorteados de los 159 760 de
+La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 porciones de roca sorteadas de las 159 760 de
 la base (semilla 2026). Con la base entera, el test de chi-cuadrado rechaza cualquier modelo por diferencias mínimas;
 con una muestra aleatoria mide lo que importa. La base completa se usa al final para comprobar el intervalo de confianza.
 
@@ -465,80 +465,80 @@ legend("topright", c("proporción acumulada", "proporción final de la muestra")
 DISCRETAS = [
     dict(nombre="inf_01_binomial_ambiente", col="Tectonic Group", categoria="margen convergente", tipo="nominal",
          titulo="Inferencia de una variable nominal (ambiente tectónico): modelo binomial", modelo="binomial",
-         exito_texto="análisis de margen convergente",
-         explicacion="Variable **nominal**: ambiente tectónico agrupado. Cada análisis es un ensayo con dos resultados: "
+         exito_texto="porciones de roca de margen convergente",
+         explicacion="Variable **nominal**: ambiente tectónico agrupado. Cada porción de roca es un ensayo con dos resultados: "
                      "es de **margen convergente** (éxito) o no. La muestra se reparte, en el orden del sorteo, en lotes de "
-                     "10 análisis y se cuenta cuántos de margen convergente hay en cada lote: ese conteo (0 a 10) es la "
+                     "10 porciones de roca y se cuenta cuántas de margen convergente hay en cada lote: ese conteo (0 a 10) es la "
                      "variable aleatoria X.",
          construir="lote <- 10\nB <- floor(length(exito) / lote)                      # número de lotes\n"
                    "grupo <- rep(1:B, each = lote)                         # a qué lote va cada análisis\n"
                    "y <- as.vector(tapply(exito[1:(B * lote)], grupo, sum))  # éxitos en cada lote",
-         variable_y="X = análisis de margen convergente en un lote de 10", titulo_grafica="Margen convergente en lotes de 10 análisis",
+         variable_y="X = porciones de roca de margen convergente en un lote de 10", titulo_grafica="Margen convergente en lotes de 10 porciones de roca",
          eje="Análisis de margen convergente en el lote", lgn=LGN,
          conjetura="X cuenta éxitos en un número fijo de ensayos independientes (n = 10) con la misma probabilidad p: es "
                    "el **modelo binomial**. p se estima con la proporción de éxitos.",
          param="n_ensayos <- lote\np <- mean(y) / n_ensayos                               # probabilidad de éxito estimada\np",
          p_puntual="dbinom(valores, n_ensayos, p)", max_vp=10, p_cola="1 - pbinom(max(y) - 1, n_ensayos, p)",
          n_graf_conj=3, n_graf_test=4, n_graf_p=5,
-         pregunta1="En un lote de 10 análisis tomados al azar, ¿cuál es la probabilidad de que haya 3 o más de margen convergente?",
+         pregunta1="En un lote de 10 porciones de roca tomadas al azar, ¿cuál es la probabilidad de que haya 3 o más de margen convergente?",
          p1="1 - pbinom(2, n_ensayos, p)", marca1=">= 3", titulo_p1="P(X ≥ 3) en un lote de 10",
-         pregunta2="Si se revisan 50 lotes de 10, ¿en cuántos no habría ningún análisis de margen convergente?",
+         pregunta2="Si se revisan 50 lotes de 10, ¿en cuántos no habría ninguna porción de roca de margen convergente?",
          p2="p0 <- dbinom(0, n_ensayos, p)\nc(probabilidad = p0 * 100, lotes_esperados_de_50 = p0 * 50)",
-         ic_texto="Intervalo de confianza del 95 % para la **proporción poblacional** de análisis de margen convergente, "
+         ic_texto="Intervalo de confianza del 95 % para la **proporción poblacional** de porciones de roca de margen convergente, "
                   "con la aproximación normal (n grande): p ± z·√(p(1 − p)/n).",
          ic=IC_PROPORCION, parametros='paste0("n = 10; p = ", round(p, 3))',
-         conclusion="El número de análisis de margen convergente en un lote de 10 sigue un **modelo binomial** con "
+         conclusion="El número de porciones de roca de margen convergente en un lote de 10 sigue un **modelo binomial** con "
                     "n = 10 y p = `r round(p, 3)`."),
     dict(nombre="inf_02_geometrica_ultrabasica", col="SiO2 Class", categoria="ultrabasica", tipo="ordinal",
          titulo="Inferencia de una variable ordinal (clase según SiO2): modelo geométrico", modelo="geométrico",
          exito_texto="rocas ultrabásicas",
          explicacion="Variable **ordinal**: clase según SiO2 (ultrabásica < básica < intermedia < ácida). Se recorren los "
-                     "análisis en el orden del sorteo y se cuenta cuántos **no** son ultrabásicos antes de encontrar uno "
+                     "porciones de roca en el orden del sorteo y se cuenta cuántas **no** son ultrabásicas antes de encontrar una "
                      "ultrabásico (el éxito). Ese número de fracasos es la variable aleatoria X.",
          construir="posicion <- which(exito)                               # dónde aparece cada ultrabásica\n"
                    "y <- diff(c(0, posicion)) - 1                          # fracasos antes de cada éxito",
-         variable_y="X = análisis antes de la primera roca ultrabásica", titulo_grafica="Análisis revisados antes de una roca ultrabásica",
+         variable_y="X = porciones de roca antes de la primera ultrabásica", titulo_grafica="Porciones de roca revisadas antes de una ultrabásica",
          eje="Análisis antes de la primera ultrabásica", lgn="",
          conjetura="X cuenta los fracasos antes del primer éxito, en ensayos independientes con la misma probabilidad p: "
                    "es el **modelo geométrico**. p se estima como 1 / (media + 1).",
          param="p <- 1 / (mean(y) + 1)                                 # probabilidad de éxito estimada\np",
          p_puntual="dgeom(valores, p)", max_vp=15, p_cola="1 - pgeom(max(y) - 1, p)",
          n_graf_conj=2, n_graf_test=3, n_graf_p=4,
-         pregunta1="¿Cuál es la probabilidad de encontrar la primera roca ultrabásica antes de revisar 5 análisis (X ≤ 4)?",
+         pregunta1="¿Cuál es la probabilidad de encontrar la primera roca ultrabásica antes de revisar 5 porciones de roca (X ≤ 4)?",
          p1="pgeom(4, p)", marca1="<= 4", titulo_p1="P(X ≤ 4)",
-         pregunta2="En promedio, ¿cuántos análisis hay que revisar para encontrar una roca ultrabásica?",
+         pregunta2="En promedio, ¿cuántas porciones de roca hay que revisar para encontrar una ultrabásica?",
          p2="c(fracasos_esperados = (1 - p) / p, analisis_a_revisar = 1 / p)",
          ic_texto="Intervalo de confianza del 95 % para la **proporción poblacional** de rocas ultrabásicas (la p del "
                   "modelo), con la aproximación normal: p ± z·√(p(1 − p)/n).",
          ic=IC_PROPORCION, parametros='paste0("p = ", round(p, 3))',
-         conclusion="El número de análisis antes de encontrar una roca ultrabásica sigue un **modelo geométrico** con "
-                    "p = `r round(p, 3)`: en promedio hay que revisar `r round(1 / p, 1)` análisis."),
+         conclusion="El número de porciones de roca antes de encontrar una ultrabásica sigue un **modelo geométrico** con "
+                    "p = `r round(p, 3)`: en promedio hay que revisar `r round(1 / p, 1)` porciones de roca."),
     dict(nombre="inf_03_poisson_intermedias", col="Sample Type", categoria="igneous:volcanic:intermediate", tipo="discreta",
          titulo="Inferencia de una variable discreta (conteo de andesitas): modelo de Poisson", modelo="Poisson",
          exito_texto="rocas volcánicas intermedias",
          explicacion="Variable **discreta**: el número de rocas volcánicas intermedias (andesitas) en un lote de 30 "
-                     "análisis. Es un conteo de un evento poco frecuente (cerca del 6 % de los análisis). Antes se probó "
+                     "porciones de roca. Es un conteo de un evento poco frecuente (cerca del 6 % de las rocas). Antes se probó "
                      "con N Analytes (número de analitos) y **no sirvió**: su varianza (122) es once veces su media (10,8) "
                      "y el modelo de Poisson exige que sean iguales; el chi-cuadrado salió miles de veces mayor que el umbral.",
          construir="lote <- 30\nB <- floor(length(exito) / lote)\n"
                    "grupo <- rep(1:B, each = lote)\n"
                    "y <- as.vector(tapply(exito[1:(B * lote)], grupo, sum))  # andesitas en cada lote de 30\n"
                    "c(media = mean(y), varianza = var(y))                  # en Poisson deben ser parecidas",
-         variable_y="X = rocas intermedias en un lote de 30", titulo_grafica="Rocas volcánicas intermedias en lotes de 30 análisis",
+         variable_y="X = rocas intermedias en un lote de 30", titulo_grafica="Rocas volcánicas intermedias en lotes de 30 porciones de roca",
          eje="Rocas intermedias en el lote", lgn="",
          conjetura="X cuenta un evento raro en un lote grande y su media y varianza son parecidas: es el **modelo de "
                    "Poisson**. λ se estima con la media.",
          param="lambda <- mean(y)                                     # promedio de andesitas por lote\nlambda",
          p_puntual="dpois(valores, lambda)", max_vp=8, p_cola="1 - ppois(max(y) - 1, lambda)",
          n_graf_conj=2, n_graf_test=3, n_graf_p=4,
-         pregunta1="En un lote de 30 análisis, ¿cuál es la probabilidad de que no haya ninguna roca intermedia?",
+         pregunta1="En un lote de 30 porciones de roca, ¿cuál es la probabilidad de que no haya ninguna roca intermedia?",
          p1="dpois(0, lambda)", marca1="== 0", titulo_p1="P(X = 0) en un lote de 30",
-         pregunta2="En 50 lotes de 30 análisis, ¿en cuántos habría 3 o más rocas intermedias?",
+         pregunta2="En 50 lotes de 30 porciones de roca, ¿en cuántos habría 3 o más rocas intermedias?",
          p2="p3 <- 1 - ppois(2, lambda)\nc(probabilidad = p3 * 100, lotes_esperados_de_50 = p3 * 50)",
          ic_texto="Intervalo de confianza del 95 % para la **proporción poblacional** de rocas intermedias "
                   "(λ / 30), con la aproximación normal.",
          ic=IC_PROPORCION, parametros='paste0("lambda = ", round(lambda, 3))',
-         conclusion="El número de rocas volcánicas intermedias en un lote de 30 análisis sigue un **modelo de Poisson** "
+         conclusion="El número de rocas volcánicas intermedias en un lote de 30 porciones de roca sigue un **modelo de Poisson** "
                     "con λ = `r round(lambda, 2)`."),
 ]
 

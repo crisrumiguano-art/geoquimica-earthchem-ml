@@ -15,7 +15,7 @@ output:
 
 ## 1. Carga de datos y librerías
 
-Se lee la base limpia (159 760 análisis de roca total × 75 variables). La primera vez se descarga del repositorio del proyecto (26 MB).
+Se lee la base limpia (159 760 porciones de roca × 75 variables). La primera vez se descarga del repositorio del proyecto (26 MB).
 
 ```{r}
 knitr::opts_chunk$set(
@@ -93,19 +93,19 @@ layout(matrix(c(1, 1, 2, 3), 2, 2, byrow = TRUE), heights = c(1.15, 1))   # arri
 par(mar = c(8, 5, 4, 1))
 h <- barplot(hi, names.arg = etiq, space = 0, las = 2, col = "#3987e5", border = "white",   # histograma
              ylab = "Porcentaje (%)", cex.names = .75, ylim = c(0, max(hi) * 1.15),
-             main = "Gráfica No. 4: Histograma y polígono de frecuencias de Número de analitos (analitos)")
+             main = "Gráfica N° 12: Histograma y polígono de frecuencias de Número de analitos (analitos)")
 lines(c(h[1] - 1, h, h[length(h)] + 1), c(0, hi, 0), col = "#d95926", lwd = 2, type = "b", pch = 16, cex = .6)  # polígono
 mtext(if (length(nota) > 0) paste0("Clases abiertas (fuera del gráfico): ", paste(nota, collapse = " · ")) else "",
       side = 1, line = 6.5, cex = .7, col = "gray30")  # nota bajo el histograma
 par(mar = c(5, 5, 4, 1))
 plot(Ls, Hi_asc, type = "b", pch = 16, col = "#3987e5", ylim = c(0, 100),            # ojiva ascendente
      xlab = "Número de analitos (analitos)", ylab = "Porcentaje acumulado (%)",
-     main = "Gráfica No. 5: Ojiva ascendente y descendente")
+     main = "Gráfica N° 13: Ojiva ascendente y descendente")
 lines(Li, Hi_dsc, type = "b", pch = 17, col = "#d95926")                              # ojiva descendente
 abline(h = 50, lty = 3, col = "gray50")                # línea del 50 %: donde se cruzan está la mediana
 legend("right", c("ascendente (≤)", "descendente (≥)"), col = c("#3987e5", "#d95926"), pch = c(16, 17), bty = "n", cex = .85)
 boxplot(x, horizontal = TRUE, col = "#86b6ef", xlab = "Número de analitos (analitos)",       # diagrama de caja
-        main = "Gráfica No. 6: Diagrama de caja (todos los datos)")
+        main = "Gráfica N° 14: Diagrama de caja (todos los datos)")
 ```
 
 ## 6. Indicadores (con los datos sin agrupar)

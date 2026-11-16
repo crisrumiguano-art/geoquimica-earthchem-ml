@@ -1587,11 +1587,11 @@ FIGEMPA – UCE). Datos: EarthChem PetDB (CC BY 4.0), descargados el
 <div id="carga-de-datos" class="section level2">
 <h2>1. Carga de datos</h2>
 <p>La inferencia se hace con la <strong>muestra aleatoria
-simple</strong> de la Lección 3: 1 061 análisis sorteados de los 159 760
-de la base (semilla 2026). Con la base entera, el test de chi-cuadrado
-rechaza cualquier modelo por diferencias mínimas; con una muestra
-aleatoria mide lo que importa. La base completa se usa al final para
-comprobar el intervalo de confianza.</p>
+simple</strong> de la Lección 3: 1 061 porciones de roca sorteadas de
+las 159 760 de la base (semilla 2026). Con la base entera, el test de
+chi-cuadrado rechaza cualquier modelo por diferencias mínimas; con una
+muestra aleatoria mide lo que importa. La base completa se usa al final
+para comprobar el intervalo de confianza.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>, <span class="at">message =</span> <span class="cn">FALSE</span>, <span class="at">warning =</span> <span class="cn">FALSE</span>, <span class="at">fig.align =</span> <span class="st">&quot;center&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(MASS)          <span class="co"># fitdistr(): estima los parámetros del modelo (viene con R)</span></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;data/muestras&quot;</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>

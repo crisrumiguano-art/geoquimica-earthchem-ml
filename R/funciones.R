@@ -53,14 +53,15 @@ tdf_cualitativa <- function(x, orden = NULL) {
 # RECIBE: tdf (de tdf_cualitativa), título, nombre del archivo, número de gráfica.
 graficos_cualitativa <- function(tdf, titulo, archivo, n_graf = 1) {
   png(file.path(GRAFICOS, archivo), width = 1600, height = 700, res = 130)  # abre la imagen
-  par(mfrow = c(1, 2), mar = c(9, 5, 4, 1))         # 2 gráficos lado a lado; márgenes
+  par(mfrow = c(1, 2), mar = c(10, 6.5, 4, 1))      # 2 gráficos lado a lado; márgenes
   colores <- gray.colors(nrow(tdf), start = .25, end = .85)  # un gris por categoría
-  barplot(tdf$ni, names.arg = tdf$categoria, las = 2, col = colores, ylab = "Cantidad",  # barras: altura = ni
-          main = paste0("Gráfica No. ", n_graf, ": ", titulo), cex.names = .8, cex.main = .9)
+  barplot(tdf$ni, names.arg = tdf$categoria, las = 2, col = colores,   # barras: altura = ni
+          main = paste0("Gráfica N° ", n_graf, ": ", titulo), cex.names = .8, cex.main = .9)
+  title(ylab = "Cantidad", line = 5)                # rótulo del eje, separado de los números
   par(mar = c(1, 1, 4, 1))
-  pie(tdf$hi, labels = paste0(tdf$hi, "%"), col = colores, clockwise = TRUE, cex = .75,  # circular: porción = hi
-      main = paste0("Gráfica No. ", n_graf + 1, ": ", titulo, " (%)"), cex.main = .9)
-  legend("topright", legend = tdf$categoria, fill = colores, cex = .6, bty = "n")  # leyenda
+  pie(tdf$hi, labels = ifelse(tdf$hi >= 3, paste0(tdf$hi, " %"), ""), col = colores,  # circular: porción = hi
+      clockwise = TRUE, cex = .75, main = paste0("Gráfica N° ", n_graf + 1, ": ", titulo, " (%)"), cex.main = .9)
+  legend("topright", legend = paste0(tdf$categoria, " (", tdf$hi, " %)"), fill = colores, cex = .6, bty = "n")  # leyenda con %
   dev.off()                                         # cierra y guarda la imagen
 }
 
@@ -163,18 +164,18 @@ graficos_continua <- function(x, tdf, nombre, unidad, archivo, n_graf = 1) {
   par(mar = c(8, 5, 4, 1))
   h <- barplot(t$hi, names.arg = etiquetas(t), space = 0, las = 2, col = "#3987e5", border = "white",  # histograma (barras pegadas)
                ylab = "Porcentaje (%)", cex.names = .75, ylim = c(0, max(t$hi) * 1.15),
-               main = paste0("Gráfica No. ", n_graf, ": Histograma y polígono de frecuencias de ", nombre, " (", unidad, ")"))
+               main = paste0("Gráfica N° ", n_graf, ": Histograma y polígono de frecuencias de ", nombre, " (", unidad, ")"))
   lines(c(h[1] - 1, h, h[length(h)] + 1), c(0, t$hi, 0), col = "#d95926", lwd = 2, type = "b", pch = 16, cex = .6)  # polígono
   mtext(nota_abiertas(tdf), side = 1, line = 6.5, cex = .7, col = "gray30")  # nota de clases abiertas
   par(mar = c(5, 5, 4, 1))
   plot(t$Ls, t$Hi_asc, type = "b", pch = 16, col = "#3987e5", ylim = c(0, 100),  # ojiva ascendente
        xlab = paste0(nombre, " (", unidad, ")"), ylab = "Porcentaje acumulado (%)",
-       main = paste0("Gráfica No. ", n_graf + 1, ": Ojiva ascendente y descendente"))
+       main = paste0("Gráfica N° ", n_graf + 1, ": Ojiva ascendente y descendente"))
   lines(t$Li, t$Hi_dsc, type = "b", pch = 17, col = "#d95926")  # ojiva descendente
   abline(h = 50, lty = 3, col = "gray50")           # línea del 50 % (donde se cruzan = mediana)
   legend("right", c("ascendente (≤)", "descendente (≥)"), col = c("#3987e5", "#d95926"), pch = c(16, 17), bty = "n", cex = .85)
   boxplot(x, horizontal = TRUE, col = "#86b6ef", xlab = paste0(nombre, " (", unidad, ")"),  # diagrama de caja
-          main = paste0("Gráfica No. ", n_graf + 2, ": Diagrama de caja (todos los datos)"))
+          main = paste0("Gráfica N° ", n_graf + 2, ": Diagrama de caja (todos los datos)"))
   dev.off()                                         # cierra y guarda
 }
 

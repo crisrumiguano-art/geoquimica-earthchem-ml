@@ -66,19 +66,19 @@ layout(matrix(c(1, 1, 2, 3), 2, 2, byrow = TRUE), heights = c(1.15, 1))   # arri
 par(mar = c(8, 5, 4, 1))
 h <- barplot(hi, names.arg = etiq, space = 0, las = 2, col = "#3987e5", border = "white",   # histograma
              ylab = "Porcentaje (%)", cex.names = .75, ylim = c(0, max(hi) * 1.15),
-             main = "Gráfica No. 4: Histograma y polígono de frecuencias de SiO2 en rocas volcánicas máficas (wt%)")
+             main = "Gráfica N° 18: Histograma y polígono de frecuencias de SiO2 en rocas volcánicas máficas (wt%)")
 lines(c(h[1] - 1, h, h[length(h)] + 1), c(0, hi, 0), col = "#d95926", lwd = 2, type = "b", pch = 16, cex = .6)  # polígono
 mtext(if (length(nota) > 0) paste0("Clases abiertas (fuera del gráfico): ", paste(nota, collapse = " · ")) else "",
       side = 1, line = 6.5, cex = .7, col = "gray30")  # nota bajo el histograma
 par(mar = c(5, 5, 4, 1))
 plot(Ls, Hi_asc, type = "b", pch = 16, col = "#3987e5", ylim = c(0, 100),            # ojiva ascendente
      xlab = "SiO2 en rocas volcánicas máficas (wt%)", ylab = "Porcentaje acumulado (%)",
-     main = "Gráfica No. 5: Ojiva ascendente y descendente")
+     main = "Gráfica N° 19: Ojiva ascendente y descendente")
 lines(Li, Hi_dsc, type = "b", pch = 17, col = "#d95926")                              # ojiva descendente
 abline(h = 50, lty = 3, col = "gray50")                # línea del 50 %: donde se cruzan está la mediana
 legend("right", c("ascendente (≤)", "descendente (≥)"), col = c("#3987e5", "#d95926"), pch = c(16, 17), bty = "n", cex = .85)
 boxplot(x, horizontal = TRUE, col = "#86b6ef", xlab = "SiO2 en rocas volcánicas máficas (wt%)",       # diagrama de caja
-        main = "Gráfica No. 6: Diagrama de caja (todos los datos)")
+        main = "Gráfica N° 20: Diagrama de caja (todos los datos)")
 dev.off()                                              # cierra y guarda la imagen
 
 # ---- 6. Error de agrupación: media y desviación con la TDF vs con los datos ----

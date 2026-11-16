@@ -16,6 +16,7 @@ N <- nrow(base)     # tamaño de la población (número de filas)
 # Estratos = ambiente tectónico agrupado (las filas sin dato forman su propio estrato)
 estrato <- base[["Tectonic Group"]]
 estrato[is.na(estrato) | estrato == ""] <- "sin dato"
+estrato <- sub("oceanica", "oceánica", estrato)      # nombre con tilde (no cambia el sorteo)
 
 # ---- 2. Tamaño de la muestra ----
 # n0 = z² · p · q / e²   y   n = n0 / (1 + (n0 - 1) / N)
@@ -103,15 +104,17 @@ dir.create("docs/img/r", recursive = TRUE, showWarnings = FALSE)
 png("docs/img/r/muestreo_estratos.png", width = 1100, height = 650, res = 130)
 m <- t(as.matrix(comp_estratos[, -1]))              # filas = población y muestras; columnas = estratos
 colnames(m) <- comp_estratos$estrato
+rownames(m) <- c("población", "aleatoria", "sistemática", "estratificada")
 barplot(m, beside = TRUE, col = c("gray25", "gray55", "gray75", "gray90"), ylim = c(0, max(m) * 1.2),
-        main = "Gráfica No. 1: Porcentaje por ambiente tectónico, población y muestras",
+        main = "Gráfica N° 1: Porcentaje por ambiente tectónico, población y muestras",
         ylab = "Porcentaje (%)", cex.names = 0.8, legend.text = TRUE,
         args.legend = list(x = "topright", bty = "n", cex = 0.8))
 dev.off()
 
 png("docs/img/r/muestreo_repeticiones.png", width = 1100, height = 650, res = 130)
 boxplot(sim, col = c("gray55", "gray75", "gray90"), ylab = "Media de SiO2 (wt%)",
-        main = paste0("Gráfica No. 2: Media de SiO2 en ", R, " muestras de cada método (n = ", n, ")"))
+        names = c("aleatoria", "sistemática", "estratificada"),
+        main = paste0("Gráfica N° 2: Media de SiO2 en ", R, " muestras de cada método (n = ", n, ")"))
 abline(h = mean(sio2, na.rm = TRUE), lty = 2)       # media de la población
 legend("topright", "media poblacional", lty = 2, bty = "n", cex = 0.8)
 dev.off()

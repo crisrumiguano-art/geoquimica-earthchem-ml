@@ -16,7 +16,7 @@ output:
 
 ## 1. Carga de datos
 
-La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 análisis sorteados de los 159 760 de
+La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 porciones de roca sorteadas de las 159 760 de
 la base (semilla 2026). Con la base entera, el test de chi-cuadrado rechaza cualquier modelo por diferencias mínimas;
 con una muestra aleatoria mide lo que importa. La base completa se usa al final para comprobar el intervalo de confianza.
 

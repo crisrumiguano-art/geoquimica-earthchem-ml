@@ -10,16 +10,25 @@ tipo <- base[["Sample Type"]]                       # saca la columna
 frec <- prop.table(table(tipo))                     # proporción de cada categoría
 tipo[tipo %in% names(frec[frec < 0.01])] <- "otros" # las de < 1 % pasan a "otros"
 
+# Nombres en español (con tildes) para tablas y gráficos; la base guarda los originales de PetDB
+en_espanol <- function(x, nombres) { x <- as.character(x); cambia <- x %in% names(nombres); x[cambia] <- nombres[x[cambia]]; x }
+tipo <- en_espanol(tipo, c("igneous:volcanic:mafic" = "volcánica máfica", "igneous:plutonic:ultramafic" = "plutónica ultramáfica",
+        "igneous:volcanic:clastic" = "volcanoclástica", "igneous:volcanic:intermediate" = "volcánica intermedia",
+        "igneous:plutonic:mafic" = "plutónica máfica", "xenolith" = "xenolito", "metamorphic" = "metamórfica",
+        "igneous:volcanic:felsic" = "volcánica félsica"))
+
 # Lista de variables a analizar: datos (x), título, hoja de Excel y orden (NULL = nominal)
 CASOS <- list(
-  list(x = base[["Tectonic Group"]], titulo = "Ambiente tectónico agrupado", hoja = "Grupo tectonico", orden = NULL),
+  list(x = en_espanol(base[["Tectonic Group"]], c("dorsal y corteza oceanica" = "dorsal y corteza oceánica")),
+       titulo = "Ambiente tectónico agrupado", hoja = "Grupo tectonico", orden = NULL),
   list(x = tipo, titulo = "Tipo de roca", hoja = "Tipo de roca", orden = NULL),
-  list(x = base[["SiO2 Class"]], titulo = "Clase de roca según SiO2", hoja = "Clase SiO2",
-       orden = c("ultrabasica", "basica", "intermedia", "acida")),           # ordinal: su orden
+  list(x = en_espanol(base[["SiO2 Class"]], c(ultrabasica = "ultrabásica", basica = "básica", intermedia = "intermedia", acida = "ácida")),
+       titulo = "Clase de roca según SiO2", hoja = "Clase SiO2",
+       orden = c("ultrabásica", "básica", "intermedia", "ácida")),           # ordinal: su orden
   list(x = factor(base[["Alteration Grade"]], levels = 0:5,                  # factor: códigos 0-5 -> nombres
-                  labels = c("0 fresca", "1 leve", "2 moderada", "3 extensa", "4 casi total", "5 total")),
+                  labels = c("fresca", "leve", "moderada", "extensa", "casi total", "total")),
        titulo = "Grado de alteración", hoja = "Alteracion",
-       orden = c("0 fresca", "1 leve", "2 moderada", "3 extensa", "4 casi total", "5 total"))
+       orden = c("fresca", "leve", "moderada", "extensa", "casi total", "total"))
 )
 
 libro <- createWorkbook()   # Excel vacío

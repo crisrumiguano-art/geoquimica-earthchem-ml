@@ -17,6 +17,12 @@ dir.create("docs/img/r", recursive = TRUE, showWarnings = FALSE)   # carpeta don
 x <- base[["Sample Type"]]                         # la columna de la base
 frec <- prop.table(table(x))                 # proporción de cada tipo
 x[x %in% names(frec[frec < 0.01])] <- "otros" # los de menos de 1 % se juntan en "otros"
+nombres <- c("igneous:volcanic:mafic" = "volcánica máfica", "igneous:plutonic:ultramafic" = "plutónica ultramáfica",
+        "igneous:volcanic:clastic" = "volcanoclástica", "igneous:volcanic:intermediate" = "volcánica intermedia",
+        "igneous:plutonic:mafic" = "plutónica máfica", "xenolith" = "xenolito", "metamorphic" = "metamórfica",
+        "igneous:volcanic:felsic" = "volcánica félsica")   # nombres en español
+cambia <- x %in% names(nombres)
+x[cambia] <- nombres[x[cambia]]               # se reemplazan por el nombre en español
 x <- as.character(x)                         # como texto
 x <- x[!is.na(x) & x != ""]                  # quita los vacíos
 
@@ -31,14 +37,15 @@ categoria[which.max(ni)]                     # moda: la categoría con más caso
 
 # ---- 3. Gráfico: barras + circular ----
 png("docs/img/r/cual_tipo_de_roca.png", width = 1600, height = 700, res = 130)   # abre la imagen
-par(mfrow = c(1, 2), mar = c(9, 5, 4, 1))    # 2 gráficos lado a lado
+par(mfrow = c(1, 2), mar = c(10, 6.5, 4, 1))  # 2 gráficos lado a lado
 colores <- gray.colors(length(ni), start = .25, end = .85)       # un gris por categoría
-barplot(ni, names.arg = categoria, las = 2, col = colores, ylab = "Cantidad",   # barras: altura = ni
-        main = "Gráfica No. 3: Tipo de roca", cex.names = .8, cex.main = .9)
+barplot(ni, names.arg = categoria, las = 2, col = colores,       # barras: altura = ni
+        main = "Gráfica N° 3: Tipo de roca", cex.names = .8, cex.main = .9)
+title(ylab = "Cantidad", line = 5)           # rótulo del eje, separado de los números
 par(mar = c(1, 1, 4, 1))
-pie(hi, labels = paste0(hi, "%"), col = colores, clockwise = TRUE, cex = .75,  # circular: porción = hi
-    main = "Gráfica No. 4: Tipo de roca (%)", cex.main = .9)
-legend("topright", legend = categoria, fill = colores, cex = .6, bty = "n")
+pie(hi, labels = ifelse(hi >= 3, paste0(hi, " %"), ""), col = colores,   # circular: porción = hi
+    clockwise = TRUE, cex = .75, main = "Gráfica N° 4: Tipo de roca (%)", cex.main = .9)   # solo se rotulan las de 3 % o más
+legend("topright", legend = paste0(categoria, " (", hi, " %)"), fill = colores, cex = .6, bty = "n")   # leyenda con %
 dev.off()                                    # cierra y guarda la imagen
 
 # Abre la imagen que se acaba de crear (solo en RStudio)

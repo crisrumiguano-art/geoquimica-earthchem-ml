@@ -15,14 +15,14 @@ MAFICAS = "igneous:volcanic:mafic"
 CUAL = {  # archivo -> (columna, título, orden o None, número de gráfica)
     "grupo_tectonico": ("Tectonic Group", "Ambiente tectónico agrupado", None, 1),
     "tipo_de_roca": ("Sample Type", "Tipo de roca", None, 3),
-    "clase_sio2": ("SiO2 Class", "Clase de roca según SiO2", ["ultrabasica", "basica", "intermedia", "acida"], 5),
+    "clase_sio2": ("SiO2 Class", "Clase de roca según SiO2", ["ultrabásica", "básica", "intermedia", "ácida"], 5),
     "alteracion": ("Alteration Grade", "Grado de alteración",
-                   ["0 fresca", "1 leve", "2 moderada", "3 extensa", "4 casi total", "5 total"], 7),
+                   ["fresca", "leve", "moderada", "extensa", "casi total", "total"], 7),
 }
-DISC = {"anio": ("Publication Year", "Año de publicación", "año", 1),
-        "analitos": ("N Analytes", "Número de analitos", "analitos", 4)}
-CONT = {"SiO2": ("SiO2 (wt%)", "wt%", False, 1), "MgO": ("MgO (wt%)", "wt%", False, 7),
-        "Cr": ("Cr (ppm)", "ppm", True, 13)}
+DISC = {"anio": ("Publication Year", "Año de publicación", "año", 9),
+        "analitos": ("N Analytes", "Número de analitos", "analitos", 12)}
+CONT = {"SiO2": ("SiO2 (wt%)", "wt%", False, 15), "MgO": ("MgO (wt%)", "wt%", False, 21),
+        "Cr": ("Cr (ppm)", "ppm", True, 27)}
 
 
 def amplitud(csv_nombre):
@@ -76,14 +76,15 @@ categoria[which.max(ni)]                     # moda: la categoría con más caso
 
 # ---- 3. Gráfico: barras + circular ----
 png("docs/img/r/@PNG@", width = 1600, height = 700, res = 130)   # abre la imagen
-par(mfrow = c(1, 2), mar = c(9, 5, 4, 1))    # 2 gráficos lado a lado
+par(mfrow = c(1, 2), mar = c(10, 6.5, 4, 1))  # 2 gráficos lado a lado
 colores <- gray.colors(length(ni), start = .25, end = .85)       # un gris por categoría
-barplot(ni, names.arg = categoria, las = 2, col = colores, ylab = "Cantidad",   # barras: altura = ni
-        main = "Gráfica No. @N1@: @TITULO@", cex.names = .8, cex.main = .9)
+barplot(ni, names.arg = categoria, las = 2, col = colores,       # barras: altura = ni
+        main = "Gráfica N° @N1@: @TITULO@", cex.names = .8, cex.main = .9)
+title(ylab = "Cantidad", line = 5)           # rótulo del eje, separado de los números
 par(mar = c(1, 1, 4, 1))
-pie(hi, labels = paste0(hi, "%"), col = colores, clockwise = TRUE, cex = .75,  # circular: porción = hi
-    main = "Gráfica No. @N2@: @TITULO@ (%)", cex.main = .9)
-legend("topright", legend = categoria, fill = colores, cex = .6, bty = "n")
+pie(hi, labels = ifelse(hi >= 3, paste0(hi, " %"), ""), col = colores,   # circular: porción = hi
+    clockwise = TRUE, cex = .75, main = "Gráfica N° @N2@: @TITULO@ (%)", cex.main = .9)   # solo se rotulan las de 3 % o más
+legend("topright", legend = paste0(categoria, " (", hi, " %)"), fill = colores, cex = .6, bty = "n")   # leyenda con %
 dev.off()                                    # cierra y guarda la imagen
 '''
 
@@ -93,7 +94,18 @@ def cualitativa(clave, png):
     previo = ""
     if clave == "tipo_de_roca":
         previo = ('\nfrec <- prop.table(table(x))                 # proporción de cada tipo\n'
-                  'x[x %in% names(frec[frec < 0.01])] <- "otros" # los de menos de 1 % se juntan en "otros"')
+                  'x[x %in% names(frec[frec < 0.01])] <- "otros" # los de menos de 1 % se juntan en "otros"'
+                  '\nnombres <- c("igneous:volcanic:mafic" = "volcánica máfica", "igneous:plutonic:ultramafic" = "plutónica ultramáfica",\n        "igneous:volcanic:clastic" = "volcanoclástica", "igneous:volcanic:intermediate" = "volcánica intermedia",\n        "igneous:plutonic:mafic" = "plutónica máfica", "xenolith" = "xenolito", "metamorphic" = "metamórfica",\n        "igneous:volcanic:felsic" = "volcánica félsica")   # nombres en español\n'
+                  'cambia <- x %in% names(nombres)\n'
+                  'x[cambia] <- nombres[x[cambia]]               # se reemplazan por el nombre en español')
+    if clave == "clase_sio2":
+        previo = ('\nnombres <- c(ultrabasica = "ultrabásica", basica = "básica", intermedia = "intermedia", acida = "ácida")   # nombres en español\n'
+                  'cambia <- x %in% names(nombres)\n'
+                  'x[cambia] <- nombres[x[cambia]]               # se reemplazan por el nombre en español')
+    if clave == "grupo_tectonico":
+        previo = ('\nnombres <- c("dorsal y corteza oceanica" = "dorsal y corteza oceánica")   # nombres en español\n'
+                  'cambia <- x %in% names(nombres)\n'
+                  'x[cambia] <- nombres[x[cambia]]               # se reemplazan por el nombre en español')
     if clave == "alteracion":
         previo = ('\nx <- factor(x, levels = 0:5, labels = ' + r_vector(orden) + ')   # códigos 0-5 -> nombres')
     if orden:
@@ -151,19 +163,19 @@ layout(matrix(c(1, 1, 2, 3), 2, 2, byrow = TRUE), heights = c(1.15, 1))   # arri
 par(mar = c(8, 5, 4, 1))
 h <- barplot(hi, names.arg = etiq, space = 0, las = 2, col = "#3987e5", border = "white",   # histograma
              ylab = "Porcentaje (%)", cex.names = .75, ylim = c(0, max(hi) * 1.15),
-             main = "Gráfica No. @N1@: Histograma y polígono de frecuencias de @NOMBRE@ (@UNIDAD@)")
+             main = "Gráfica N° @N1@: Histograma y polígono de frecuencias de @NOMBRE@ (@UNIDAD@)")
 lines(c(h[1] - 1, h, h[length(h)] + 1), c(0, hi, 0), col = "#d95926", lwd = 2, type = "b", pch = 16, cex = .6)  # polígono
 mtext(if (length(nota) > 0) paste0("Clases abiertas (fuera del gráfico): ", paste(nota, collapse = " · ")) else "",
       side = 1, line = 6.5, cex = .7, col = "gray30")  # nota bajo el histograma
 par(mar = c(5, 5, 4, 1))
 plot(Ls, Hi_asc, type = "b", pch = 16, col = "#3987e5", ylim = c(0, 100),            # ojiva ascendente
      xlab = "@NOMBRE@ (@UNIDAD@)", ylab = "Porcentaje acumulado (%)",
-     main = "Gráfica No. @N2@: Ojiva ascendente y descendente")
+     main = "Gráfica N° @N2@: Ojiva ascendente y descendente")
 lines(Li, Hi_dsc, type = "b", pch = 17, col = "#d95926")                              # ojiva descendente
 abline(h = 50, lty = 3, col = "gray50")                # línea del 50 %: donde se cruzan está la mediana
 legend("right", c("ascendente (≤)", "descendente (≥)"), col = c("#3987e5", "#d95926"), pch = c(16, 17), bty = "n", cex = .85)
 boxplot(x, horizontal = TRUE, col = "#86b6ef", xlab = "@NOMBRE@ (@UNIDAD@)",       # diagrama de caja
-        main = "Gráfica No. @N3@: Diagrama de caja (todos los datos)")
+        main = "Gráfica N° @N3@: Diagrama de caja (todos los datos)")
 dev.off()                                              # cierra y guarda la imagen
 '''
 

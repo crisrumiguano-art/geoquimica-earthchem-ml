@@ -16,7 +16,7 @@ output:
 
 ## 1. Carga de datos
 
-La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 análisis sorteados de los 159 760 de
+La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 porciones de roca sorteadas de las 159 760 de
 la base (semilla 2026). Con la base entera, el test de chi-cuadrado rechaza cualquier modelo por diferencias mínimas;
 con una muestra aleatoria mide lo que importa. La base completa se usa al final para comprobar el intervalo de confianza.
 
@@ -33,7 +33,7 @@ dim(muestra)           # filas y columnas
 
 ## 2. Tabla de distribución de cantidad
 
-Variable **discreta**: el número de rocas volcánicas intermedias (andesitas) en un lote de 30 análisis. Es un conteo de un evento poco frecuente (cerca del 6 % de los análisis). Antes se probó con N Analytes (número de analitos) y **no sirvió**: su varianza (122) es once veces su media (10,8) y el modelo de Poisson exige que sean iguales; el chi-cuadrado salió miles de veces mayor que el umbral.
+Variable **discreta**: el número de rocas volcánicas intermedias (andesitas) en un lote de 30 porciones de roca. Es un conteo de un evento poco frecuente (cerca del 6 % de las rocas). Antes se probó con N Analytes (número de analitos) y **no sirvió**: su varianza (122) es once veces su media (10,8) y el modelo de Poisson exige que sean iguales; el chi-cuadrado salió miles de veces mayor que el umbral.
 
 ```{r tabla}
 x <- as.character(muestra[["Sample Type"]])
@@ -55,7 +55,7 @@ knitr::kable(TDF, caption = "Tabla N° 1: distribución de X = rocas intermedias
 
 ```{r grafica, fig.width = 8, fig.height = 4.8}
 barplot(hi, names.arg = 0:max(y), col = "#86b6ef", border = "white", las = 1,
-        main = "Gráfica N° 1: Rocas volcánicas intermedias en lotes de 30 análisis", xlab = "Rocas intermedias en el lote", ylab = "Porcentaje (%)")
+        main = "Gráfica N° 1: Rocas volcánicas intermedias en lotes de 30 porciones de roca", xlab = "Rocas intermedias en el lote", ylab = "Porcentaje (%)")
 ```
 
 ## 4. Conjetura del modelo
@@ -104,7 +104,7 @@ El chi-cuadrado (`r round(x2, 2)`) es `r ifelse(x2 < umbral, "menor", "mayor")` 
 
 ## 6. Estimación de probabilidades
 
-**En un lote de 30 análisis, ¿cuál es la probabilidad de que no haya ninguna roca intermedia?**
+**En un lote de 30 porciones de roca, ¿cuál es la probabilidad de que no haya ninguna roca intermedia?**
 
 ```{r prob1, fig.width = 8, fig.height = 4.5}
 p1 <- dpois(0, lambda)
@@ -116,7 +116,7 @@ barplot(Pp * 100, names.arg = vp, las = 1, border = "white", col = ifelse(vp == 
 legend("topright", paste0("P = ", round(p1 * 100, 2), " %"), bty = "n", cex = 1.1)
 ```
 
-**En 50 lotes de 30 análisis, ¿en cuántos habría 3 o más rocas intermedias?**
+**En 50 lotes de 30 porciones de roca, ¿en cuántos habría 3 o más rocas intermedias?**
 
 ```{r prob2}
 p3 <- 1 - ppois(2, lambda)
@@ -150,7 +150,7 @@ c(proporcion_real = p_real, dentro_del_intervalo = p_real >= IC[["inferior"]] & 
 
 ## 8. Conclusión
 
-El número de rocas volcánicas intermedias en un lote de 30 análisis sigue un **modelo de Poisson** con λ = `r round(lambda, 2)`. El modelo pasa el test (chi-cuadrado `r round(x2, 2)` < umbral `r round(umbral, 2)`; Pearson
+El número de rocas volcánicas intermedias en un lote de 30 porciones de roca sigue un **modelo de Poisson** con λ = `r round(lambda, 2)`. El modelo pasa el test (chi-cuadrado `r round(x2, 2)` < umbral `r round(umbral, 2)`; Pearson
 `r round(pearson, 1)` %). Con el 95 % de confianza, la proporción poblacional de rocas volcánicas intermedias está entre
 `r round(IC[["inferior"]] * 100, 2)` % y `r round(IC[["superior"]] * 100, 2)` %, y la proporción real de la base
 (`r round(p_real * 100, 2)` %) `r ifelse(p_real >= IC[["inferior"]] & p_real <= IC[["superior"]], "cae dentro", "queda fuera")` del intervalo.

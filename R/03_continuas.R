@@ -24,7 +24,7 @@ VARIABLES <- list(
 )
 
 libro <- createWorkbook()   # Excel vacío
-n_graf <- 1                 # número de la próxima gráfica
+n_graf <- 15                # número de la próxima gráfica (cualitativas 1-8, discretas 9-14)
 
 for (v in VARIABLES) {                       # repite para cada variable
   tiene <- !is.na(base[[v$col]])             # TRUE = la fila tiene dato
