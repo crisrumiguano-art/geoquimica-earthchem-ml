@@ -61,8 +61,11 @@
         <li><b>Prueba y error, documentado.</b> Se probaron 50 variables químicas con los modelos normal, log-normal y exponencial,
           y se eligió el modelo que pasa la prueba y tiene sentido geológico. También se registra lo que no funcionó: el número
           de analitos no sigue un modelo de Poisson (su varianza, 122, es once veces su media, 10,8).</li>
-        <li><b>La población se conoce.</b> Como se tiene la base completa, cada intervalo de confianza se comprueba con el valor
-          real. En los siete modelos, el valor real cae dentro del intervalo.</li>
+        <li><b>Población, marco y muestra.</b> La población son todas las porciones de roca de la Tierra: es infinita y nunca
+          se conoce. La base PetDB es el <b>marco muestral</b>, la lista de la que se sortearon las 1.061 porciones de roca;
+          por eso la inferencia vale para la población que representa la base, con su sesgo hacia las rocas oceánicas.</li>
+        <li><b>Validación del método.</b> El valor del marco sí se puede calcular con la base completa. En los siete modelos,
+          el intervalo de confianza calculado con la muestra contiene ese valor: el procedimiento funciona.</li>
       </ol>
     </div>
   </section>
@@ -72,7 +75,7 @@
       <p>Un modelo se acepta cuando el chi-cuadrado calculado es menor que el umbral de la tabla (95 % de confianza).</p></div>
     <div class="tabla rev"><table id="t-resumen"><thead><tr>
       <th>Tipo</th><th>Variable aleatoria</th><th>Modelo</th><th>Parámetros</th><th class="n">n</th><th class="n">χ²</th>
-      <th class="n">Umbral</th><th class="n">Pearson (%)</th><th>Intervalo 95 %</th><th class="n">Valor real</th><th>Documento</th>
+      <th class="n">Umbral</th><th class="n">Pearson (%)</th><th>Intervalo 95 %</th><th class="n">Valor en el marco (base)</th><th>Documento</th>
     </tr></thead><tbody></tbody></table></div>
   </section>
 
@@ -158,7 +161,8 @@
     </div>
     <p class="rev" style="color:var(--text-secondary);max-width:900px;margin-top:1.4rem">Izquierda: las medias de 1.000 muestras de
       30 basaltos forman una campana normal, con la desviación que predice el teorema (σ/√30). Derecha: el intervalo del 95 % para
-      la media de SiO<sub>2</sub> en basaltos, calculado con la muestra, contiene la media real de la base completa (49,26 %). La
+      la media de SiO<sub>2</sub> en basaltos, calculado con la muestra, contiene la media del marco muestral, es decir de
+      todos los basaltos de la base (49,26 %). La
       tabla del resumen muestra la misma comprobación para los siete modelos.</p>
   </section>
 </main>

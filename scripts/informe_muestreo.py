@@ -142,8 +142,9 @@ def main():
     I.h("7. ¿Se aplicó a la data?", 1)
     I.p("Sí, desde esta lección. Hasta ahora la estadística descriptiva se hizo con la base completa (no hacía falta "
         "muestrear para describir). Ahora las tres muestras están guardadas y se pueden abrir en Excel:")
-    I.lista([(("data/muestras/muestra_aleatoria.csv", "c"),), (("data/muestras/muestra_sistematica.csv", "c"),),
-             (("data/muestras/muestra_estratificada.csv", "c"), " — la que se usará en la Unidad 2"),
+    I.lista([(("data/muestras/muestra_aleatoria.csv", "c"), " — la que usa la Unidad 2: sus sorteos son independientes, como "
+              "exigen los modelos de probabilidad"), (("data/muestras/muestra_sistematica.csv", "c"),),
+             (("data/muestras/muestra_estratificada.csv", "c"), " — la más representativa de los ambientes tectónicos"),
              (("R/salidas/Muestreo.xlsx", "c"), " — todas las tablas de este informe")])
     I.p("Para volver a generarlas: abrir ", ("R/04_muestreo.R", "c"), " en RStudio con la carpeta del repositorio como "
         "directorio de trabajo y ejecutar todo (o ", ("Rscript R/04_muestreo.R", "c"), "). Este informe se genera con ",

@@ -1590,8 +1590,17 @@ FIGEMPA – UCE). Datos: EarthChem PetDB (CC BY 4.0), descargados el
 simple</strong> de la Lección 3: 1 061 porciones de roca sorteadas de
 las 159 760 de la base (semilla 2026). Con la base entera, el test de
 chi-cuadrado rechaza cualquier modelo por diferencias mínimas; con una
-muestra aleatoria mide lo que importa. La base completa se usa al final
-para comprobar el intervalo de confianza.</p>
+muestra aleatoria mide lo que importa.</p>
+<p><strong>Población, marco muestral y muestra.</strong> La población
+(U) son todas las porciones de roca de la corteza y del manto superior
+de la Tierra: es infinita y nunca se conoce. El <strong>marco
+muestral</strong> es la base EarthChem PetDB (159 760 porciones de roca
+registradas): la lista de la que se sorteó la muestra. Por eso, en
+rigor, la inferencia vale para la población que representa la base, con
+su sesgo hacia las rocas oceánicas (Lección 3). Al final, la base
+completa sirve para <strong>validar el método</strong>: si el intervalo
+calculado con la muestra contiene el valor del marco, el procedimiento
+funcionó.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>, <span class="at">message =</span> <span class="cn">FALSE</span>, <span class="at">warning =</span> <span class="cn">FALSE</span>, <span class="at">fig.align =</span> <span class="st">&quot;center&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(MASS)          <span class="co"># fitdistr(): estima los parámetros del modelo (viene con R)</span></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;data/muestras&quot;</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
@@ -1813,17 +1822,19 @@ normal.</p>
 <span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="fu">round</span>(IC <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">2</span>)                                     <span class="co"># en %</span></span></code></pre></div>
 <pre><code>##   inferior proporcion   superior 
 ##       4.27       5.66       7.04</code></pre>
-<p><strong>Comprobación con la base completa.</strong> La proporción
-real se conoce: ¿el intervalo la contiene?</p>
+<p><strong>Validación con el marco muestral.</strong> La proporción en
+toda la base (el marco del que se sorteó la muestra) sí se puede
+calcular: ¿el intervalo de la muestra la contiene? Es una prueba del
+método, no la proporción de la población.</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(<span class="st">&quot;data/earthchem_limpio.csv.gz&quot;</span>)) {</span>
 <span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>  <span class="fu">download.file</span>(<span class="st">&quot;https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz&quot;</span>, <span class="st">&quot;data/earthchem_limpio.csv.gz&quot;</span>, <span class="at">mode =</span> <span class="st">&quot;wb&quot;</span>)</span>
 <span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>}</span>
 <span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a>base <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">gzfile</span>(<span class="st">&quot;data/earthchem_limpio.csv.gz&quot;</span>, <span class="at">encoding =</span> <span class="st">&quot;UTF-8&quot;</span>), <span class="at">check.names =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a>todos <span class="ot">&lt;-</span> <span class="fu">as.character</span>(base[[<span class="st">&quot;Sample Type&quot;</span>]])</span>
 <span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a>todos <span class="ot">&lt;-</span> todos[<span class="sc">!</span><span class="fu">is.na</span>(todos) <span class="sc">&amp;</span> todos <span class="sc">!=</span> <span class="st">&quot;&quot;</span>]</span>
-<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a>p_real <span class="ot">&lt;-</span> <span class="fu">mean</span>(todos <span class="sc">==</span> <span class="st">&quot;igneous:volcanic:intermediate&quot;</span>)</span>
-<span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a><span class="fu">c</span>(<span class="at">proporcion_real =</span> p_real, <span class="at">dentro_del_intervalo =</span> p_real <span class="sc">&gt;=</span> IC[[<span class="st">&quot;inferior&quot;</span>]] <span class="sc">&amp;</span> p_real <span class="sc">&lt;=</span> IC[[<span class="st">&quot;superior&quot;</span>]])</span></code></pre></div>
-<pre><code>##      proporcion_real dentro_del_intervalo 
+<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a>p_marco <span class="ot">&lt;-</span> <span class="fu">mean</span>(todos <span class="sc">==</span> <span class="st">&quot;igneous:volcanic:intermediate&quot;</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a><span class="fu">c</span>(<span class="at">proporcion_marco =</span> p_marco, <span class="at">dentro_del_intervalo =</span> p_marco <span class="sc">&gt;=</span> IC[[<span class="st">&quot;inferior&quot;</span>]] <span class="sc">&amp;</span> p_marco <span class="sc">&lt;=</span> IC[[<span class="st">&quot;superior&quot;</span>]])</span></code></pre></div>
+<pre><code>##     proporcion_marco dentro_del_intervalo 
 ##           0.05831643           1.00000000</code></pre>
 </div>
 <div id="conclusión" class="section level2">
@@ -1832,8 +1843,8 @@ real se conoce: ¿el intervalo la contiene?</p>
 de roca sigue un <strong>modelo de Poisson</strong> con λ = 1.71. El
 modelo pasa el test (chi-cuadrado 0.77 &lt; umbral 7.81; Pearson 97.8
 %). Con el 95 % de confianza, la proporción poblacional de rocas
-volcánicas intermedias está entre 4.27 % y 7.04 %, y la proporción real
-de la base (5.83 %) cae dentro del intervalo.</p>
+volcánicas intermedias está entre 4.27 % y 7.04 %, y la proporción del
+marco muestral (5.83 %, toda la base) cae dentro del intervalo.</p>
 </div>
 
 

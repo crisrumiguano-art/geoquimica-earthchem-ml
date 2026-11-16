@@ -113,8 +113,64 @@
     </div>
   </section>
 
+  <section class="cap" id="conclusiones">
+    <div class="cab rev"><span class="num">04</span><h2>Conclusiones</h2>
+      <p>Lo que respondió el proyecto, objetivo por objetivo, con las cifras de cada unidad.</p></div>
+    <div class="callout rev">
+      <h3>Objetivo general</h3>
+      <p>La composición geoquímica de las 159.760 porciones de roca de EarthChem PetDB se pudo caracterizar estadísticamente, y
+        sí depende del tipo de roca y del ambiente tectónico: separar por esas dos variables convierte distribuciones con
+        varios picos y valores extremos en distribuciones simples, que ajustan a modelos de probabilidad, se relacionan entre
+        sí con regresiones fuertes y permiten reconocer el ambiente de formación de una roca a partir de su química.</p>
+    </div>
+    <div class="callout rev">
+      <h3>1 · Describir (Unidad 1)</h3>
+      <ol>
+        <li>La base está dominada por rocas del fondo oceánico: el 41,8 % es de dorsal y corteza oceánica y el 55,3 % son
+          rocas volcánicas máficas (basaltos). Es un sesgo de la compilación, no de la Tierra.</li>
+        <li>El SiO<sub>2</sub> tiene mediana 50,0 % (rango basáltico); el MgO es asimétrico (1,67) porque las peridotitas forman una
+          segunda población (16,6 % con MgO ≥ 20 %); el cromo varía varios órdenes de magnitud y solo se describe bien en log10.</li>
+        <li>Los valores atípicos son otras rocas, no errores: no se eliminaron. La agrupación por defecto no servía y se
+          reemplazó por intervalos sobre el rango intercuartílico más clases abiertas, con error de agrupación menor al 5 %.</li>
+      </ol>
+    </div>
+    <div class="callout rev">
+      <h3>2 · Modelar (Unidades 2 y 3)</h3>
+      <ol>
+        <li>Con la muestra aleatoria de 1.061 porciones de roca, los siete modelos de probabilidad pasan el chi-cuadrado al 95 %:
+          binomial, geométrico y Poisson para conteos, y normal (SiO<sub>2</sub>), log-normal (Zr), exponencial
+          (K<sub>2</sub>O) y beta (Mg#) en los basaltos.</li>
+        <li>Los siete intervalos de confianza del 95 % contienen el valor del marco muestral (la base completa): el
+          procedimiento de estimación funciona. Para toda la Tierra, la inferencia arrastra el sesgo oceánico de la base.</li>
+        <li>Los elementos con química parecida se explican uno a otro casi por completo: La–Ce (r = 0,97) y Zr–Hf (r = 0,97 en
+          logaritmos). La diferenciación magmática se ve en SiO<sub>2</sub>–MgO (r = −0,88) y en la curva de MgO–CaO
+          (r = 0,80). La regresión múltiple explica el 72 % del Nd y la logística reconoce las rocas de arco en el 84,6 % de
+          los casos.</li>
+      </ol>
+    </div>
+    <div class="callout rev">
+      <h3>3 · Predecir (Unidad 4)</h3>
+      <ol>
+        <li>Una red neuronal reconoce el ambiente tectónico de una roca volcánica con sus ocho óxidos mayores en el 86,7 % de
+          los casos nuevos (kappa 0,80), frente al 74,4 % de la regresión logística.</li>
+        <li>Otra red estima el níquel, un metal crítico, con R² = 0,835, frente a 0,58 del mejor modelo de una sola variable
+          de la Unidad 3: combinar todas las variables de forma no lineal mejora la predicción.</li>
+      </ol>
+    </div>
+    <div class="callout rev">
+      <h3>Limitaciones y recomendaciones</h3>
+      <ol>
+        <li>La base no es una muestra probabilística de la Tierra: tiene muchas más rocas oceánicas que continentales. Las
+          conclusiones valen para la población que representa PetDB.</li>
+        <li>La exportación casi no trae TiO<sub>2</sub>, un óxido clave para clasificar basaltos: conviene volver a exportarlo.</li>
+        <li>Los datos vienen de miles de laboratorios y de casi un siglo de métodos distintos; comparar por método analítico
+          y por estrato de roca es la forma de controlar ese efecto.</li>
+      </ol>
+    </div>
+  </section>
+
   <section class="cap" id="recorrido">
-    <div class="cab rev"><span class="num">04</span><h2>Recorrido del proyecto</h2>
+    <div class="cab rev"><span class="num">05</span><h2>Recorrido del proyecto</h2>
       <p>Cada unidad del curso tiene su propia página, con los documentos de R y los notebooks de Colab.</p></div>
     <div class="fuentes">
       <a class="fuente rev" href="descriptiva/"><div class="t">Unidad 1 · Lecciones 2–7</div><h3>Estadística descriptiva</h3><p>Población y muestra, tabla de variables, tablas de frecuencia, gráficas, indicadores y tratamiento de outliers.</p></a>
@@ -127,7 +183,7 @@
     </div>
   </section>
   <section class="cap" id="tecnologias">
-    <div class="cab rev"><span class="num">05</span><h2>Tecnologías usadas</h2>
+    <div class="cab rev"><span class="num">06</span><h2>Tecnologías usadas</h2>
       <p>Software libre o gratuito: cualquiera puede repetir el proyecto. Todo el código, los datos limpios y los documentos
         están en el repositorio.</p></div>
     <h3 class="tec-grupo rev">Estadística en R</h3>

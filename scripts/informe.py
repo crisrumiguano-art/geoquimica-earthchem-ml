@@ -193,23 +193,30 @@ def guia_equipo(I, df):
          "de las variables cualitativas, discretas y continuas; tratamiento de outliers; gráficos interactivos."),
         (("Datos: ", "b"), "de dónde salieron los datos, cómo se prepararon y todas las descargas."),
         (("Equipo: ", "b"), "integrantes y docente."),
-        (("Inferencial, Regresión y Machine learning: ", "b"), "aparecen como «pronto»; se completan en las próximas unidades."),
+        (("Inferencial (Unidad 2): ", "b"), "siete modelos de probabilidad con chi-cuadrado, probabilidades e intervalos de confianza."),
+        (("Regresión (Unidad 3): ", "b"), "regresiones lineal, potencial, exponencial, logarítmica, polinómica, múltiple y "
+         "logística, serie de tiempo y estadística multivariable."),
+        (("Machine learning (Unidad 4): ", "b"), "redes neuronales de regresión y de clasificación en Google Colab."),
+        (("Documentos en RPubs: ", "b"), "los 25 documentos de R, con código y resultados, en rpubs.com/rosemeri."),
     ])
     I.h("Estado por lección", 2)
     I.tabla([
         ["Lección", "Qué pide", "Estado"],
         ["L1–L2", "problema, objetivos; población, individuo y muestra", "Hecho (web: Inicio y Descriptiva 01)"],
-        ["L3", "muestreo y mapa de ubicación en QGIS", "Mapa hecho (QGIS y Python). Falta el informe de muestreo estratificado"],
+        ["L3", "muestreo y mapa de ubicación en QGIS", "Hecho (mapa QGIS A4 y A3; informe de muestreo)"],
         ["L4", "tabla de variables: nombre corto, tipo, subtipo, dominio, rango, instrumento, unidad, escala, variable de interés e individuo", "Hecho (web y Excel, formato del docente)"],
         ["L5", "tablas de frecuencia (TDF) y gráficas", "Hecho: 4 cualitativas, 2 discretas, 3 continuas (SiO2, MgO, Cr)"],
         ["L6", "indicadores de posición, dispersión y forma", "Hecho para esas variables; se puede ampliar a más"],
-        ["L7", "exposición de la etapa descriptiva y conclusiones", "Pendiente: redactar conclusiones y preparar la exposición"],
-        ["Unidades 2–4", "inferencia, regresión, red neuronal", "Pendiente"],
+        ["L7", "exposición de la etapa descriptiva", "Pendiente: preparar la exposición"],
+        ["L8–L12", "modelos de probabilidad, bondad de ajuste, intervalos de confianza", "Hecho (web Inferencial y RPubs)"],
+        ["L13–L17", "regresiones simples, múltiple, logística y series de tiempo", "Hecho (web Regresión y RPubs)"],
+        ["L18–L20", "redes neuronales de regresión y clasificación", "Hecho (web Machine learning y Colab)"],
     ], [2.2, 7, 7.1])
     I.h("Cinco ideas clave para la exposición", 2)
     I.lista([
         (("La muestra no es aleatoria. ", "b"), "PetDB reúne lo que los investigadores decidieron estudiar durante casi un siglo, "
-         "con más rocas del fondo del mar que de los continentes. Para la inferencia se usarán submuestras aleatorias por estrato."),
+         "con más rocas del fondo del mar que de los continentes. Por eso la inferencia usa una muestra aleatoria sorteada de la "
+         "base, que es el marco muestral."),
         (("Una celda vacía significa «no se midió», no cero. ", "b"), "Por eso cada análisis usa solo las filas que tienen "
          "medidas las variables de ese análisis, y siempre se informa cuántas son (n)."),
         (("La agrupación por defecto no servía. ", "b"), "Con Sturges sobre el rango completo, el 99,9 % del cromo caía en un solo "
@@ -357,7 +364,8 @@ def parte_base(I, df):
     I.p(("Sesgos de origen. ", "b"), f"Hay muchos más basaltos de fondo oceánico que rocas continentales y los métodos de "
         f"laboratorio cambiaron en casi un siglo. El ambiente más frecuente, {tec.index[0].lower()}, reúne "
         f"{miles(int(tec.iloc[0]))} muestras, mientras otros tienen apenas decenas. La muestra no es probabilística: la "
-        "inferencia deberá hacerse con submuestras aleatorias estratificadas.")
+        "inferencia (Unidad 2) se hace con la muestra aleatoria simple sorteada de la base en la Lección 3, y la base es el "
+        "marco muestral.")
 
     I.h("7. Acceso y cita", 2)
     I.p("La base limpia está en ", ("data/earthchem_limpio.csv.gz", "c"), " (CSV comprimido, 26 MB). Para abrirla en Excel: "
@@ -418,12 +426,118 @@ def parte_descriptiva(I, df):
     I.salto()
 
 
+def parte_unidades_2a4(I):
+    datos = RAIZ / "docs" / "data"
+    inf = json.loads((datos / "inferencial.json").read_text(encoding="utf-8"))
+    reg = json.loads((datos / "regresion.json").read_text(encoding="utf-8"))
+    ml_r = json.loads((datos / "ml_regresion.json").read_text(encoding="utf-8"))["regresion"]
+    ml_c = json.loads((datos / "ml_clasificacion.json").read_text(encoding="utf-8"))["clasificacion"]
+    coma = lambda v, d=2: f"{float(v):.{d}f}".replace(".", ",")  # noqa: E731
+
+    I.h("Parte III. Estadística inferencial", 1)
+    I.h("11. Población, marco muestral y muestra", 2)
+    I.p("La población (U) son todas las porciones de roca de la corteza y del manto superior de la Tierra: es infinita y "
+        "nunca se conoce. La base EarthChem PetDB (159 760 porciones de roca) es el marco muestral: la lista de la que, en la "
+        "Lección 3, se sorteó una muestra aleatoria simple de 1 061 porciones de roca (semilla 2026). La inferencia se hace "
+        "con esa muestra, porque con la base entera el chi-cuadrado rechaza cualquier modelo por diferencias mínimas, y "
+        "porque los modelos de probabilidad suponen sorteos independientes. Las conclusiones valen, en rigor, para la "
+        "población que representa la base, con su sesgo hacia las rocas oceánicas.")
+    I.h("12. Modelos de probabilidad", 2)
+    I.p("Cada modelo sigue los pasos de la plantilla del curso: tabla y gráfica de la distribución, conjetura del modelo, "
+        "test de aprobación (correlación de Pearson entre frecuencias observadas y esperadas, y chi-cuadrado frente al "
+        "umbral al 95 %), cálculo de probabilidades, intervalo de confianza y conclusión. Las variables continuas se modelan "
+        "en los basaltos (rocas volcánicas máficas), porque mezclar tipos de roca da histogramas con varios picos. Los siete "
+        "modelos pasan la prueba:")
+    filas = [["Tipo", "Modelo", "Variable", "Parámetros", "χ²", "Umbral", "IC 95 %"]]
+    for f in inf:
+        filas.append([f["tipo"], f["modelo"], f["variable"], f["parametros"].replace(".", ","), coma(f["chi2"]),
+                      coma(f["umbral"]), f["ic"].replace(".", ",")])
+    I.tabla(filas, [1.8, 1.9, 4.2, 3.4, 1.3, 1.5, 2.6])
+    I.imagen(RAIZ / "docs" / "img" / "inferencial" / "inf_04_normal_SiO2-conjetura.png", 13,
+             "SiO2 en basaltos: histograma y curva del modelo normal.")
+    I.p("Las variables se eligieron probando: 50 variables químicas con los modelos normal, log-normal y exponencial, y "
+        "conteos de categorías para los modelos discretos. También se informa lo que no funcionó: el número de analitos no "
+        "sigue un modelo de Poisson, porque su varianza (122) es once veces su media (10,8).")
+    I.h("13. Intervalos de confianza y Teorema del Límite Central", 2)
+    I.p("Por el Teorema del Límite Central, la media de una muestra grande se distribuye normal con error estándar σ/√n; el "
+        "intervalo del 95 % es media ± 1,96·σ/√n (para proporciones, p ± 1,96·√(p(1 − p)/n)). Como la base completa es el "
+        "marco muestral, su valor se puede calcular: en los siete modelos el intervalo hecho con la muestra lo contiene, lo "
+        "que valida el procedimiento.")
+    I.imagen(RAIZ / "docs" / "img" / "inferencial" / "inf_04_normal_SiO2-tlc.png", 13,
+             "Medias de 1 000 muestras de 30 basaltos: forman la campana normal que predice el teorema.")
+
+    I.h("Parte IV. Regresión", 1)
+    I.h("14. Modelos de regresión", 2)
+    I.p("Los modelos no lineales se ajustan como en la plantilla del curso: se transforman las variables con logaritmos y se "
+        "ajusta una recta por mínimos cuadrados. Cada par se eligió probando los cinco modelos en 28 pares de variables; el "
+        "elegido es el que mejor ajusta, y cada documento muestra la comparación, las restricciones y un pronóstico.")
+    filas = [["Modelo", "x → y", "Ecuación", "r", "r² (%)"]]
+    for f in reg:
+        r = "—" if f["r"] in ("", "NA") else coma(f["r"], 3)
+        r2 = "—" if f["r2"] in ("", "NA") else coma(f["r2"], 1)
+        filas.append([f["modelo"], f"{f['x']} → {f['y']}", f["ecuacion"].replace(".", ",").replace("+ -", "− "), r, r2])
+    I.tabla(filas, [2.3, 5.2, 5.6, 1.5, 1.6])
+    I.imagen(RAIZ / "docs" / "img" / "regresion" / "reg_05_polinomica_MgO_CaO-conjetura.png", 13,
+             "MgO y CaO: el calcio sube en los basaltos y baja en las peridotitas; una recta no puede seguir esa curva.")
+    I.p("En lantano–cerio, unos pocos análisis con una razón Ce/La imposible en rocas naturales tiran la recta (distancia de "
+        "Cook muy alta); el ajuste usa el 97 % de pares con Ce/La entre 0,5 y 5. En sílice–magnesio se usan solo rocas "
+        "silicatadas (SiO2 entre 35 y 80 %). Nada se borra de la base. La regresión logística reconoce si una roca volcánica "
+        "es de margen convergente en el 84,6 % de los casos de prueba.")
+    I.h("15. Serie de tiempo y estadística multivariable", 2)
+    I.p("La cantidad de análisis publicados por año (1965–2024) crece de largo plazo, con ciclos ligados a las campañas de "
+        "perforación oceánica; con datos anuales no hay estacionalidad. Se calcularon la tendencia por regresión, la media "
+        "móvil de 5 años y la suavización exponencial de Holt, con pronóstico hasta 2029. En el análisis multivariable, los "
+        "dos primeros componentes principales de los ocho óxidos mayores resumen el 58,7 % de la variación; el primero opone "
+        "el magnesio a la sílice y ordena las rocas de ultramáficas a félsicas.")
+    I.imagen(RAIZ / "docs" / "img" / "regresion" / "reg_08_multivariado-biplot.png", 12,
+             "Las rocas en el plano de los dos primeros componentes principales.")
+
+    I.h("Parte V. Machine learning", 1)
+    I.h("16. Redes neuronales de regresión y de clasificación", 2)
+    I.p("Dos redes neuronales en Python (TensorFlow y Keras), en notebooks de Google Colab. Los datos se dividen en "
+        "entrenamiento (70 %), validación (15 %) y prueba (15 %), se normalizan con los datos de entrenamiento y la "
+        "arquitectura se elige con Optuna (búsqueda automática de hiperparámetros).")
+    I.tabla([
+        ["Problema", "Modelo", "Resultado en datos de prueba"],
+        *[["Regresión: log10(Ni) con 8 óxidos", c["modelo"], f"R² = {coma(c['R2'], 3)}"] for c in ml_r["comparacion"]],
+        *[["Clasificación: ambiente tectónico", c["modelo"], f"exactitud {coma(c['exactitud'] * 100, 1)} %, kappa {coma(c['kappa'], 2)}"]
+          for c in ml_c["comparacion"]],
+    ], [5.5, 5.5, 5.3])
+    I.imagen(RAIZ / "docs" / "img" / "ml" / "clas_confusion.png", 10,
+             "Matriz de confusión de la red de clasificación (proporción por clase real).")
+    I.p(f"La red de regresión usa {ml_r['n']:,} porciones de roca con los ocho óxidos y níquel; la de clasificación, "
+        f"{ml_c['n']:,} rocas volcánicas. Combinar todas las variables de forma no lineal mejora claramente a los modelos "
+        "clásicos de la Unidad 3.".replace(",", " "))
+
+    I.h("Parte VI. Conclusiones", 1)
+    I.h("17. Conclusiones del proyecto", 2)
+    I.p(("Objetivo general. ", "b"), "La composición geoquímica de las 159 760 porciones de roca de EarthChem PetDB se pudo "
+        "caracterizar estadísticamente, y sí depende del tipo de roca y del ambiente tectónico: separar por esas dos "
+        "variables convierte distribuciones con varios picos y valores extremos en distribuciones simples, que ajustan a "
+        "modelos de probabilidad, se relacionan con regresiones fuertes y permiten reconocer el ambiente de formación de una "
+        "roca a partir de su química.")
+    I.lista([
+        (("Describir. ", "b"), "La base está dominada por rocas del fondo oceánico (41,8 % de dorsal; 55,3 % de rocas "
+         "volcánicas máficas). El SiO2 tiene mediana 50,0 %, el MgO es asimétrico por las peridotitas y el cromo solo se "
+         "describe bien en log10. Los valores atípicos son otras rocas y no se eliminaron."),
+        (("Modelar. ", "b"), "Con la muestra aleatoria, los siete modelos de probabilidad pasan el chi-cuadrado al 95 % y los "
+         "siete intervalos de confianza contienen el valor del marco muestral. Las regresiones entre elementos de química "
+         "parecida son casi perfectas (La–Ce y Zr–Hf, r = 0,97) y la diferenciación magmática se ve en SiO2–MgO (r = −0,88)."),
+        (("Predecir. ", "b"), "Una red neuronal reconoce el ambiente tectónico de una roca volcánica en el 86,7 % de los casos "
+         "nuevos (kappa 0,80) y otra estima el níquel con R² = 0,835, por encima de los modelos clásicos."),
+        (("Limitaciones. ", "b"), "La base no es una muestra probabilística de la Tierra y tiene sesgo oceánico; casi no trae "
+         "TiO2; y reúne datos de miles de laboratorios y métodos. Las conclusiones valen para la población que representa "
+         "PetDB."),
+    ])
+    I.salto()
+
+
 def parte_tecnica(I):
-    I.h("Parte III. Cómo se construyó: documentación técnica", 1)
+    I.h("Parte VII. Cómo se construyó: documentación técnica", 1)
     I.p("Esta parte explica cómo se hizo cada producto del proyecto, con qué herramientas y por qué, para que cualquier "
         "integrante (o el docente) pueda entenderlo, reproducirlo y modificarlo. Todo el código está en el repositorio.")
 
-    I.h("11. Arquitectura general", 2)
+    I.h("18. Arquitectura general", 2)
     I.p("El proyecto es una cadena de pasos donde cada uno lee el resultado del anterior. No hay servidor ni base de datos "
         "en línea: todo se calcula en la computadora y el resultado se publica como archivos estáticos.")
     I.codigo("""
@@ -442,7 +556,7 @@ data/earthchem_limpio.csv.gz  ── base limpia: 159.760 × 75
 docs/  (la web estática) ── git push ──► GitHub Pages
 """)
 
-    I.h("12. Herramientas y librerías", 2)
+    I.h("19. Herramientas y librerías", 2)
     I.tabla([
         ["Herramienta", "Versión", "Para qué se usó"],
         ["Python", "3.13", "limpieza, tabla de variables, mapa, agregados de la web, informe"],
@@ -451,10 +565,16 @@ docs/  (la web estática) ── git push ──► GitHub Pages
         ["openpyxl", "3.1", "exportar la tabla de variables a Excel"],
         ["geopandas, shapely, pyproj, pyogrio", "1.1 / 2.1 / 3.7 / 0.12", "capas GIS, reproyección a Robinson, GeoPackage"],
         ["matplotlib + matplotlib-scalebar", "3.10 / 0.9", "mapa de ubicación con escala, norte y grilla"],
-        ["QGIS (PyQGIS)", "3.44", "proyecto .qgz y composición de impresión A4"],
+        ["QGIS (PyQGIS)", "3.44", "proyecto .qgz y composiciones de impresión A4 y A3, en EPSG:4087"],
         ["Natural Earth 1:110m", "—", "límites de países (dominio público)"],
-        ["R", "4.6.1", "estadística descriptiva (exigencia de la asignatura)"],
+        ["R", "4.6.1", "toda la estadística: descriptiva, inferencial y regresión (exigencia de la asignatura)"],
         ["e1071 / openxlsx (R)", "1.7 / 4.2", "asimetría y curtosis; exportar TDF a Excel"],
+        ["MASS (R)", "incluida en R", "ajuste de modelos de probabilidad (fitdistr)"],
+        ["rmarkdown, knitr, pandoc", "2.32 / 1.52 / 3.9", "documentos con código y resultados publicados en RPubs"],
+        ["TensorFlow / Keras", "2.21", "redes neuronales de regresión y de clasificación"],
+        ["Optuna", "5.0", "búsqueda automática de hiperparámetros"],
+        ["scikit-learn", "1.8", "división de datos, normalización, métricas y modelos de comparación"],
+        ["Jupyter / Google Colab", "—", "notebooks de la Unidad 4"],
         ["HTML5, CSS3, JavaScript", "—", "la página web, sin framework"],
         ["Plotly.js (CDN)", "2.35.2", "gráficos interactivos: mapa, barras, diagrama TAS"],
         ["Google Fonts", "—", "Fraunces, Instrument Sans y JetBrains Mono"],
@@ -464,7 +584,7 @@ docs/  (la web estática) ── git push ──► GitHub Pages
         ["Git, GitHub, GitHub Pages, gh CLI", "—", "control de versiones y publicación de la web"],
     ], [5.2, 2.6, 8.5])
 
-    I.h("13. Limpieza de la base (scripts/limpiar.py)", 2)
+    I.h("20. Limpieza de la base (scripts/limpiar.py)", 2)
     I.p("El CSV crudo tiene 2.318 columnas y celdas con saltos de línea, así que no se carga entero con pandas: se recorre "
         "fila por fila con el módulo csv de la biblioteca estándar, en dos pasadas. La primera cuenta cuántos valores "
         "numéricos tiene cada columna química y comprueba que el nombre de cada muestra coincida con el del archivo de "
@@ -485,7 +605,7 @@ def grupo_tectonico(ambiente):
         "método analítico más frecuente de cada variable, leído de las columnas Method del archivo crudo (por ejemplo, el "
         "SiO2 se midió con fluorescencia de rayos X en el 64 % de los casos).")
 
-    I.h("14. Mapa de ubicación (Python y QGIS)", 2)
+    I.h("21. Mapa de ubicación (Python y QGIS)", 2)
     I.p(("scripts/mapa.py", "c"), " convierte las coordenadas en puntos con geopandas, descarga los límites de países de "
         "Natural Earth y genera una grilla de 30° y el contorno del globo. Todo se guarda en un GeoPackage (",
         ("data/gis/mapa_ubicacion.gpkg", "c"), ") en WGS84, con nombres de campo cortos para la tabla de atributos de QGIS. "
@@ -500,7 +620,7 @@ def grupo_tectonico(ambiente):
         "y al logo.")
     I.imagen(RAIZ / "docs" / "img" / "mapa_qgis.png", 16, "Composición A4 generada con PyQGIS.")
 
-    I.h("15. Estadística en R (carpeta R/)", 2)
+    I.h("22. Estadística en R (carpeta R/)", 2)
     I.p(("R/funciones.R", "c"), " reúne las funciones comunes; los scripts ", ("01_cualitativas.R", "c"), ", ",
         ("02_discretas.R", "c"), " y ", ("03_continuas.R", "c"), " las aplican. La función central arma la TDF; sin "
         "argumentos reproduce exactamente la plantilla del curso, y con un rango típico agrega las clases abiertas:")
@@ -515,8 +635,8 @@ error_agrupacion(x, tdf_fin)                         # media y desviación agrup
         "R 4.6 para Windows, read.csv sobre el archivo .gz se cerraba con un error de segmentación; se resolvió abriéndolo "
         "con gzfile y codificación UTF-8 explícita (función leer_base).")
 
-    I.h("16. La página web", 2)
-    I.h("16.1 Estructura y tecnología", 3)
+    I.h("23. La página web", 2)
+    I.h("23.1 Estructura y tecnología", 3)
     I.p("La web es un sitio estático: archivos HTML, CSS y JavaScript que el navegador lee directamente, sin framework ni "
         "paso de compilación. Se eligió así para que GitHub Pages la sirva gratis tal cual y para que cualquier integrante "
         "pueda editarla con un editor de texto. Tiene una página por unidad del curso, que comparten un archivo de estilos "
@@ -532,7 +652,7 @@ error_agrupacion(x, tdf_fin)                         # media y desviación agrup
         ["docs/data/", "resumen.json, variables.json y las TDF en CSV"],
         ["docs/img/", "fotos, mapas, gráficas de R e imágenes ilustrativas"],
     ], [5.5, 10.8])
-    I.h("16.2 Cómo carga los datos", 3)
+    I.h("23.2 Cómo carga los datos", 3)
     I.p("La página no contiene los datos escritos en el HTML: los pide al cargarse con fetch y los dibuja. La tabla de "
         "variables viene de variables.json; los gráficos interactivos, de resumen.json (254 KB con agregados y muestras de "
         "6.000 puntos, en lugar de la base completa de 26 MB); y las TDF, de los CSV que exporta R. Para leer esos CSV sin "
@@ -548,7 +668,7 @@ async function leerCSV(url) {
 """)
     I.p("Por eso la web debe verse a través de un servidor (GitHub Pages, o localmente con ", ("python -m http.server", "c"),
         "): abriendo el archivo con doble clic, el navegador bloquea esas lecturas.")
-    I.h("16.3 Componentes y comportamiento", 3)
+    I.h("23.3 Componentes y comportamiento", 3)
     I.lista([
         (("Navegación entre páginas: ", "b"), "un menú fijo marca la página actual (atributo data-pagina del body); las "
          "unidades aún no hechas aparecen como «pronto»."),
@@ -560,7 +680,7 @@ async function leerCSV(url) {
         (("Gráficos interactivos: ", "b"), "Plotly.js dibuja el mapa mundial, las barras de ambientes tectónicos y el "
          "diagrama TAS, con información al pasar el cursor."),
     ])
-    I.h("16.4 Diseño", 3)
+    I.h("23.4 Diseño", 3)
     I.p("La dirección visual es la de una revista científica sobre un tema oscuro «basalto»: fondo casi negro cálido, texto "
         "color hueso y un acento color magma. Los colores se definen una sola vez como variables CSS y el resto del código "
         "las usa por nombre, de modo que cambiar un color se hace en un solo lugar:")
@@ -576,7 +696,7 @@ async function leerCSV(url) {
         "paleta validada para personas con daltonismo, y son los mismos en la web, en el mapa de Python y en el de QGIS. "
         "Nunca se usan más de tres colores de categoría en un mismo gráfico. La tipografía combina Fraunces para títulos, "
         "Instrument Sans para el texto y JetBrains Mono para cifras y fórmulas.")
-    I.h("16.5 Accesibilidad, celulares y rendimiento", 3)
+    I.h("23.5 Accesibilidad, celulares y rendimiento", 3)
     I.lista([
         "Todas las imágenes tienen texto alternativo; las pestañas y botones de filtro usan atributos ARIA.",
         "Si el sistema pide reducir el movimiento (prefers-reduced-motion), se desactivan las animaciones.",
@@ -585,7 +705,7 @@ async function leerCSV(url) {
         "Las imágenes fuera de pantalla se cargan recién al acercarse (loading=\"lazy\") y los scripts se cargan con defer.",
         "Las imágenes generadas se comprimieron a JPEG (unos 170–335 KB cada una).",
     ])
-    I.h("16.6 Imágenes", 3)
+    I.h("23.6 Imágenes", 3)
     I.p("Las fotos del equipo son reales: se recortaron a 400 × 400 px con Pillow. Las imágenes ilustrativas (lámina "
         "delgada de basalto, Andes ecuatorianos, buque de perforación, testigos de roca) se generaron con Google Flow desde "
         "la terminal con gflow-cli, por ejemplo:")
@@ -594,7 +714,7 @@ async function leerCSV(url) {
     I.p("La web indica en los pies y en el pie de página que esas imágenes son ilustrativas y fueron generadas con IA. El "
         "favicon (el logo «Pt») se dibujó en SVG y se exportó a ICO y PNG con Pillow.")
 
-    I.h("17. Publicación y control de versiones", 2)
+    I.h("24. Publicación y control de versiones", 2)
     I.p("El proyecto vive en un repositorio Git publicado en GitHub. Cada cambio se registra como un commit con un mensaje "
         "que explica qué se hizo, así que el historial documenta cómo evolucionó el trabajo. GitHub Pages está configurado "
         "para publicar la carpeta docs/ de la rama main: cada git push que modifica esa carpeta actualiza la web en uno a "
@@ -606,7 +726,7 @@ async function leerCSV(url) {
     I.p("Límites a tener en cuenta: GitHub rechaza archivos de más de 100 MB, por eso los datos crudos (~600 MB) no están en "
         "el repositorio. Los archivos más pesados que sí están son las capas GIS (~35 MB) y la base limpia (~26 MB).")
 
-    I.h("18. Documentación del proyecto", 2)
+    I.h("25. Documentación del proyecto", 2)
     I.lista([
         (("README.md: ", "b"), "la portada del repositorio en GitHub, con enlaces a todo."),
         (("AGENTS.md: ", "b"), "reglas y decisiones del proyecto (requisitos del curso, decisiones de limpieza, trampas de "
@@ -618,7 +738,7 @@ async function leerCSV(url) {
         (("Este informe: ", "b"), "se genera con scripts/informe.py, así que se actualiza solo si cambian los datos."),
     ])
 
-    I.h("19. Cómo reproducir todo", 2)
+    I.h("26. Cómo reproducir todo", 2)
     I.p("Los dos CSV crudos están respaldados en Google Drive (carpeta 10-26 GDRIVE GEOQUIMICA ROCAS › datos_crudos_earthchem). "
         "En la computadora de Dalember, data/raw/crudos es un enlace (junction) a esa carpeta, y los scripts la usan por "
         "defecto. En otra computadora, basta con copiar ahí los CSV o pasar su carpeta como argumento. Desde la raíz del "
@@ -639,7 +759,7 @@ git add -A && git commit -m "..." && git push
     I.p("Para revisar la web antes de publicarla: ", ("python -m http.server 8765 -d docs", "c"), " y abrir "
         "http://localhost:8765/ en el navegador.")
 
-    I.h("20. Limitaciones técnicas y mantenimiento", 2)
+    I.h("27. Limitaciones técnicas y mantenimiento", 2)
     I.lista([
         "El menú de navegación está repetido en cada página: al agregar una página (por ejemplo, Inferencial) hay que "
         "actualizarlo en todas.",
@@ -699,6 +819,7 @@ def main():
     guia_equipo(I, df)
     parte_base(I, df)
     parte_descriptiva(I, df)
+    parte_unidades_2a4(I)
     parte_tecnica(I)
     anexos(I, df)
     I.d.core_properties.title = "Geoquímica de rocas a escala mundial — Informe del proyecto"

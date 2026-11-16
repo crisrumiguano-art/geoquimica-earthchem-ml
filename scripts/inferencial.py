@@ -45,7 +45,13 @@ output:
 
 La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 porciones de roca sorteadas de las 159 760 de
 la base (semilla 2026). Con la base entera, el test de chi-cuadrado rechaza cualquier modelo por diferencias mínimas;
-con una muestra aleatoria mide lo que importa. La base completa se usa al final para comprobar el intervalo de confianza.
+con una muestra aleatoria mide lo que importa.
+
+**Población, marco muestral y muestra.** La población (U) son todas las porciones de roca de la corteza y del manto
+superior de la Tierra: es infinita y nunca se conoce. El **marco muestral** es la base EarthChem PetDB (159 760 porciones
+de roca registradas): la lista de la que se sorteó la muestra. Por eso, en rigor, la inferencia vale para la población
+que representa la base, con su sesgo hacia las rocas oceánicas (Lección 3). Al final, la base completa sirve para
+**validar el método**: si el intervalo calculado con la muestra contiene el valor del marco, el procedimiento funcionó.
 
 ```{{r carga}}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
@@ -195,8 +201,9 @@ n_necesario <- ceiling((z * sigma / (E / 2))^2)        # tamaño para un error l
 n_necesario
 ```
 
-**Comprobación con la base completa.** La población real se conoce: ¿el intervalo contiene la media de todos los
-basaltos de la base?
+**Validación con el marco muestral.** La media de todos los basaltos de la base sí se puede calcular, porque la base es
+el marco del que se sorteó la muestra. ¿El intervalo de la muestra la contiene? Es una prueba del método; la media de la
+población (todos los basaltos de la Tierra) no se conoce.
 
 ```{{r comprobacion, fig.width = 8, fig.height = 3.2}}
 if (!file.exists("data/earthchem_limpio.csv.gz")) {{
@@ -206,12 +213,12 @@ base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), che
 {calc_base}
 poblacion <- poblacion[base[["Sample Type"]] == "igneous:volcanic:mafic"]
 poblacion <- poblacion[!is.na(poblacion) & poblacion > 0]
-media_real <- mean(poblacion)
-c(media_real = media_real, dentro_del_intervalo = media_real >= IC[["inferior"]] & media_real <= IC[["superior"]])
+media_marco <- mean(poblacion)
+c(media_marco = media_marco, dentro_del_intervalo = media_marco >= IC[["inferior"]] & media_marco <= IC[["superior"]])
 plot(IC, c(1, 1, 1), type = "b", pch = c(91, 19, 93), cex = 2, yaxt = "n", ylab = "", xlab = "{eje}",
-     xlim = range(c(IC, media_real)) + c(-E, E), main = "Gráfica N° 5: Intervalo del 95 % y media real")
-abline(v = media_real, col = "#d95926", lwd = 2, lty = 2)
-legend("topright", c("intervalo (muestra)", "media real (base)"), col = c("black", "#d95926"),
+     xlim = range(c(IC, media_marco)) + c(-E, E), main = "Gráfica N° 5: Intervalo del 95 % y media del marco muestral")
+abline(v = media_marco, col = "#d95926", lwd = 2, lty = 2)
+legend("topright", c("intervalo (muestra)", "media del marco (base)"), col = c("black", "#d95926"),
        lty = c(1, 2), lwd = 2, bty = "n")
 ```
 {tlc}
@@ -220,13 +227,13 @@ legend("topright", c("intervalo (muestra)", "media real (base)"), col = c("black
 El comportamiento de {etiqueta} en los basaltos se representa con un **modelo {modelo}** de parámetros {param_texto}
 (chi-cuadrado `r round(x2, 2)` < umbral `r round(umbral, 2)`; Pearson `r round(pearson, 1)` %). {conclusion} Con el
 95 % de confianza, la media poblacional está entre `r round(IC[["inferior"]], 2)` y `r round(IC[["superior"]], 2)`
-{unidad}, y la media real de la base (`r round(media_real, 2)`) `r ifelse(media_real >= IC[["inferior"]] & media_real <= IC[["superior"]], "cae dentro", "queda fuera")`
+{unidad}, y la media del marco muestral (`r round(media_marco, 2)`, toda la base) `r ifelse(media_marco >= IC[["inferior"]] & media_marco <= IC[["superior"]], "cae dentro", "queda fuera")`
 del intervalo.
 '''
 
 TLC = '''
 **Teorema del Límite Central.** Si se sacan muchas muestras de 30 basaltos de la base y se calcula la media de cada
-una, esas medias forman una campana normal centrada en la media real, con desviación σ/√30, aunque los datos
+una, esas medias forman una campana normal centrada en la media del marco, con desviación σ/√30, aunque los datos
 originales no sean normales.
 
 ```{r tlc, fig.width = 8, fig.height = 4.8}
@@ -323,7 +330,7 @@ def continua(c):
             + cuerpo + GUARDAR.format(nombre=c["nombre"], etiqueta=c["etiqueta"], tipo="continua", modelo=c["modelo"],
                                       parametros=m["parametros"], n_resumen="length(x)",
                                       ic_texto='paste0("[", round(IC[["inferior"]], 2), " ; ", round(IC[["superior"]], 2), "]")',
-                                      real="round(media_real, 3)"))
+                                      real="round(media_marco, 3)"))
 
 
 DISCRETA = '''
@@ -421,7 +428,8 @@ legend("topright", paste0("P = ", round(p1 * 100, 2), " %"), bty = "n", cex = 1.
 {ic}
 ```
 
-**Comprobación con la base completa.** La proporción real se conoce: ¿el intervalo la contiene?
+**Validación con el marco muestral.** La proporción en toda la base (el marco del que se sorteó la muestra) sí se
+puede calcular: ¿el intervalo de la muestra la contiene? Es una prueba del método, no la proporción de la población.
 
 ```{{r comprobacion}}
 if (!file.exists("data/earthchem_limpio.csv.gz")) {{
@@ -430,16 +438,16 @@ if (!file.exists("data/earthchem_limpio.csv.gz")) {{
 base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
 todos <- as.character(base[["{col}"]])
 todos <- todos[!is.na(todos) & todos != ""]
-p_real <- mean(todos == "{categoria}")
-c(proporcion_real = p_real, dentro_del_intervalo = p_real >= IC[["inferior"]] & p_real <= IC[["superior"]])
+p_marco <- mean(todos == "{categoria}")
+c(proporcion_marco = p_marco, dentro_del_intervalo = p_marco >= IC[["inferior"]] & p_marco <= IC[["superior"]])
 ```
 
 ## 8. Conclusión
 
 {conclusion} El modelo pasa el test (chi-cuadrado `r round(x2, 2)` < umbral `r round(umbral, 2)`; Pearson
 `r round(pearson, 1)` %). Con el 95 % de confianza, la proporción poblacional de {exito_texto} está entre
-`r round(IC[["inferior"]] * 100, 2)` % y `r round(IC[["superior"]] * 100, 2)` %, y la proporción real de la base
-(`r round(p_real * 100, 2)` %) `r ifelse(p_real >= IC[["inferior"]] & p_real <= IC[["superior"]], "cae dentro", "queda fuera")` del intervalo.
+`r round(IC[["inferior"]] * 100, 2)` % y `r round(IC[["superior"]] * 100, 2)` %, y la proporción del marco muestral
+(`r round(p_marco * 100, 2)` %, toda la base) `r ifelse(p_marco >= IC[["inferior"]] & p_marco <= IC[["superior"]], "cae dentro", "queda fuera")` del intervalo.
 '''
 
 IC_PROPORCION = '''p_m <- mean(exito)                                     # proporción en la muestra
@@ -450,7 +458,7 @@ round(IC * 100, 2)                                     # en %'''
 
 LGN = '''
 **Probabilidad clásica y ley de los grandes números.** Si se recorre la muestra en el orden del sorteo, la proporción
-de éxitos acumulada se acerca a la probabilidad real (la de la base completa) a medida que crece el número de casos.
+de éxitos acumulada se estabiliza a medida que crece el número de casos: se acerca a la probabilidad del marco.
 
 ```{r lgn, fig.width = 8, fig.height = 4.5}
 frecuencia <- cumsum(exito) / seq_along(exito)         # proporción acumulada después de cada caso
@@ -549,7 +557,7 @@ def discreta(c):
             + GUARDAR.format(nombre=c["nombre"], etiqueta=c["variable_y"], tipo=c["tipo"], modelo=c["modelo"],
                              parametros=c["parametros"], n_resumen="length(y)",
                              ic_texto='paste0("[", round(IC[["inferior"]] * 100, 2), " % ; ", round(IC[["superior"]] * 100, 2), " %]")',
-                             real="round(p_real * 100, 2)"))
+                             real="round(p_marco * 100, 2)"))
 
 
 def main():

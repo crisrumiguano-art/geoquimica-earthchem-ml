@@ -32,7 +32,7 @@ df = pd.read_csv("data/earthchem_limpio.csv.gz", low_memory=False)   # 159 760 �
 | L3 | mapa QGIS (EPSG:4087, A4 1:150 M y A3 1:110 M) + muestreo aleatorio, sistemático y estratificado | hecho (`informe_muestreo.pdf`) |
 | L4 | tabla de variables con el formato del docente (nombre corto, un dominio, rango, variable de interés e individuo) | hecho (corregida 11/2026) |
 | L5–L6 | TDF, gráficas, indicadores, outliers, error de agrupación, con código R por gráfico y un R Markdown por variable (RPubs) | hecho (SiO2, MgO, Cr; ampliar) |
-| L7 | exposición etapa I | pendiente |
+| L7, L12, L17 | exposiciones | pendiente (diapositivas) |
 | L8–L12 | inferencial: 7 modelos (binomial, geométrico, Poisson, normal, log-normal, exponencial, beta) con chi-cuadrado e IC (muestra aleatoria de L3) | hecho (`/inferencial/`) |
 | L13–L17 | regresión: 5 simples, múltiple, logística, serie de tiempo, PCA y k-means | hecho (`/regresion/`) |
 | L18–L20 | red neuronal de regresión (Ni) y de clasificación (ambiente tectónico), Colab | `/ml/` |

@@ -18,7 +18,13 @@ output:
 
 La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 porciones de roca sorteadas de las 159 760 de
 la base (semilla 2026). Con la base entera, el test de chi-cuadrado rechaza cualquier modelo por diferencias mínimas;
-con una muestra aleatoria mide lo que importa. La base completa se usa al final para comprobar el intervalo de confianza.
+con una muestra aleatoria mide lo que importa.
+
+**Población, marco muestral y muestra.** La población (U) son todas las porciones de roca de la corteza y del manto
+superior de la Tierra: es infinita y nunca se conoce. El **marco muestral** es la base EarthChem PetDB (159 760 porciones
+de roca registradas): la lista de la que se sorteó la muestra. Por eso, en rigor, la inferencia vale para la población
+que representa la base, con su sesgo hacia las rocas oceánicas (Lección 3). Al final, la base completa sirve para
+**validar el método**: si el intervalo calculado con la muestra contiene el valor del marco, el procedimiento funcionó.
 
 ```{r carga}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
@@ -58,7 +64,7 @@ barplot(hi, names.arg = 0:max(y), col = "#86b6ef", border = "white", las = 1,
 ```
 
 **Probabilidad clásica y ley de los grandes números.** Si se recorre la muestra en el orden del sorteo, la proporción
-de éxitos acumulada se acerca a la probabilidad real (la de la base completa) a medida que crece el número de casos.
+de éxitos acumulada se estabiliza a medida que crece el número de casos: se acerca a la probabilidad del marco.
 
 ```{r lgn, fig.width = 8, fig.height = 4.5}
 frecuencia <- cumsum(exito) / seq_along(exito)         # proporción acumulada después de cada caso
@@ -147,7 +153,8 @@ IC <- c(inferior = p_m - E, proporcion = p_m, superior = p_m + E)
 round(IC * 100, 2)                                     # en %
 ```
 
-**Comprobación con la base completa.** La proporción real se conoce: ¿el intervalo la contiene?
+**Validación con el marco muestral.** La proporción en toda la base (el marco del que se sorteó la muestra) sí se
+puede calcular: ¿el intervalo de la muestra la contiene? Es una prueba del método, no la proporción de la población.
 
 ```{r comprobacion}
 if (!file.exists("data/earthchem_limpio.csv.gz")) {
@@ -156,23 +163,23 @@ if (!file.exists("data/earthchem_limpio.csv.gz")) {
 base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
 todos <- as.character(base[["Tectonic Group"]])
 todos <- todos[!is.na(todos) & todos != ""]
-p_real <- mean(todos == "margen convergente")
-c(proporcion_real = p_real, dentro_del_intervalo = p_real >= IC[["inferior"]] & p_real <= IC[["superior"]])
+p_marco <- mean(todos == "margen convergente")
+c(proporcion_marco = p_marco, dentro_del_intervalo = p_marco >= IC[["inferior"]] & p_marco <= IC[["superior"]])
 ```
 
 ## 8. Conclusión
 
 El número de porciones de roca de margen convergente en un lote de 10 sigue un **modelo binomial** con n = 10 y p = `r round(p, 3)`. El modelo pasa el test (chi-cuadrado `r round(x2, 2)` < umbral `r round(umbral, 2)`; Pearson
 `r round(pearson, 1)` %). Con el 95 % de confianza, la proporción poblacional de porciones de roca de margen convergente está entre
-`r round(IC[["inferior"]] * 100, 2)` % y `r round(IC[["superior"]] * 100, 2)` %, y la proporción real de la base
-(`r round(p_real * 100, 2)` %) `r ifelse(p_real >= IC[["inferior"]] & p_real <= IC[["superior"]], "cae dentro", "queda fuera")` del intervalo.
+`r round(IC[["inferior"]] * 100, 2)` % y `r round(IC[["superior"]] * 100, 2)` %, y la proporción del marco muestral
+(`r round(p_marco * 100, 2)` %, toda la base) `r ifelse(p_marco >= IC[["inferior"]] & p_marco <= IC[["superior"]], "cae dentro", "queda fuera")` del intervalo.
 
 ```{r guardar, include = FALSE}
 if (dir.exists("docs/data")) {
   dir.create("docs/data/inferencial", showWarnings = FALSE)
   write.csv(data.frame(documento = "inf_01_binomial_ambiente", variable = "X = porciones de roca de margen convergente en un lote de 10", tipo = "nominal", modelo = "binomial",
                        parametros = paste0("n = 10; p = ", round(p, 3)), n = length(y), chi2 = x2, umbral = umbral, pearson = pearson,
-                       ic = paste0("[", round(IC[["inferior"]] * 100, 2), " % ; ", round(IC[["superior"]] * 100, 2), " %]"), real = round(p_real * 100, 2)),
+                       ic = paste0("[", round(IC[["inferior"]] * 100, 2), " % ; ", round(IC[["superior"]] * 100, 2), " %]"), real = round(p_marco * 100, 2)),
             "docs/data/inferencial/inf_01_binomial_ambiente.csv", row.names = FALSE, fileEncoding = "UTF-8")
 }
 ```

@@ -152,7 +152,7 @@ OTRAS = {
                           "D={x/x es distancia vertical ^ x ∈ R ^ Referencia(x)=nivel del mar}", True),
     "Geologic Age": ("EDAD_GEOL", "Edad geológica",
                      "Período o época de la escala del tiempo geológico en que se formó la roca",
-                     "cualitativa", "ordinal", "intervalo", "estratigrafía", "—",
+                     "cualitativa", "ordinal", "ordinal", "estratigrafía", "—",   # cualitativa: escala ordinal; las edades en Ma van en intervalo
                      "D={x/x es unidad de tiempo geológico ^ Referencia(x)=Tabla Cronoestratigráfica Internacional}", True),
     "Geologic Age Max (Ma)": ("EDAD_MAX_MA", "Edad máxima (Ma)",
                               "Límite más antiguo estimado para la formación de la roca, contado hacia atrás desde hoy",

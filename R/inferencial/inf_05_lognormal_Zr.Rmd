@@ -18,7 +18,13 @@ output:
 
 La inferencia se hace con la **muestra aleatoria simple** de la Lección 3: 1 061 porciones de roca sorteadas de las 159 760 de
 la base (semilla 2026). Con la base entera, el test de chi-cuadrado rechaza cualquier modelo por diferencias mínimas;
-con una muestra aleatoria mide lo que importa. La base completa se usa al final para comprobar el intervalo de confianza.
+con una muestra aleatoria mide lo que importa.
+
+**Población, marco muestral y muestra.** La población (U) son todas las porciones de roca de la corteza y del manto
+superior de la Tierra: es infinita y nunca se conoce. El **marco muestral** es la base EarthChem PetDB (159 760 porciones
+de roca registradas): la lista de la que se sorteó la muestra. Por eso, en rigor, la inferencia vale para la población
+que representa la base, con su sesgo hacia las rocas oceánicas (Lección 3). Al final, la base completa sirve para
+**validar el método**: si el intervalo calculado con la muestra contiene el valor del marco, el procedimiento funcionó.
 
 ```{r carga}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
@@ -154,8 +160,9 @@ n_necesario <- ceiling((z * sigma / (E / 2))^2)        # tamaño para un error l
 n_necesario
 ```
 
-**Comprobación con la base completa.** La población real se conoce: ¿el intervalo contiene la media de todos los
-basaltos de la base?
+**Validación con el marco muestral.** La media de todos los basaltos de la base sí se puede calcular, porque la base es
+el marco del que se sorteó la muestra. ¿El intervalo de la muestra la contiene? Es una prueba del método; la media de la
+población (todos los basaltos de la Tierra) no se conoce.
 
 ```{r comprobacion, fig.width = 8, fig.height = 3.2}
 if (!file.exists("data/earthchem_limpio.csv.gz")) {
@@ -165,12 +172,12 @@ base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), che
 poblacion <- base[["Zr (ppm)"]]
 poblacion <- poblacion[base[["Sample Type"]] == "igneous:volcanic:mafic"]
 poblacion <- poblacion[!is.na(poblacion) & poblacion > 0]
-media_real <- mean(poblacion)
-c(media_real = media_real, dentro_del_intervalo = media_real >= IC[["inferior"]] & media_real <= IC[["superior"]])
+media_marco <- mean(poblacion)
+c(media_marco = media_marco, dentro_del_intervalo = media_marco >= IC[["inferior"]] & media_marco <= IC[["superior"]])
 plot(IC, c(1, 1, 1), type = "b", pch = c(91, 19, 93), cex = 2, yaxt = "n", ylab = "", xlab = "Zr (ppm)",
-     xlim = range(c(IC, media_real)) + c(-E, E), main = "Gráfica N° 5: Intervalo del 95 % y media real")
-abline(v = media_real, col = "#d95926", lwd = 2, lty = 2)
-legend("topright", c("intervalo (muestra)", "media real (base)"), col = c("black", "#d95926"),
+     xlim = range(c(IC, media_marco)) + c(-E, E), main = "Gráfica N° 5: Intervalo del 95 % y media del marco muestral")
+abline(v = media_marco, col = "#d95926", lwd = 2, lty = 2)
+legend("topright", c("intervalo (muestra)", "media del marco (base)"), col = c("black", "#d95926"),
        lty = c(1, 2), lwd = 2, bty = "n")
 ```
 
@@ -179,7 +186,7 @@ legend("topright", c("intervalo (muestra)", "media real (base)"), col = c("black
 El comportamiento de Zr en los basaltos se representa con un **modelo log-normal** de parámetros media logarítmica = `r round(media_log, 3)` y desviación logarítmica = `r round(desv_log, 3)`
 (chi-cuadrado `r round(x2, 2)` < umbral `r round(umbral, 2)`; Pearson `r round(pearson, 1)` %). El circonio se concentra en pocos basaltos enriquecidos y la mayoría tiene valores bajos. Con el
 95 % de confianza, la media poblacional está entre `r round(IC[["inferior"]], 2)` y `r round(IC[["superior"]], 2)`
-ppm, y la media real de la base (`r round(media_real, 2)`) `r ifelse(media_real >= IC[["inferior"]] & media_real <= IC[["superior"]], "cae dentro", "queda fuera")`
+ppm, y la media del marco muestral (`r round(media_marco, 2)`, toda la base) `r ifelse(media_marco >= IC[["inferior"]] & media_marco <= IC[["superior"]], "cae dentro", "queda fuera")`
 del intervalo.
 
 ```{r guardar, include = FALSE}
@@ -187,7 +194,7 @@ if (dir.exists("docs/data")) {
   dir.create("docs/data/inferencial", showWarnings = FALSE)
   write.csv(data.frame(documento = "inf_05_lognormal_Zr", variable = "Zr", tipo = "continua", modelo = "log-normal",
                        parametros = paste0("media log = ", round(media_log, 3), "; desviación log = ", round(desv_log, 3)), n = length(x), chi2 = x2, umbral = umbral, pearson = pearson,
-                       ic = paste0("[", round(IC[["inferior"]], 2), " ; ", round(IC[["superior"]], 2), "]"), real = round(media_real, 3)),
+                       ic = paste0("[", round(IC[["inferior"]], 2), " ; ", round(IC[["superior"]], 2), "]"), real = round(media_marco, 3)),
             "docs/data/inferencial/inf_05_lognormal_Zr.csv", row.names = FALSE, fileEncoding = "UTF-8")
 }
 ```
