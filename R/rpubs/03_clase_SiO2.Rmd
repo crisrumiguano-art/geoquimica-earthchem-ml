@@ -1,43 +1,45 @@
 ---
-title: "Análisis estadístico de la variable cualitativa ordinal: Clase según SiO2 (SiO2 Class)"
-subtitle: "Geoquímica de rocas con datos de EarthChem PetDB · Estadística y Probabilidades, FIGEMPA – UCE"
-author: "Cristoffer Rumiguano, Ana Gabriela Fernández, Evelyn Bustamante, Jessica Haro, Jhonattan Ligña"
-date: "Noviembre de 2026"
+title: "Clase según SiO2"
+subtitle: "Universidad Central del Ecuador · FIGEMPA · Estadística y Probabilidades"
+author: "Cristoffer Rumiguano, Ana Gabriela Fernández, Evelyn Bustamante, Jessica Haro y Jhonattan Ligña"
+date: "2026-11-18"
 output:
   html_document:
     toc: true
     toc_float: true
-    theme: flatly
+    theme: readable
     highlight: tango
 ---
 
-> Proyecto estrictamente académico. Datos: EarthChem PetDB (CC BY 4.0), descargados el 13/10/2026. Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
+```{r, include = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
+```
 
-## 1. Carga de datos y librerías
+> Proyecto estrictamente académico. Variable cualitativa ordinal. Datos: EarthChem PetDB (CC BY 4.0), descargados el 13/10/2026. Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
 
-Se lee la base limpia (159 760 porciones de roca × 75 variables). La primera vez se descarga del repositorio del proyecto (26 MB).
-
+## 1. Librerías
 ```{r}
-knitr::opts_chunk$set(
-  echo = TRUE,          # muestra el código en el documento
-  message = FALSE,      # sin mensajes de carga de paquetes
-  warning = FALSE,      # sin advertencias
-  fig.align = "center" # gráficos centrados
-)
-library(e1071)         # asimetría y curtosis (install.packages("e1071"))
+library(gt)
+library(dplyr)
+```
+
+## 2. Leer datos
+```{r}
+# =========================
+# Cargar datos
+# =========================
+# La primera vez descarga la base limpia del repositorio del proyecto (26 MB)
 if (!file.exists("data/earthchem_limpio.csv.gz")) {
   dir.create("data", showWarnings = FALSE)
   download.file("https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz",
                 "data/earthchem_limpio.csv.gz", mode = "wb")
 }
 base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
-dim(base)              # filas y columnas
+dim(base)    # 159 760 porciones de roca y 75 variables
 ```
 
-## 2. Datos
-
-Se toma la columna de la variable y se quitan las filas vacías (vacío = no medido, nunca cero).
-
+## 3. Selección de variable
+Se toma la columna, se traducen las categorías al español y se quitan los vacíos (vacío = no medido).
 ```{r}
 x <- base[["SiO2 Class"]]                         # la columna de la base
 nombres <- c(ultrabasica = "ultrabásica", basica = "básica", intermedia = "intermedia", acida = "ácida")   # nombres en español
@@ -47,11 +49,11 @@ x <- as.character(x)                         # como texto
 x <- x[!is.na(x) & x != ""]                  # quita los vacíos
 ```
 
-## 3. Tabla de frecuencias
-
-ni cuenta los casos de cada categoría y hi los expresa en porcentaje; la moda es la categoría con más casos.
-
+## 4. Tabla de distribución de frecuencia
 ```{r}
+# =========================
+# TABLA DE FRECUENCIAS
+# =========================
 orden <- c("ultrabásica", "básica", "intermedia", "ácida")   # ordinal: su orden natural
 conteo <- table(factor(x, levels = orden))   # cuenta cada categoría, en ese orden
 categoria <- names(conteo)
@@ -60,32 +62,168 @@ hi <- round(ni / sum(ni) * 100, 2)           # frecuencia relativa (%)
 Ni <- cumsum(ni)                             # acumulada absoluta (solo ordinales)
 Hi <- round(cumsum(ni) / sum(ni) * 100, 2)   # acumulada relativa (%)
 TDF <- data.frame(categoria, ni, hi, Ni, Hi)
-knitr::kable(TDF, caption = "Tabla N° 1: distribución de frecuencias")
-categoria[which.max(ni)]                     # moda: la categoría con más casos
-categoria[which(Hi >= 50)[1]]                # mediana: donde Hi llega al 50 %
+TDF_suma <- rbind(TDF, data.frame(categoria = "TOTAL", ni = sum(ni), hi = 100, Ni = NA, Hi = NA))
+colnames(TDF_suma) <- c("Clase según SiO2", "ni", "hi(%)", "Ni", "Hi(%)")
+
+TDF_suma %>%
+  gt() %>%
+  sub_missing(missing_text = "") %>%
+  tab_header(
+    title = md("*Tabla Nro. 1*"),
+    subtitle = md("**Distribución de frecuencias de clase según SiO2 en las porciones de roca de EarthChem PetDB (1932-2025)**")
+  ) %>%
+  tab_source_note(source_note = md("Autores: Rumiguano, Fernández, Bustamante, Haro y Ligña · Datos: EarthChem PetDB (1932-2025)")) %>%
+  tab_options(
+    table.border.top.color = "black",
+    table.border.bottom.color = "black",
+    column_labels.border.top.color = "black",
+    column_labels.border.bottom.color = "black",
+    column_labels.border.bottom.width = px(2),
+    row.striping.include_table_body = TRUE,
+    heading.border.bottom.color = "black",
+    heading.border.bottom.width = px(2),
+    table_body.hlines.color = "gray"
+  )
 ```
 
-## 4. Gráfico: barras + circular
+## 5. Gráficas
+### 5.1 Diagrama de barras de cantidad
+```{r, fig.width = 8, fig.height = 6}
+# ===========================
+# Diagrama de barras de cantidad
+# ===========================
+par(mar = c(10, 6.5, 5, 1))              # margen abajo para los nombres largos
+barplot(ni,
+        main = "Gráfica N°1: Distribución de clase según SiO2\nen las porciones de roca de EarthChem PetDB (1932-2025)",
+        ylab = "",
+        col = "mediumslateblue",
+        ylim = c(0, max(ni) * 1.1),
+        las = 2,
+        cex.names = 0.8,
+        cex.main = 0.9,
+        names.arg = categoria)
+title(ylab = "Cantidad", line = 5)          # rótulo del eje, separado de los números
+mtext("Clase según SiO2", side = 1, line = 8.5, cex = 0.85)
+```
 
-Diagrama de barras (altura = ni) y diagrama circular (porción = hi).
+```{r, fig.width = 8, fig.height = 6}
+# ===========================================================
+# Diagrama de barras con relación a la totalidad de los datos
+# ===========================================================
+par(mar = c(10, 6.5, 5, 1))              # margen abajo para los nombres largos
+barplot(ni,
+        main = "Gráfica N°2: Distribución general de clase según SiO2\nen las porciones de roca de EarthChem PetDB (1932-2025)",
+        ylab = "",
+        col = "mediumpurple1",
+        ylim = c(0, sum(ni)),
+        las = 2,
+        cex.names = 0.8,
+        cex.main = 0.9,
+        names.arg = categoria)
+title(ylab = "Cantidad", line = 5)          # rótulo del eje, separado de los números
+mtext("Clase según SiO2", side = 1, line = 8.5, cex = 0.85)
+```
 
-```{r, fig.width = 8, fig.height = 3.5}
-par(mfrow = c(1, 2), mar = c(10, 6.5, 4, 1))  # 2 gráficos lado a lado
-colores <- gray.colors(length(ni), start = .25, end = .85)       # un gris por categoría
-barplot(ni, names.arg = categoria, las = 2, col = colores,       # barras: altura = ni
-        main = "Gráfica N° 5: Clase de roca según SiO2", cex.names = .8, cex.main = .9)
-title(ylab = "Cantidad", line = 5)           # rótulo del eje, separado de los números
+### 5.2 Diagrama de barras porcentuales
+```{r, fig.width = 8, fig.height = 6}
+# ===========================
+# Diagrama de barras porcentual
+# ===========================
+par(mar = c(10, 6.5, 5, 1))              # margen abajo para los nombres largos
+barplot(hi,
+        main = "Gráfica N°3: Distribución porcentual de clase según SiO2\nen las porciones de roca de EarthChem PetDB (1932-2025)",
+        ylab = "",
+        col = "mediumslateblue",
+        ylim = c(0, max(hi) * 1.1),
+        las = 2,
+        cex.names = 0.8,
+        cex.main = 0.9,
+        names.arg = categoria)
+title(ylab = "Porcentaje (%)", line = 5)          # rótulo del eje, separado de los números
+mtext("Clase según SiO2", side = 1, line = 8.5, cex = 0.85)
+```
+
+```{r, fig.width = 8, fig.height = 6}
+# =========================================================
+# Diagrama de barras porcentual con relación a la totalidad
+# =========================================================
+par(mar = c(10, 6.5, 5, 1))              # margen abajo para los nombres largos
+barplot(hi,
+        main = "Gráfica N°4: Distribución porcentual general de clase según SiO2\nen las porciones de roca de EarthChem PetDB (1932-2025)",
+        ylab = "",
+        col = "mediumpurple1",
+        ylim = c(0, 100),
+        las = 2,
+        cex.names = 0.8,
+        cex.main = 0.9,
+        names.arg = categoria)
+title(ylab = "Porcentaje (%)", line = 5)          # rótulo del eje, separado de los números
+mtext("Clase según SiO2", side = 1, line = 8.5, cex = 0.85)
+```
+
+### 5.3 Diagrama circular
+```{r, fig.width = 9, fig.height = 6}
+# =========================
+# DIAGRAMA CIRCULAR
+# =========================
+etiquetas <- ifelse(hi >= 3, paste0(hi, " %"), "")   # solo se rotulan las porciones de 3 % o más
+colores <- c("steelblue3", "lightsteelblue3", "lightsteelblue1", "violetred", "wheat", "yellow",
+             "darkseagreen3", "salmon", "plum3", "gray70")
+layout(matrix(1:2, nrow = 1), widths = c(3, 2))   # a la izquierda la torta, a la derecha la leyenda
 par(mar = c(1, 1, 4, 1))
-pie(hi, labels = ifelse(hi >= 3, paste0(hi, " %"), ""), col = colores,   # circular: porción = hi
-    clockwise = TRUE, cex = .75, main = "Gráfica N° 6: Clase de roca según SiO2 (%)", cex.main = .9)   # solo se rotulan las de 3 % o más
-legend("topright", legend = paste0(categoria, " (", hi, " %)"), fill = colores, cex = .6, bty = "n")   # leyenda con %
+pie(hi,
+    labels = etiquetas,
+    col = colores[seq_along(hi)],
+    clockwise = TRUE,
+    main = "Gráfica N°5: Distribución de clase según SiO2\nen las porciones de roca de EarthChem PetDB (1932-2025)",
+    cex = 0.9,
+    cex.main = 0.9)
+par(mar = c(1, 0, 4, 1))
+plot.new()                                  # panel vacío para la leyenda
+legend("center",
+       legend = paste0(categoria, " (", hi, " %)"),   # la leyenda lleva el % de todas
+       fill = colores[seq_along(hi)],
+       title = "Leyenda",
+       cex = 0.85)
+```
+
+## 6. Indicadores estadísticos
+En una variable cualitativa solo tiene sentido la moda y, por ser ordinal, la mediana. El resto queda con «-».
+```{r}
+# =========================
+# INDICADORES ESTADÍSTICOS
+# =========================
+Mo <- paste(categoria[ni == max(ni)], collapse = " - ")   # moda
+Me <- categoria[which(Hi >= 50)[1]]    # mediana: primera categoría donde Hi llega al 50 %
+
+tabla_indicadores <- data.frame(Variable = "Clase según SiO2", Rango = "-", X = "-", Me = Me, Mo = Mo,
+                                V = "-", Sd = "-", Cv = "-", As = "-", K = "-", Valores_Atipicos = "-")
+
+tabla_indicadores %>%
+  gt() %>%
+  sub_missing(missing_text = "") %>%
+  tab_header(
+    title = md("*Tabla Nro. 2*"),
+    subtitle = md("**Indicadores estadísticos de clase según SiO2 en las porciones de roca de EarthChem PetDB (1932-2025)**")
+  ) %>%
+  tab_source_note(source_note = md("Autores: Rumiguano, Fernández, Bustamante, Haro y Ligña · Datos: EarthChem PetDB (1932-2025)")) %>%
+  tab_options(
+    table.border.top.color = "black",
+    table.border.bottom.color = "black",
+    column_labels.border.top.color = "black",
+    column_labels.border.bottom.color = "black",
+    column_labels.border.bottom.width = px(2),
+    row.striping.include_table_body = TRUE,
+    heading.border.bottom.color = "black",
+    heading.border.bottom.width = px(2),
+    table_body.hlines.color = "gray"
+  )
 ```
 
 ```{r, include = FALSE}
 f <- function(v, d = 2) format(round(v, d), big.mark = if (abs(v) >= 10000) " " else "", decimal.mark = ",")
-res <- list(moda = categoria[which.max(ni)], hi_max = max(hi), n = sum(ni), k = length(ni))
+res <- list(moda = Mo, hi_max = max(hi), n = sum(ni), k = length(ni))
 ```
 
-## 5. Conclusión
-
-La categoría más frecuente (moda) es **`r res$moda`**, con el `r f(res$hi_max)` % de los `r f(res$n, 0)` casos con dato, repartidos en `r res$k` categorías. La mayoría de las rocas son básicas (45 a 52 % de SiO2), es decir basaltos y gabros, las rocas más comunes de la corteza oceánica. Al ser ordinal, la tabla lleva frecuencias acumuladas.
+## 7. Conclusión
+El valor más frecuente (moda) de la variable clase según SiO2 es **`r res$moda`**, con el `r f(res$hi_max)` % de las `r f(res$n, 0)` porciones de roca con dato, repartidas en `r res$k` categorías. La mayoría de las rocas son básicas (45 a 52 % de SiO2), es decir basaltos y gabros, las rocas más comunes de la corteza oceánica. Al ser ordinal, la tabla lleva frecuencias acumuladas y tiene mediana.

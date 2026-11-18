@@ -1,43 +1,46 @@
 ---
-title: "Análisis estadístico de la variable cuantitativa continua: Cr (ppm)"
-subtitle: "Geoquímica de rocas con datos de EarthChem PetDB · Estadística y Probabilidades, FIGEMPA – UCE"
-author: "Cristoffer Rumiguano, Ana Gabriela Fernández, Evelyn Bustamante, Jessica Haro, Jhonattan Ligña"
-date: "Noviembre de 2026"
+title: "Cr"
+subtitle: "Universidad Central del Ecuador · FIGEMPA · Estadística y Probabilidades"
+author: "Cristoffer Rumiguano, Ana Gabriela Fernández, Evelyn Bustamante, Jessica Haro y Jhonattan Ligña"
+date: "2026-11-18"
 output:
   html_document:
     toc: true
     toc_float: true
-    theme: flatly
+    theme: readable
     highlight: tango
 ---
 
-> Proyecto estrictamente académico. Datos: EarthChem PetDB (CC BY 4.0), descargados el 13/10/2026. Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
+```{r, include = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
+```
 
-## 1. Carga de datos y librerías
+> Proyecto estrictamente académico. Variable cuantitativa continua. Datos: EarthChem PetDB (CC BY 4.0), descargados el 13/10/2026. Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/
 
-Se lee la base limpia (159 760 porciones de roca × 75 variables). La primera vez se descarga del repositorio del proyecto (26 MB).
-
+## 1. Librerías
 ```{r}
-knitr::opts_chunk$set(
-  echo = TRUE,          # muestra el código en el documento
-  message = FALSE,      # sin mensajes de carga de paquetes
-  warning = FALSE,      # sin advertencias
-  fig.align = "center" # gráficos centrados
-)
-library(e1071)         # asimetría y curtosis (install.packages("e1071"))
+library(gt)
+library(dplyr)
+library(e1071)    # asimetría y curtosis
+```
+
+## 2. Leer datos
+```{r}
+# =========================
+# Cargar datos
+# =========================
+# La primera vez descarga la base limpia del repositorio del proyecto (26 MB)
 if (!file.exists("data/earthchem_limpio.csv.gz")) {
   dir.create("data", showWarnings = FALSE)
   download.file("https://github.com/crisrumiguano-art/geoquimica-earthchem-ml/raw/main/data/earthchem_limpio.csv.gz",
                 "data/earthchem_limpio.csv.gz", mode = "wb")
 }
 base <- read.csv(gzfile("data/earthchem_limpio.csv.gz", encoding = "UTF-8"), check.names = FALSE)
-dim(base)              # filas y columnas
+dim(base)    # 159 760 porciones de roca y 75 variables
 ```
 
-## 2. Datos
-
-Se toma la columna de la variable y se quitan las filas vacías (vacío = no medido, nunca cero).
-
+## 3. Selección de variable
+Se toma la columna y se quitan los vacíos (vacío = no medido, nunca cero). El cromo se pasa a log10 porque va de menos de 1 a más de 10 000 ppm.
 ```{r}
 x <- base[["Cr (ppm)"]]
 tipo <- base[["Sample Type"]]                        # tipo de roca de cada fila
@@ -48,11 +51,12 @@ x <- log10(x)                                          # escala log10: 10, 100, 
 n <- length(x)
 ```
 
-## 3. Límites de outliers (regla intercuartílica)
-
-Con el rango intercuartílico (IR = Q3 − Q1) se fijan los límites Q1 − 1,5·IR y Q3 + 1,5·IR. Los datos que quedan fuera no se eliminan: se cuentan en clases abiertas.
-
+## 4. Tabla de distribución de frecuencia
+Los límites de los intervalos se fijan con los datos típicos (regla intercuartílica) y la regla de Sturges; los valores extremos no se borran, se cuentan en dos clases abiertas.
 ```{r}
+# =========================
+# TABLA DE FRECUENCIAS
+# =========================
 Q1 <- quantile(x, 0.25, names = FALSE)
 Q3 <- quantile(x, 0.75, names = FALSE)
 IR <- Q3 - Q1                                          # rango intercuartílico
@@ -60,13 +64,7 @@ lim_inf <- Q1 - 1.5 * IR                               # menos que esto = outlie
 lim_sup <- Q3 + 1.5 * IR                               # más que esto = outlier alto
 tipico <- x[x >= lim_inf & x <= lim_sup]               # los intervalos se arman con estos datos
 # Los outliers NO se borran: se cuentan en las clases abiertas (son otras rocas, no errores).
-```
 
-## 4. Intervalos (regla de Sturges)
-
-El número de intervalos sale de la regla de Sturges, k = 1 + 3,3·log10(n); la amplitud se redondea a un número cómodo para que los límites sean fáciles de leer.
-
-```{r}
 k <- round(1 + 3.3 * log10(n))                         # número de intervalos
 a <- (max(tipico) - min(tipico)) / k                   # amplitud calculada
 a <- 0.2                                               # se redondea hacia arriba a un número cómodo
@@ -75,13 +73,7 @@ k <- floor((max(tipico) - desde) / a) + 1              # intervalos que hacen fa
 Li <- desde + (0:(k - 1)) * a                          # límites inferiores
 Ls <- Li + a                                           # límites superiores
 MC <- (Li + Ls) / 2                                    # marca de clase
-```
 
-## 5. Frecuencias
-
-Tabla de distribución de frecuencias: límites, marca de clase, frecuencia absoluta y relativa, y acumuladas ascendentes y descendentes.
-
-```{r}
 dentro <- x[x >= Li[1] & x <= Ls[k]]
 ni <- as.vector(table(cut(dentro, breaks = c(Li, Ls[k]), right = FALSE, include.lowest = TRUE)))  # cuenta por intervalo [Li, Ls[
 abajo <- sum(x < Li[1])                                # clase abierta "menor que" (outliers bajos)
@@ -94,227 +86,199 @@ Ni_dsc <- rev(cumsum(rev(todos)))[cerradas]            # acumulada descendente
 Hi_asc <- round(cumsum(todos) / n * 100, 2)[cerradas]
 Hi_dsc <- round(rev(cumsum(rev(todos))) / n * 100, 2)[cerradas]
 TDF <- data.frame(Li, Ls, MC, ni, hi, Ni_asc, Ni_dsc, Hi_asc, Hi_dsc)
-knitr::kable(TDF, caption = "Tabla N° 1: distribución de frecuencias")
-c(abajo = abajo, arriba = arriba)                      # datos en las clases abiertas (no se borra ninguno)
+TDF_suma <- rbind(TDF, data.frame(Li = NA, Ls = NA, MC = NA, ni = sum(ni), hi = sum(hi),
+                                   Ni_asc = NA, Ni_dsc = NA, Hi_asc = NA, Hi_dsc = NA))
+TDF_suma$Li[k + 1] <- "TOTAL"
+colnames(TDF_suma) <- c("Li", "Ls", "MC", "ni", "hi(%)", "Ni asc", "Ni desc", "Hi asc(%)", "Hi desc(%)")
+
+TDF_suma %>%
+  gt() %>%
+  sub_missing(missing_text = "") %>%
+  tab_header(
+    title = md("*Tabla Nro. 1*"),
+    subtitle = md("**Distribución de frecuencias de Cr en las porciones de roca de EarthChem PetDB (1932-2025)**")
+  ) %>%
+  tab_source_note(source_note = md("Autores: Rumiguano, Fernández, Bustamante, Haro y Ligña · Datos: EarthChem PetDB (1932-2025)")) %>%
+  tab_options(
+    table.border.top.color = "black",
+    table.border.bottom.color = "black",
+    column_labels.border.top.color = "black",
+    column_labels.border.bottom.color = "black",
+    column_labels.border.bottom.width = px(2),
+    row.striping.include_table_body = TRUE,
+    heading.border.bottom.color = "black",
+    heading.border.bottom.width = px(2),
+    table_body.hlines.color = "gray"
+  )
+
+# Clases abiertas: datos fuera de los intervalos (no se borra ninguno)
+c(menores = abajo, mayores = arriba)
 ```
 
-## 6. Gráficos: histograma + polígono, ojiva y caja
-
-Histograma con polígono de frecuencias, ojivas ascendente y descendente (se cruzan en la mediana) y diagrama de caja.
-
+## 5. Gráficas
+Los datos de las clases abiertas (fuera del rango típico) no entran en el histograma ni en el polígono, pero sí en las ojivas y en el diagrama de caja.
+### 5.1 Histograma
 ```{r, fig.width = 9, fig.height = 6}
-etiq <- paste0("[", Li, "-", Ls, "[")                  # texto de cada intervalo
-nota <- c(if (abajo > 0) paste0("< ", Li[1], ": ", abajo, " (", round(abajo / n * 100, 2), " %)"),
-          if (arriba > 0) paste0("≥ ", Ls[k], ": ", arriba, " (", round(arriba / n * 100, 2), " %)"))
-layout(matrix(c(1, 1, 2, 3), 2, 2, byrow = TRUE), heights = c(1.15, 1))   # arriba 1 gráfico, abajo 2
-par(mar = c(8, 5, 4, 1))
-h <- barplot(hi, names.arg = etiq, space = 0, las = 2, col = "#3987e5", border = "white",   # histograma
-             ylab = "Porcentaje (%)", cex.names = .75, ylim = c(0, max(hi) * 1.15),
-             main = "Gráfica N° 27: Histograma y polígono de frecuencias de log10 Cr (ppm)")
-lines(c(h[1] - 1, h, h[length(h)] + 1), c(0, hi, 0), col = "#d95926", lwd = 2, type = "b", pch = 16, cex = .6)  # polígono
-mtext(if (length(nota) > 0) paste0("Clases abiertas (fuera del gráfico): ", paste(nota, collapse = " · ")) else "",
-      side = 1, line = 6.5, cex = .7, col = "gray30")  # nota bajo el histograma
-par(mar = c(5, 5, 4, 1))
-plot(Ls, Hi_asc, type = "b", pch = 16, col = "#3987e5", ylim = c(0, 100),            # ojiva ascendente
-     xlab = "log10 Cr (ppm)", ylab = "Porcentaje acumulado (%)",
-     main = "Gráfica N° 28: Ojiva ascendente y descendente")
-lines(Li, Hi_dsc, type = "b", pch = 17, col = "#d95926")                              # ojiva descendente
-abline(h = 50, lty = 3, col = "gray50")                # línea del 50 %: donde se cruzan está la mediana
-legend("right", c("ascendente (≤)", "descendente (≥)"), col = c("#3987e5", "#d95926"), pch = c(16, 17), bty = "n", cex = .85)
-boxplot(x, horizontal = TRUE, col = "#86b6ef", xlab = "log10 Cr (ppm)",       # diagrama de caja
-        main = "Gráfica N° 29: Diagrama de caja (todos los datos)")
+# =========================
+# HISTOGRAMA
+# =========================
+etiq <- paste0("[", Li, "-", Ls, "[")      # texto de cada intervalo
+par(mar = c(8, 5, 5, 1))
+barplot(hi,
+        names.arg = etiq,
+        space = 0,                          # barras juntas: la variable es continua
+        main = "Gráfica N°1: Histograma de log10 Cr (ppm)\nen las porciones de roca de EarthChem PetDB (1932-2025)",
+        ylab = "Porcentaje (%)",
+        col = "mediumslateblue",
+        border = "white",
+        ylim = c(0, max(hi) * 1.15),
+        las = 2,
+        cex.names = 0.75,
+        cex.main = 0.9)
+mtext("log10 Cr (ppm)", side = 1, line = 6.5, cex = 0.85)
 ```
 
-## 7. Error de agrupación: media y desviación con la TDF vs con los datos
+### 5.2 Polígono de frecuencias
+```{r, fig.width = 9, fig.height = 6}
+# =========================
+# POLÍGONO DE FRECUENCIAS
+# =========================
+plot(c(Li[1] - a / 2, MC, Ls[k] + a / 2), c(0, hi, 0),   # une las marcas de clase y cierra en cero
+     type = "b",
+     pch = 16,
+     col = "violetred",
+     lwd = 2,
+     main = "Gráfica N°2: Polígono de frecuencias de log10 Cr (ppm)\nen las porciones de roca de EarthChem PetDB (1932-2025)",
+     xlab = "log10 Cr (ppm)",
+     ylab = "Porcentaje (%)",
+     cex.main = 0.9)
+```
 
-Se comparan la media y la desviación calculadas con la TDF (cada dato = la marca de clase de su intervalo) con las calculadas con los datos; menos de 5 % de error indica que la agrupación representa bien los datos.
+### 5.3 Ojivas ascendente y descendente
+Las dos ojivas se cruzan a la altura del 50 %: ahí está la mediana.
+```{r, fig.width = 9, fig.height = 6}
+# =========================
+# OJIVAS
+# =========================
+plot(Ls, Hi_asc,
+     type = "b",
+     pch = 16,
+     col = "mediumslateblue",
+     ylim = c(0, 100),
+     main = "Gráfica N°3: Ojivas de log10 Cr (ppm)\nen las porciones de roca de EarthChem PetDB (1932-2025)",
+     xlab = "log10 Cr (ppm)",
+     ylab = "Porcentaje acumulado (%)",
+     cex.main = 0.9)
+lines(Li, Hi_dsc, type = "b", pch = 17, col = "violetred")
+abline(h = 50, lty = 3, col = "gray50")
+legend("right",
+       legend = c("ascendente", "descendente"),
+       col = c("mediumslateblue", "violetred"),
+       pch = c(16, 17),
+       title = "Leyenda",
+       cex = 0.8)
+```
 
+### 5.4 Diagrama de caja
+```{r, fig.width = 9, fig.height = 4.5}
+# =========================
+# DIAGRAMA DE CAJA
+# =========================
+boxplot(x,
+        horizontal = TRUE,
+        col = "lightsteelblue1",
+        main = "Gráfica N°4: Diagrama de caja de log10 Cr (ppm)\nen las porciones de roca de EarthChem PetDB (1932-2025)",
+        xlab = "log10 Cr (ppm)",
+        cex.main = 0.9)
+```
+
+## 6. Indicadores estadísticos
+Medidas de tendencia central, dispersión y forma, calculadas con los datos sin agrupar (en log10).
+```{r}
+# =========================
+# INDICADORES ESTADÍSTICOS
+# =========================
+Mo <- MC[which.max(ni)]                            # moda: marca de la clase con más datos
+cuartiles <- quantile(x, c(0.25, 0.75), names = FALSE)
+RI <- cuartiles[2] - cuartiles[1]                     # rango intercuartílico
+atipicos <- sum(x < cuartiles[1] - 1.5 * RI | x > cuartiles[2] + 1.5 * RI)
+
+tabla_indicadores <- data.frame(
+  Variable = "log10 Cr (ppm)",
+  Rango = paste(round(min(x), 2), "a", round(max(x), 2)),
+  X = round(mean(x), 2),
+  Me = round(median(x), 2),
+  Mo = round(Mo, 2),
+  V = round(var(x), 2),
+  Sd = round(sd(x), 2),
+  Cv = paste0(round(sd(x) / mean(x) * 100, 2), " %"),
+  As = round(skewness(x), 2),
+  K = round(kurtosis(x), 2),
+  Valores_Atipicos = atipicos
+)
+
+tabla_indicadores %>%
+  gt() %>%
+  sub_missing(missing_text = "") %>%
+  tab_header(
+    title = md("*Tabla Nro. 2*"),
+    subtitle = md("**Indicadores estadísticos de Cr en las porciones de roca de EarthChem PetDB (1932-2025)**")
+  ) %>%
+  tab_source_note(source_note = md("Autores: Rumiguano, Fernández, Bustamante, Haro y Ligña · Datos: EarthChem PetDB (1932-2025)")) %>%
+  tab_options(
+    table.border.top.color = "black",
+    table.border.bottom.color = "black",
+    column_labels.border.top.color = "black",
+    column_labels.border.bottom.color = "black",
+    column_labels.border.bottom.width = px(2),
+    row.striping.include_table_body = TRUE,
+    heading.border.bottom.color = "black",
+    heading.border.bottom.width = px(2),
+    table_body.hlines.color = "gray"
+  )
+```
+
+### Error de agrupación
+Se compara la media y la desviación calculadas con la tabla (cada dato vale la marca de clase de su intervalo) con las calculadas con los datos: menos de 5 % de error indica que la tabla representa bien a los datos.
 ```{r}
 xc <- x[x >= Li[1] & x <= Ls[k]]                       # los datos de los intervalos normales
 media_agrupada <- sum(MC * ni) / sum(ni)               # cada dato = la marca de clase de su intervalo
 desv_agrupada <- sqrt(sum((MC - media_agrupada)^2 * ni) / sum(ni))
-c(error_media = abs(media_agrupada - mean(xc)) / mean(xc) * 100,   # en %; menos de 5 % = bien
+error <- c(error_media = abs(media_agrupada - mean(xc)) / mean(xc) * 100,   # en %; menos de 5 % = bien
   error_desviacion = abs(desv_agrupada - sd(xc)) / sd(xc) * 100)
-```
 
-## 8. Indicadores (con los datos sin agrupar, en log10)
+tabla_error <- data.frame(Indicador = c("Media", "Desviación estándar"),
+                          Con_la_tabla = round(c(media_agrupada, desv_agrupada), 3),
+                          Con_los_datos = round(c(mean(xc), sd(xc)), 3),
+                          Error_porcentual = round(error, 2))
 
-Medidas de tendencia central, dispersión y forma con los datos sin agrupar (asimetría y curtosis con el paquete e1071).
-
-```{r}
-ind <- c(n = n, media = mean(x), mediana = median(x), desviacion = sd(x), varianza = var(x),
-  CV = sd(x) / mean(x) * 100, asimetria = skewness(x), curtosis = kurtosis(x))
-
-knitr::kable(data.frame(indicador = names(ind), valor = round(ind, 4)), row.names = FALSE,
-             caption = "Tabla N° 2: indicadores estadísticos")
+tabla_error %>%
+  gt() %>%
+  sub_missing(missing_text = "") %>%
+  tab_header(
+    title = md("*Tabla Nro. 3*"),
+    subtitle = md("**Error de agrupación de Cr en las porciones de roca de EarthChem PetDB (1932-2025)**")
+  ) %>%
+  tab_source_note(source_note = md("Autores: Rumiguano, Fernández, Bustamante, Haro y Ligña · Datos: EarthChem PetDB (1932-2025)")) %>%
+  tab_options(
+    table.border.top.color = "black",
+    table.border.bottom.color = "black",
+    column_labels.border.top.color = "black",
+    column_labels.border.bottom.color = "black",
+    column_labels.border.bottom.width = px(2),
+    row.striping.include_table_body = TRUE,
+    heading.border.bottom.color = "black",
+    heading.border.bottom.width = px(2),
+    table_body.hlines.color = "gray"
+  )
 ```
 
 ```{r, include = FALSE}
 f <- function(v, d = 2) format(round(v, d), big.mark = if (abs(v) >= 10000) " " else "", decimal.mark = ",")
-res <- list(n = n, media = mean(x), mediana = median(x), cv = sd(x) / mean(x) * 100,
-            asim = skewness(x), fuera = abajo + arriba,
-            err = abs(media_agrupada - mean(xc)) / mean(xc) * 100)
+res <- list(n = n, mediana = median(x), cv = sd(x) / mean(x) * 100, asim = skewness(x),
+            atipicos = atipicos, moda = Mo)
+res$err <- error[1]
 ```
 
-## 9. Corrección de la agrupación
-
-Con Sturges sobre todo el rango, los valores extremos estiran los intervalos y casi todos los datos caen en uno o dos. Por eso la TDF de arriba usa el rango típico (sin outliers) y clases abiertas.
-
-### 9.1. TDF "por defecto" (como la plantilla): Sturges sobre TODO el rango, en la escala original
-
-Para justificar la corrección, se arma la TDF como en la plantilla: Sturges sobre todo el rango, sin tratar los extremos.
-
-```{r}
-x0 <- base[["Cr (ppm)"]]
-x0 <- x0[!is.na(x0)]
-k0 <- round(1 + 3.3 * log10(length(x0)))
-a0 <- (max(x0) - min(x0)) / k0                         # amplitud sin redondear
-Li0 <- min(x0) + (0:(k0 - 1)) * a0
-Ls0 <- Li0 + a0
-ni0 <- as.vector(table(cut(x0[x0 <= Ls0[k0]], breaks = c(Li0, Ls0[k0]), right = FALSE, include.lowest = TRUE)))
-arriba0 <- sum(x0 > Ls0[k0])                           # por redondeo, el máximo puede quedar afuera
-hi0 <- round(c(ni0, arriba0[arriba0 > 0]) / length(x0) * 100, 2)
-num <- function(v) trimws(formatC(round(v, 1), format = "fg", digits = 6))   # número a texto: 1 decimal, 6 cifras
-etiq0 <- c(paste0("[", num(Li0), "-", num(Ls0), "["), if (arriba0 > 0) paste0("≥ ", num(Ls0[k0])))
-```
-
-### 9.2. Gráfico: por defecto (izquierda) vs corregida (derecha)
-
-A la izquierda, la agrupación por defecto (casi todo cae en uno o dos intervalos); a la derecha, la corregida.
-
-```{r, fig.width = 9, fig.height = 3.9}
-etiq <- paste0("[", Li, "-", Ls, "[")
-nota <- c(if (abajo > 0) paste0("< ", Li[1], ": ", abajo, " (", round(abajo / n * 100, 2), " %)"),
-          if (arriba > 0) paste0("≥ ", Ls[k], ": ", arriba, " (", round(arriba / n * 100, 2), " %)"))
-par(mfrow = c(1, 2), mar = c(8, 5, 4, 1))              # 2 histogramas lado a lado
-barplot(hi0, names.arg = etiq0, space = 0, las = 2, cex.names = .65, col = "gray60", border = "white",
-        ylab = "Porcentaje (%)", main = paste0("Por defecto: Sturges sobre el rango completo\nCr, k = ", length(hi0)))
-barplot(hi, names.arg = etiq, space = 0, las = 2, cex.names = .65, col = "#3987e5", border = "white",
-        ylab = "Porcentaje (%)", main = paste0("Corregida: rango típico (IQR) + clases abiertas\nCr (log10 ppm), k = ", k, " cerradas"))
-mtext(if (length(nota) > 0) paste0("Clases abiertas (fuera del gráfico): ", paste(nota, collapse = " · ")) else "",
-      side = 1, line = 6.5, cex = .65, col = "gray30")
-```
-
-## 10. Estrato: rocas volcánicas máficas
-
-El mismo análisis para un solo tipo de roca (basaltos y afines). Al separar por estrato, la distribución deja de mezclar rocas distintas.
-
-### 10.1. Datos
-
-Se toma la columna de la variable y se quitan las filas vacías (vacío = no medido, nunca cero).
-
-```{r}
-x <- base[["Cr (ppm)"]]
-tipo <- base[["Sample Type"]]                        # tipo de roca de cada fila
-tiene <- !is.na(x)                                     # filas con dato
-x <- x[tiene]
-tipo <- tipo[tiene]
-x <- log10(x)                                          # escala log10: 10, 100, 1000 ppm -> 1, 2, 3
-x <- x[tipo == "igneous:volcanic:mafic"]          # solo rocas volcánicas máficas
-n <- length(x)
-```
-
-### 10.2. Límites de outliers (regla intercuartílica)
-
-Con el rango intercuartílico (IR = Q3 − Q1) se fijan los límites Q1 − 1,5·IR y Q3 + 1,5·IR. Los datos que quedan fuera no se eliminan: se cuentan en clases abiertas.
-
-```{r}
-Q1 <- quantile(x, 0.25, names = FALSE)
-Q3 <- quantile(x, 0.75, names = FALSE)
-IR <- Q3 - Q1                                          # rango intercuartílico
-lim_inf <- Q1 - 1.5 * IR                               # menos que esto = outlier bajo
-lim_sup <- Q3 + 1.5 * IR                               # más que esto = outlier alto
-tipico <- x[x >= lim_inf & x <= lim_sup]               # los intervalos se arman con estos datos
-# Los outliers NO se borran: se cuentan en las clases abiertas (son otras rocas, no errores).
-```
-
-### 10.3. Intervalos (regla de Sturges)
-
-El número de intervalos sale de la regla de Sturges, k = 1 + 3,3·log10(n); la amplitud se redondea a un número cómodo para que los límites sean fáciles de leer.
-
-```{r}
-k <- round(1 + 3.3 * log10(n))                         # número de intervalos
-a <- (max(tipico) - min(tipico)) / k                   # amplitud calculada
-a <- 0.2                                               # se redondea hacia arriba a un número cómodo
-desde <- floor(min(tipico) / a) * a                    # primer límite: múltiplo de a
-k <- floor((max(tipico) - desde) / a) + 1              # intervalos que hacen falta para llegar al máximo
-Li <- desde + (0:(k - 1)) * a                          # límites inferiores
-Ls <- Li + a                                           # límites superiores
-MC <- (Li + Ls) / 2                                    # marca de clase
-```
-
-### 10.4. Frecuencias
-
-Tabla de distribución de frecuencias: límites, marca de clase, frecuencia absoluta y relativa, y acumuladas ascendentes y descendentes.
-
-```{r}
-dentro <- x[x >= Li[1] & x <= Ls[k]]
-ni <- as.vector(table(cut(dentro, breaks = c(Li, Ls[k]), right = FALSE, include.lowest = TRUE)))  # cuenta por intervalo [Li, Ls[
-abajo <- sum(x < Li[1])                                # clase abierta "menor que" (outliers bajos)
-arriba <- sum(x > Ls[k])                               # clase abierta "mayor o igual" (outliers altos)
-hi <- round(ni / n * 100, 2)                           # frecuencia relativa (%)
-todos <- c(abajo, ni, arriba)                          # con las clases abiertas, para acumular
-cerradas <- 2:(k + 1)                                  # posiciones de los intervalos normales
-Ni_asc <- cumsum(todos)[cerradas]                      # acumulada ascendente
-Ni_dsc <- rev(cumsum(rev(todos)))[cerradas]            # acumulada descendente
-Hi_asc <- round(cumsum(todos) / n * 100, 2)[cerradas]
-Hi_dsc <- round(rev(cumsum(rev(todos))) / n * 100, 2)[cerradas]
-TDF <- data.frame(Li, Ls, MC, ni, hi, Ni_asc, Ni_dsc, Hi_asc, Hi_dsc)
-knitr::kable(TDF, caption = "Tabla N° 3: distribución de frecuencias")
-c(abajo = abajo, arriba = arriba)                      # datos en las clases abiertas (no se borra ninguno)
-```
-
-### 10.5. Gráficos: histograma + polígono, ojiva y caja
-
-Histograma con polígono de frecuencias, ojivas ascendente y descendente (se cruzan en la mediana) y diagrama de caja.
-
-```{r, fig.width = 9, fig.height = 6}
-etiq <- paste0("[", Li, "-", Ls, "[")                  # texto de cada intervalo
-nota <- c(if (abajo > 0) paste0("< ", Li[1], ": ", abajo, " (", round(abajo / n * 100, 2), " %)"),
-          if (arriba > 0) paste0("≥ ", Ls[k], ": ", arriba, " (", round(arriba / n * 100, 2), " %)"))
-layout(matrix(c(1, 1, 2, 3), 2, 2, byrow = TRUE), heights = c(1.15, 1))   # arriba 1 gráfico, abajo 2
-par(mar = c(8, 5, 4, 1))
-h <- barplot(hi, names.arg = etiq, space = 0, las = 2, col = "#3987e5", border = "white",   # histograma
-             ylab = "Porcentaje (%)", cex.names = .75, ylim = c(0, max(hi) * 1.15),
-             main = "Gráfica N° 30: Histograma y polígono de frecuencias de log10 Cr en rocas volcánicas máficas (ppm)")
-lines(c(h[1] - 1, h, h[length(h)] + 1), c(0, hi, 0), col = "#d95926", lwd = 2, type = "b", pch = 16, cex = .6)  # polígono
-mtext(if (length(nota) > 0) paste0("Clases abiertas (fuera del gráfico): ", paste(nota, collapse = " · ")) else "",
-      side = 1, line = 6.5, cex = .7, col = "gray30")  # nota bajo el histograma
-par(mar = c(5, 5, 4, 1))
-plot(Ls, Hi_asc, type = "b", pch = 16, col = "#3987e5", ylim = c(0, 100),            # ojiva ascendente
-     xlab = "log10 Cr en rocas volcánicas máficas (ppm)", ylab = "Porcentaje acumulado (%)",
-     main = "Gráfica N° 31: Ojiva ascendente y descendente")
-lines(Li, Hi_dsc, type = "b", pch = 17, col = "#d95926")                              # ojiva descendente
-abline(h = 50, lty = 3, col = "gray50")                # línea del 50 %: donde se cruzan está la mediana
-legend("right", c("ascendente (≤)", "descendente (≥)"), col = c("#3987e5", "#d95926"), pch = c(16, 17), bty = "n", cex = .85)
-boxplot(x, horizontal = TRUE, col = "#86b6ef", xlab = "log10 Cr en rocas volcánicas máficas (ppm)",       # diagrama de caja
-        main = "Gráfica N° 32: Diagrama de caja (todos los datos)")
-```
-
-### 10.6. Error de agrupación: media y desviación con la TDF vs con los datos
-
-Se comparan la media y la desviación calculadas con la TDF (cada dato = la marca de clase de su intervalo) con las calculadas con los datos; menos de 5 % de error indica que la agrupación representa bien los datos.
-
-```{r}
-xc <- x[x >= Li[1] & x <= Ls[k]]                       # los datos de los intervalos normales
-media_agrupada <- sum(MC * ni) / sum(ni)               # cada dato = la marca de clase de su intervalo
-desv_agrupada <- sqrt(sum((MC - media_agrupada)^2 * ni) / sum(ni))
-c(error_media = abs(media_agrupada - mean(xc)) / mean(xc) * 100,   # en %; menos de 5 % = bien
-  error_desviacion = abs(desv_agrupada - sd(xc)) / sd(xc) * 100)
-```
-
-### 10.7. Indicadores (con los datos sin agrupar, en log10)
-
-Medidas de tendencia central, dispersión y forma con los datos sin agrupar (asimetría y curtosis con el paquete e1071).
-
-```{r}
-ind <- c(n = n, media = mean(x), mediana = median(x), desviacion = sd(x), varianza = var(x),
-  CV = sd(x) / mean(x) * 100, asimetria = skewness(x), curtosis = kurtosis(x))
-
-knitr::kable(data.frame(indicador = names(ind), valor = round(ind, 4)), row.names = FALSE,
-             caption = "Tabla N° 4: indicadores estadísticos")
-```
-
-## 11. Conclusión
-
-Se analizaron `r f(res$n, 0)` casos con dato. La mediana es `r f(10^res$mediana)` ppm; en log10, la escala del análisis, la asimetría es `r f(res$asim)` (`r if (res$asim > 0) "cola hacia los valores altos" else "cola hacia los valores bajos"`) y el coeficiente de variación es `r f(res$cv)` %. `r f(res$fuera, 0)` datos quedaron en las clases abiertas: no se borraron, porque son otras rocas y no errores. El error de agrupación de la media es `r f(res$err)` %. El cromo varía en varios órdenes de magnitud (de menos de 1 ppm a cromititas con más de 10 000 ppm), por eso se analiza en log10. En esa escala la distribución es mucho más simétrica.
+## 7. Conclusión
+Se analizaron `r f(res$n, 0)` porciones de roca con dato. La mediana es `r f(10^res$mediana)` ppm (en log10, la escala del análisis, `r f(res$mediana)`), el coeficiente de variación es `r f(res$cv)` % y la asimetría es `r f(res$asim)` (`r if (res$asim > 0) "cola hacia los valores altos" else "cola hacia los valores bajos"`). Hay `r f(res$atipicos, 0)` valores atípicos según la regla intercuartílica; no se borran. El error de agrupación de la media es `r f(res$err)` %. El cromo varía en varios órdenes de magnitud (de menos de 1 ppm a cromititas con más de 10 000 ppm), por eso se analiza en log10. En esa escala la distribución es mucho más simétrica.

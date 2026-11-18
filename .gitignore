@@ -19,3 +19,6 @@ R/salidas/paso_a_paso_*.png
 # Intermedios de rmarkdown (render con clean = FALSE)
 docs/rpubs/*_files/
 R/**/*.knit.md
+
+# ids privados de RPubs (permiten reemplazar los documentos publicados): no subir
+R/rpubs/.subidas_rpubs.csv

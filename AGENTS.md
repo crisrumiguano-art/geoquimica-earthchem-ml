@@ -216,9 +216,13 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
   (dos: escala al máximo y escala al total), 5.2 barras porcentuales (al máximo y a 100 %), 5.3 circular con `paste0(hi,
   " %")` y leyenda «Leyenda» · 6. Indicadores estadísticos (tabla `gt` con Variable, Rango, X, Me, Mo, V, Sd, Cv, As, K,
   Valores atípicos; «-» en lo que no aplica a una cualitativa) · 7. Conclusión (una frase con la moda). Títulos
-  «Gráfica N°k: …» con salto de línea, `las = 1`, `cex.names = 0.8`. Nuestros `R/rpubs/*.Rmd` (5 secciones, barras y
-  torta en una sola figura, sin `gt` ni tabla de indicadores en las cualitativas) **todavía no siguen este formato**;
-  el equipo iba a enviar más páginas de guía antes de rehacerlos.
+  «Gráfica N°k: …» con salto de línea, `las = 1`, `cex.names = 0.8`. Desde el 18/11/2026 los 9 documentos de la Unidad 1
+  (`R/rpubs/*.Rmd`, generados por `scripts/rpubs.py`) **siguen este formato**: torta con la leyenda en un panel propio
+  (`layout`), cuantitativas con 5.1 histograma, 5.2 polígono, 5.3 ojivas y 5.4 caja, y en las continuas una Tabla Nro. 3
+  de error de agrupación. Se reemplazaron en RPubs con las mismas direcciones (`rpubsUpload(titulo, html, id)`); los ids
+  privados están en `R/rpubs/.subidas_rpubs.csv` (ignorado por git: con ese id cualquiera reemplaza el documento).
+  Faltan los 16 de inferencial y regresión (`inf_*`, `reg_*`), que siguen con su formato anterior; de esos solo hay ids
+  guardados para inf_01, inf_02 y reg_01 a reg_09.
 - El docente pide **uno de cada tipo** (todas las distribuciones de su plantilla, incluida la beta; todas las regresiones, incluida la logística): al agregar contenido, cubrir cada tipo aunque haya que buscar la variable que lo cumpla. La portada tiene la sección «Tecnologías usadas» (logos de Simple Icons en `docs/img/logos/`, CC0) y todas las páginas enlazan el repositorio en el pie.
 - El proyecto QGIS usa **shapefiles** (`data/gis/shp/`, 9 campos en muestras, anchos fijos con CAST en OGR SQL e índice
   `.qix`), no el GeoPackage: el equipo trabaja QGIS "de forma tradicional" y el gpkg de 35 MB le colgaba QGIS. El
