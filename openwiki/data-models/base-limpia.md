@@ -80,8 +80,8 @@ La muestra probabilística para inferir (L3) es `data/muestras/muestra_estratifi
 
 - Población U: todas las porciones de roca total de la corteza y el manto superior (infinita).
 - Individuo Xᵢ: cada porción de roca analizada.
-- Muestra M ⊂ U: los 159 760 análisis de PetDB. **No es probabilística**; la inferencia (Unidad 2) debe
-  usar submuestras aleatorias estratificadas por `Tectonic Group`.
+- Muestra M ⊂ U: los 159 760 análisis de PetDB. **No es probabilística** (es el marco muestral);
+  la inferencia (Unidad 2) usa la muestra aleatoria simple sorteada en L3.
 
 ## Al cambiar la limpieza
 

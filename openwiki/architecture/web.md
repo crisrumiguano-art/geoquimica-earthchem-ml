@@ -10,7 +10,7 @@ fuentes por CDN. Sin framework ni compilación: GitHub Pages lo sirve tal cual.
 | `docs/datos/` | origen, preparación, descargas (informes, mapas, base, QGIS) |
 | `docs/equipo/` | 5 integrantes con contacto, docente |
 
-El menú está **repetido en cada HTML**: al agregar una página, actualizarlo en todas (`<span class="pronto">` -> enlace).
+El menú está **repetido en cada HTML**: al agregar una página, sumarla en todas. En el celular se desliza de lado (borde derecho desvanecido).
 
 ## Datos que consume
 
@@ -24,7 +24,7 @@ El menú está **repetido en cada HTML**: al agregar una página, actualizarlo e
 
 ## Componentes de `app.js`
 
-- **Aviso académico**: barra flotante inferior en todas las páginas, se cierra con × y vuelve al recargar.
+- **Aviso académico**: franja compacta con borde magma al inicio de cada página (`app.js`, dentro de `.hero-in`), sin botón de cerrar.
 - **Botón «Código R»**: un `MutationObserver` agrega el botón a cada `figure.grafica` con imagen de `img/r/`;
   `panelCodigo()` abre el código simple de ese PNG con botón Copiar. El JSON se pide con `cache: "no-cache"`.
 - **`resaltarR()`**: resaltado de sintaxis R propio (un regex; clases `.r-c/s/k/b/n/f/o`, colores tipo VS Code);

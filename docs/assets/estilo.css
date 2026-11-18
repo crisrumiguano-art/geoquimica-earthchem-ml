@@ -240,11 +240,11 @@ pre.r-mini code, .codigo-r code { color: #d4d4d4; }
 
 .academico { flex-basis: 100%; color: var(--text-secondary); }
 .academico b { color: var(--magma); font-weight: 600; }
-.aviso { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem 1rem; margin: 0 0 1.6rem; padding: 1rem 1.3rem;
-  background: rgba(15,14,12,.78); backdrop-filter: blur(6px); border: 1px solid var(--line); border-left: 4px solid var(--magma);
-  color: var(--text-secondary); font-size: .95rem; max-width: 46rem; }
-.aviso b { color: var(--magma); font-family: var(--serif); font-weight: 600; font-size: clamp(1.35rem, 2.6vw, 1.9rem); letter-spacing: .01em; }
-@media (max-width: 600px) { .aviso { font-size: .85rem; } }
+.aviso { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .2rem .8rem; margin: 0 0 1.4rem; padding: .45rem .9rem;
+  background: rgba(15,14,12,.72); backdrop-filter: blur(6px); border: 1px solid var(--magma); border-radius: 999px;
+  color: var(--text-secondary); font-size: .82rem; line-height: 1.35; }
+.aviso b { color: var(--magma); font-weight: 600; font-size: .95rem; }
+@media (max-width: 600px) { .aviso { border-radius: 10px; padding: .4rem .75rem; } .aviso span { font-size: .75rem; } }
 footer { width: min(var(--max), 100% - 2.5rem); margin: 7rem auto 0; padding: 2rem 0 3rem; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 1rem 2rem; justify-content: space-between; color: var(--muted); font-size: .82rem; }
 
 /* Aparición al hacer scroll */
@@ -256,8 +256,17 @@ footer { width: min(var(--max), 100% - 2.5rem); margin: 7rem auto 0; padding: 2r
 }
 
 @media (max-width: 900px) {
-  .nav { flex-wrap: wrap; gap: .5rem; background: rgba(15,14,12,.92); }
-  .nav ul { margin: 0; width: 100%; overflow-x: auto; scrollbar-width: none; padding-bottom: .2rem; }
+  .nav { flex-wrap: wrap; gap: .35rem; background: rgba(15,14,12,.92); padding-block: .55rem .4rem; }
+  .marca { font-size: .95rem; } .marca b { width: 26px; height: 26px; }
+  /* el menú se desliza de lado: el borde derecho se desvanece para que se note que hay más */
+  .nav ul { margin: 0; width: 100%; overflow-x: auto; scrollbar-width: none; padding-bottom: .2rem; gap: 1rem;
+            mask-image: linear-gradient(90deg, #000 85%, transparent); }
+  .nav ul::-webkit-scrollbar { display: none; }
+  /* gráficas de R: el botón va debajo (no tapa el título) y la imagen se desliza de lado para leerla */
+  .grafica { min-width: 0; max-width: 100%; overflow: hidden; }
+  .grafica > a { overflow-x: auto; }
+  .grafica img { min-width: 620px; }
+  .ver-codigo { position: static; display: block; width: 100%; border-radius: 0; border-width: 1px 0 0; padding: .55rem; }
   .duo, .nota, .conjuntos, .graficos, .fuentes, .bloque, .tres { grid-template-columns: 1fr; }
   .especificos, .clases, .equipo, .elementos { grid-template-columns: repeat(2, 1fr); }
   .especificos.trio { grid-template-columns: 1fr; }

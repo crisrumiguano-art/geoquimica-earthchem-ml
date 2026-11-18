@@ -160,9 +160,13 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
 
 - Se publica desde la rama `main`, carpeta `/docs`. Cualquier push a `docs/` actualiza la web en ~1 min.
 - Repo público: GitHub Pages gratis no funciona en repos privados.
-- Una página por unidad: `/` (problema, mapa, objetivos), `/descriptiva/` (U1), `/datos/`, `/equipo/`.
-  Inferencial, regresión y ML figuran como "pronto" en el menú: al crearlas, copiar el `<nav>` y cambiar el
-  `<span class="pronto">` por un enlace en **todas** las páginas (el menú está repetido en cada HTML).
+- Una página por unidad: `/` (problema, mapa, objetivos, conclusiones), `/descriptiva/` (U1), `/inferencial/` (U2),
+  `/regresion/` (U3), `/ml/` (U4), `/datos/`, `/equipo/`. El menú está repetido en cada HTML: al agregar una página,
+  sumarla en **todas**.
+- **Celular** (revisado el 18/11/2026 a 390 px): el menú se desliza de lado con el borde derecho desvanecido y lleva a la
+  vista la página actual (`app.js`); las gráficas de R tienen `min-width: 620px` dentro de un contenedor que se desliza,
+  y el botón «Código R» va debajo de la imagen (arriba tapaba el título de la gráfica). Probar cualquier cambio de
+  diseño también a 390 px (Chrome DevTools, modo dispositivo).
 - La tabla de variables se dibuja desde `docs/data/variables.json`: para cambiar descripciones, editar
   `OTRAS`/`NOMBRES` en `scripts/tabla_variables.py`.
 - Agrupación y outliers: **no eliminar outliers**; son otras rocas, no errores. TDF = intervalos de Sturges sobre el
@@ -200,17 +204,28 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
   la plantilla `Analisis_SiO2.R`; el equipo no entendía las funciones (29/10/2026). Si se agrega un PNG en `docs/img/r/`
   con un prefijo nuevo, sumarlo a `SCRIPTS` en ese archivo.
 - Correcciones de la tabla de variables (11/11/2026, quitó 0,2): faltaba nombre corto; descripciones redundantes; una sola columna de dominio; rango mal definido (ahora `R={x/x ∈ R ^ min ≤ x ≤ max}` o las categorías observadas); **elevación = razón** y **edad geológica = intervalo** (las tres columnas de edad); faltaban variable de interés y de individuo. Proyecto modelo: https://geoquimicaglobal.framer.website/ (su tabla es un Google Sheet; su código R está en RPubs, un documento por variable). Nuestros equivalentes: `R/rpubs/*.Rmd` -> `docs/rpubs/*.html`; publicados el 13/11/2026 en https://rpubs.com/rosemeri (cuenta del equipo; slugs desc-NN-*, inf-NN-*, reg-NN-*; la web enlaza ahí). Para republicar: `markdown::rpubsUpload(titulo, html)` y abrir el continueUrl con la sesión iniciada; el título no puede llevar tildes en esa función (falla con multibyte: subir en ASCII y corregir el título en el formulario). RPubs cierra publicaciones nuevas el 30/06/2027.
-- Correcciones del docente (16/11/2026): el aviso «estrictamente académico» va **grande al inicio** de cada página (bloque dentro de `.hero-in`, desde `app.js`, sin botón de cerrar); el **individuo es la porción de roca**, no el análisis (muestra = porciones de roca registradas en PetDB; variable de individuo = «X de cada una de las porciones de roca…»); se quitó la columna «% dato»; en las cualitativas, dominio = conjunto de categorías posibles y rango = categorías de la base (dict `CUALITATIVAS` en `tabla_variables.py`, sin definiciones largas ni conteos); el grado de alteración se escribe con palabras (fresca, leve, moderada, extensa, casi total, total), no con números.
+- Correcciones del docente (16/11/2026): el aviso «estrictamente académico» va **al inicio** de cada página (dentro de `.hero-in`, desde `app.js`, sin botón de cerrar). El 18/11/2026 se achicó a una franja con borde magma («Proyecto estrictamente académico · FIGEMPA – UCE · sin fines comerciales»): el bloque grande tapaba media pantalla en el celular y repetía el subtítulo. Sigue primero y visible; no volver al bloque grande. Otras correcciones de ese día: el **individuo es la porción de roca**, no el análisis (muestra = porciones de roca registradas en PetDB; variable de individuo = «X de cada una de las porciones de roca…»); se quitó la columna «% dato»; en las cualitativas, dominio = conjunto de categorías posibles y rango = categorías de la base (dict `CUALITATIVAS` en `tabla_variables.py`, sin definiciones largas ni conteos); el grado de alteración se escribe con palabras (fresca, leve, moderada, extensa, casi total, total), no con números.
 - Revisión conceptual del 16/11/2026: la base PetDB es el **marco muestral** (no la población: U = todas las rocas de la Tierra); los IC se *validan* contra el marco. Edad geológica (período) = ordinal; edades en Ma = intervalo. La portada tiene «Conclusiones» (objetivo general + 3 específicos + limitaciones) y el informe del proyecto incluye las Unidades 2–4.
 - Revisión del 16/11/2026 (para evitar más correcciones): grado de alteración con palabras también en TDF, gráficas, código R y RPubs; etiquetas de categorías en español con tildes (tipos de roca traducidos, «básica», «oceánica»); «Gráfica N°» en todas y numeración seguida en /descriptiva/ (cualitativas 1–8, discretas 9–14, continuas 15–32); rótulo «Cantidad» separado del eje y tortas que solo rotulan porciones ≥ 3 % (la leyenda lleva el %); cuando «análisis» funcionaba como individuo se cambió a «porción de roca». Los 15 scripts simples siguen dando PNG idénticos byte a byte; RPubs se actualiza con `rpubsUpload(titulo, html, id = <id de la subida>)` y conserva el título.
 - Unidades 2–4 (12/11/2026), decisiones: la inferencia usa la **muestra aleatoria simple** de L3 (con 159 760 datos el chi-cuadrado rechaza todo); continuas en el estrato de basaltos (`igneous:volcanic:mafic`); atípicos fuera del ajuste como en la plantilla `Distribuciones.R`, pero no se borran de la base. Cada variable/par se eligió por **prueba y error** (50 químicas × 3 modelos; 28 pares × 5 modelos) y los documentos muestran la comparación y lo que falló (N Analytes no es Poisson). Regresión La–Ce excluye Ce/La fuera de 0,5–5 (puntos con distancia de Cook enorme); SiO2–MgO solo rocas silicatadas (SiO2 35–80). Las figuras se validan visualmente (hojas de contacto) antes de publicar.
+- **Formato RPubs que mostró el docente en clase (18/11/2026)**: https://rpubs.com/dcmendez/1446860 («Categoría de
+  Cuerpos de Agua», de otro grupo; tema `readable`/`paper` con índice flotante). Secciones: 1. Librerías (`gt`, `dplyr`)
+  · 2. Leer datos (`read.csv`) · 3. Selección de variable (`recode` de códigos a nombres en español) · 4. Tabla de
+  distribución de frecuencia (`gt()` con título «*Tabla Nro. N*», subtítulo en negrita, nota «Autor: Grupo N», bordes
+  negros y filas cebra; columnas ni, hi(%) y fila TOTAL) · 5. Gráficas, **cada una aparte**: 5.1 barras de cantidad
+  (dos: escala al máximo y escala al total), 5.2 barras porcentuales (al máximo y a 100 %), 5.3 circular con `paste0(hi,
+  " %")` y leyenda «Leyenda» · 6. Indicadores estadísticos (tabla `gt` con Variable, Rango, X, Me, Mo, V, Sd, Cv, As, K,
+  Valores atípicos; «-» en lo que no aplica a una cualitativa) · 7. Conclusión (una frase con la moda). Títulos
+  «Gráfica N°k: …» con salto de línea, `las = 1`, `cex.names = 0.8`. Nuestros `R/rpubs/*.Rmd` (5 secciones, barras y
+  torta en una sola figura, sin `gt` ni tabla de indicadores en las cualitativas) **todavía no siguen este formato**;
+  el equipo iba a enviar más páginas de guía antes de rehacerlos.
 - El docente pide **uno de cada tipo** (todas las distribuciones de su plantilla, incluida la beta; todas las regresiones, incluida la logística): al agregar contenido, cubrir cada tipo aunque haya que buscar la variable que lo cumpla. La portada tiene la sección «Tecnologías usadas» (logos de Simple Icons en `docs/img/logos/`, CC0) y todas las páginas enlazan el repositorio en el pie.
 - El proyecto QGIS usa **shapefiles** (`data/gis/shp/`, 9 campos en muestras, anchos fijos con CAST en OGR SQL e índice
   `.qix`), no el GeoPackage: el equipo trabaja QGIS "de forma tradicional" y el gpkg de 35 MB le colgaba QGIS. El
   planteamiento del problema es **una sola redacción continua**, sin subtítulos ni columnas (cubre importancia, uso de
   la estadística y caso de estudio), pedido del docente (23/10/2026).
-- Población/individuo/muestra: la muestra es la compilación PetDB (n = 159 760), **no probabilística**; la
-  web dice que la inferencia usará submuestras aleatorias estratificadas por ambiente tectónico (L3).
+- Población/individuo/muestra: la compilación PetDB (n = 159 760) es el marco muestral, **no probabilístico**; en L3 se
+  sortearon muestras aleatoria simple, sistemática y estratificada, y la inferencia (Unidad 2) usa la **aleatoria simple**.
 - Diseño "basalto": tema oscuro editorial, acento magma `#ff6b2c`, Fraunces (títulos) + Instrument Sans
   (texto) + JetBrains Mono (cifras). Tokens en `:root` de `docs/assets/estilo.css`; no meter colores sueltos.
 - Colores de datos: paleta validada (azul/naranja/aqua para ≤ 3 series, rampa azul para ordinales). Los mismos

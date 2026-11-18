@@ -12,10 +12,13 @@ document.querySelectorAll(".nav ul a[data-p]").forEach(a => { if (a.dataset.p ==
 if (pagina !== "inicio") nav.classList.add("fija");
 addEventListener("scroll", () => nav.classList.toggle("solid", scrollY > 40), { passive: true });
 
-// Aviso de proyecto académico: grande y al inicio de cada página, sin botón de cerrar (pedido del docente, 16/11/2026)
+// Aviso de proyecto académico: al inicio de cada página, sin botón de cerrar (pedido del docente, 16/11/2026);
+// compacto desde el 18/11/2026 porque el bloque grande tapaba media pantalla en el celular
 document.querySelector(".hero-in")?.insertAdjacentHTML("afterbegin", `<div class="aviso" role="note">
-  <b>Proyecto estrictamente académico</b><span>Estadística y Probabilidades · FIGEMPA – Universidad Central del Ecuador ·
-  sin fines comerciales</span></div>`);
+  <b>Proyecto estrictamente académico</b><span>FIGEMPA – UCE · sin fines comerciales</span></div>`);
+
+// En el celular el menú se desliza de lado: llevar a la vista la página actual
+document.querySelector('.nav ul a[aria-current="page"]')?.scrollIntoView({ block: "nearest", inline: "center" });
 
 // Aparición al hacer scroll
 const io = new IntersectionObserver(es => es.forEach(e => {
