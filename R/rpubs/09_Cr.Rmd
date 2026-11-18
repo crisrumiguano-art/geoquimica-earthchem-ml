@@ -19,9 +19,12 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
 
 ## 1. Librerías
 ```{r}
-library(gt)
-library(dplyr)
+library(gt)       # tablas con formato (Tabla Nro.)
+library(dplyr)    # el operador %>% para encadenar pasos
 library(e1071)    # asimetría y curtosis
+
+# barplot(), pie(), plot(), boxplot(), legend() son del paquete graphics, y quantile(), sd(),
+# var() del paquete stats: los dos vienen con R y se cargan solos, no necesitan library()
 ```
 
 ## 2. Leer datos

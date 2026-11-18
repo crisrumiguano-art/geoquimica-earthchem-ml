@@ -246,7 +246,11 @@ def rmd(nombre, variable, tipo, script, eje, conclusion):
          f"> Proyecto estrictamente académico. Variable {TIPO_LARGO[tipo]}. Datos: EarthChem PetDB (CC BY 4.0), "
          "descargados el 13/10/2026. Web del proyecto: https://crisrumiguano-art.github.io/geoquimica-earthchem-ml/\n",
          "## 1. Librerías",
-         chunk("library(gt)\nlibrary(dplyr)" + ("" if cuali else "\nlibrary(e1071)    # asimetría y curtosis")),
+         chunk("library(gt)       # tablas con formato (Tabla Nro.)\n"
+               "library(dplyr)    # el operador %>% para encadenar pasos"
+               + ("" if cuali else "\nlibrary(e1071)    # asimetría y curtosis") +
+               "\n\n# barplot(), pie(), plot(), boxplot(), legend() son del paquete graphics, y quantile(), sd(),\n"
+               "# var() del paquete stats: los dos vienen con R y se cargan solos, no necesitan library()"),
          "## 2. Leer datos",
          chunk("""# =========================
 # Cargar datos
