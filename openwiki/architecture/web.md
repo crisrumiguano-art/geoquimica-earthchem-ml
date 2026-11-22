@@ -10,7 +10,7 @@ fuentes por CDN. Sin framework ni compilación: GitHub Pages lo sirve tal cual.
 | `docs/datos/` | solo redirige a `/#introduccion`: la Introducción (origen, preparación, descargas) vive en la portada |
 | `docs/equipo/` | 5 integrantes con contacto, docente |
 
-El menú está **repetido en cada HTML**: al agregar una página, sumarla en todas. En el celular se desliza de lado (borde derecho desvanecido).
+El menú y el pie **se generan en `assets/app.js`** (`MENU` y `pie`): cada HTML solo trae `<nav id="nav">` y `<footer data-nota="…">`. Para agregar una página, sumarla a `MENU`. En el celular el menú se desliza de lado (borde derecho desvanecido).
 
 ## Datos que consume
 

@@ -5,6 +5,23 @@ const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).
 const fmt = (n, dec = 2) => Number(n).toLocaleString("es", { maximumFractionDigits: dec });
 const esc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
+// Menú y pie de página: se arman aquí, en un solo lugar, para todas las páginas. Para agregar, quitar o renombrar una
+// página se edita solo MENU; cada HTML trae <nav id="nav"> vacío y <footer data-nota="…"> con su nota propia.
+const RAIZ = new URL("../", document.currentScript.src);   // la carpeta docs/ (funciona en GitHub Pages y en local)
+const MENU = [  // [data-pagina, ruta desde docs/, texto, unidad]
+  ["inicio", "", "Introducción"], ["equipo", "equipo/", "Equipo"],
+  ["descriptiva", "descriptiva/", "Descriptiva", "U1"], ["inferencial", "inferencial/", "Inferencial", "U2"],
+  ["regresion", "regresion/", "Regresión", "U3"], ["ml", "ml/", "Machine learning", "U4"],
+  ["conclusiones", "conclusiones/", "Conclusiones"],
+];
+document.getElementById("nav").innerHTML = `<a class="marca" href="${RAIZ}"><b>Pt</b>Geoquímica PetDB</a><ul>${MENU.map(([p, ruta, texto, u]) =>
+  `<li><a data-p="${p}" href="${new URL(ruta, RAIZ)}">${u ? `<span class="u">${u}</span>` : ""}${texto}</a></li>`).join("")}</ul>`;
+const pie = document.querySelector("footer");
+if (pie) pie.innerHTML = `<span class="academico">Proyecto <b>estrictamente académico</b>, sin fines comerciales, desarrollado para la asignatura Estadística y Probabilidades (FIGEMPA – Universidad Central del Ecuador).</span>
+  <span>Datos: Astromaterials Data Synthesis / EarthChem PetDB (<a href="https://search.astromat.org/">search.astromat.org</a>), 13/10/2026, CC BY 4.0.</span>
+  ${pie.dataset.nota ? `<span>${pie.dataset.nota}</span>` : ""}
+  <span><a class="repo" href="https://github.com/crisrumiguano-art/geoquimica-earthchem-ml"><img src="${RAIZ}img/logos/github.svg" alt="" width="14" height="14" style="vertical-align:-2px;filter:invert(1);margin-right:.35rem">Código y datos en GitHub</a></span>`;
+
 // Navegación: página actual marcada y fondo sólido al bajar (en la portada empieza transparente)
 const nav = document.getElementById("nav");
 const pagina = document.body.dataset.pagina;
