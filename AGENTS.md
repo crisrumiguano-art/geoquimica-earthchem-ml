@@ -160,9 +160,20 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
 
 - Se publica desde la rama `main`, carpeta `/docs`. Cualquier push a `docs/` actualiza la web en ~1 min.
 - Repo público: GitHub Pages gratis no funciona en repos privados.
-- Una página por unidad: `/` (problema, mapa, objetivos, conclusiones), `/descriptiva/` (U1), `/inferencial/` (U2),
-  `/regresion/` (U3), `/ml/` (U4), `/datos/`, `/equipo/`. El menú está repetido en cada HTML: al agregar una página,
-  sumarla en **todas**.
+- Una página por unidad. Orden del menú: **Introducción** (`/datos/`), Inicio (`/`: problema, mapa, objetivos,
+  conclusiones), `/descriptiva/` (U1), `/inferencial/` (U2), `/regresion/` (U3), `/ml/` (U4), `/equipo/`. El menú está
+  repetido en cada HTML: al agregar una página, sumarla en **todas**.
+- **Correcciones del docente (22/11/2026)**: (1) la página de datos pasa a ser la **Introducción**, primera del menú, con
+  el aviso «estrictamente académico» **en grande** (`.aviso-grande`, en su HTML; `app.js` no le agrega el compacto) y el
+  título del proyecto; el resto de páginas sigue con la franja compacta. (2) La lista de RPubs «no es práctica»: se
+  quitó de la Introducción. **Cada RPubs se abre dentro de su variable**: en `/descriptiva/` cada variable es una
+  tarjeta (`tarjeta()` en su script) con una **foto real** de lo que mide; al tocarla se abre la copia local
+  `docs/rpubs/*.html` en un `<dialog>` modal (`abrirRPubs` en `app.js`, `closedby="any"` con respaldo para Safari).
+  Cualquier enlace a `rpubs.com/rosemeri/<slug>` de cualquier página abre ese visor (slug -> archivo: se quita `desc-`
+  y los `-` pasan a `_`). (3) Las fotos (`docs/img/variables/*.jpg`, 1200 px) son de Wikimedia Commons con licencia
+  libre; autor, licencia y fuente en `docs/img/variables/creditos.json`, que la tarjeta muestra al pie. Las gráficas
+  grises de R ya no van en las cualitativas ni discretas (están dentro del RPubs); en las continuas siguen debajo de la
+  tarjeta los gráficos de agrupación y estrato con su botón «Código R».
 - **Celular** (revisado el 18/11/2026 a 390 px): el menú se desliza de lado con el borde derecho desvanecido y lleva a la
   vista la página actual (`app.js`); las gráficas de R tienen `min-width: 620px` dentro de un contenedor que se desliza,
   y el botón «Código R» va debajo de la imagen (arriba tapaba el título de la gráfica). Probar cualquier cambio de
@@ -181,7 +192,7 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
 - Regresiones (Unidad 3): alcanzan los datos (p. ej. La–Ce 31 690 pares, MgO–Ni 9 379, 6 óxidos completos 46 308),
   pero usar log10 en trazas (Zr–Hf r = 0,15 lineal vs 0,97 en log), filas completas por par (sin imputar) y
   estratificar por roca o `Tectonic Group`. Tabla en la sección 10 del informe.
-- Correcciones del docente (21/10/2026): sin sección de introducción; el planteamiento no lleva pregunta sino
+- Correcciones del docente (21/10/2026; la introducción volvió el 22/11/2026 como página propia): sin sección de introducción; el planteamiento no lleva pregunta sino
   **importancia, uso de la estadística y caso de estudio**; objetivo general corto; **3 objetivos específicos** que
   cubren todo el proyecto, cada uno con imagen; aviso de proyecto **estrictamente académico** en el pie de todas las
   páginas; mapa QGIS con **cuadrícula con coordenadas y membrete** (formato de `referencias_curso/QGIS/1.- Mapa de

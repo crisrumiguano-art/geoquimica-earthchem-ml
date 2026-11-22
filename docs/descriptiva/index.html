@@ -20,12 +20,12 @@
 <nav class="nav" id="nav" aria-label="Páginas del proyecto">
   <a class="marca" href="../"><b>Pt</b>Geoquímica PetDB</a>
   <ul>
+    <li><a data-p="datos" href="../datos/">Introducción</a></li>
     <li><a data-p="inicio" href="../">Inicio</a></li>
     <li><a data-p="descriptiva" href="./"><span class="u">U1</span>Descriptiva</a></li>
     <li><a data-p="inferencial" href="../inferencial/"><span class="u">U2</span>Inferencial</a></li>
     <li><a data-p="regresion" href="../regresion/"><span class="u">U3</span>Regresión</a></li>
     <li><a data-p="ml" href="../ml/"><span class="u">U4</span>Machine learning</a></li>
-    <li><a data-p="datos" href="../datos/">Datos</a></li>
     <li><a data-p="equipo" href="../equipo/">Equipo</a></li>
   </ul>
 </nav>
@@ -236,19 +236,35 @@ dev.off()                    # cierra y guarda</code></pre></div>
 
 <script>
 addEventListener("DOMContentLoaded", () => {
-  const T = "../data/tdf/", I = "../img/r/";
+  const T = "../data/tdf/", I = "../img/r/", F = "../img/variables/";
+  const creditos = fetch(F + "creditos.json").then(r => r.json());
+
+  // Tarjeta de la variable: foto real de lo que mide; al tocarla se abre su documento de R (RPubs) en la misma
+  // página (pedido del docente, 22/11/2026). Es un enlace normal: sin JavaScript abre RPubs.
+  function tarjeta({ v, slug, nombre, tipo, foto }) {
+    const fig = document.createElement("figure");
+    fig.className = "variable";
+    fig.innerHTML = `<a class="var-foto" href="https://rpubs.com/rosemeri/${slug}" data-titulo="${nombre}">
+        <img src="${F}${v}.jpg" alt="${foto}" loading="lazy">
+        <span class="var-info"><span class="var-tipo">${tipo}</span><b>${nombre}</b>
+          <span class="var-cta">Ver el análisis en R (RPubs) →</span></span></a>
+      <figcaption></figcaption>`;
+    creditos.then(c => { const k = c[v]; if (k) fig.querySelector("figcaption").innerHTML =
+      `Foto: ${esc(k.autor)} · ${esc(k.licencia)} · <a href="${k.fuente}">Wikimedia Commons</a>`; });
+    return fig;
+  }
   const COLS_CUAL = [["categoria", "Categoría"], ["ni", "ni", 0], ["hi", "hi (%)", 2]];
   const COLS_ORD = [...COLS_CUAL, ["Ni_asc", "Ni", 0], ["Hi_asc", "Hi (%)", 2]];
   const COLS_TDF = [["intervalo", "Intervalo"], ["MC", "MC", 3], ["ni", "ni", 0], ["hi", "hi (%)", 2],
                     ["Ni_asc", "Ni ↑", 0], ["Ni_dsc", "Ni ↓", 0], ["Hi_asc", "Hi ↑ (%)", 2], ["Hi_dsc", "Hi ↓ (%)", 2]];
 
   // Bloque = gráfica de R a la izquierda, tabla y lectura a la derecha
-  async function bloque(destino, { titulo, img, alt, csv, cols, lectura, extra }) {
+  async function bloque(destino, { titulo, csv, cols, lectura, extra, ...variable }) {
     const div = document.createElement("div");
     div.className = "bloque rev";
-    div.innerHTML = `<figure class="grafica"><a href="${I}${img}" target="_blank" title="Ver en tamaño completo"><img src="${I}${img}" alt="${alt}" loading="lazy"></a></figure>
-      <div><h4>${titulo}</h4><div class="tabla corta"></div>${extra ? '<div class="tabla corta" style="margin-top:.8rem"></div>' : ""}
+    div.innerHTML = `<div><h4>${titulo}</h4><div class="tabla corta"></div>${extra ? '<div class="tabla corta" style="margin-top:.8rem"></div>' : ""}
       <p class="lectura">${lectura}</p></div>`;
+    div.prepend(tarjeta(variable));
     destino.appendChild(div);
     io.observe(div);
     const [t1, t2] = div.querySelectorAll(".tabla");
@@ -258,36 +274,42 @@ addEventListener("DOMContentLoaded", () => {
 
   const cual = document.getElementById("bloques-cual");
   [
-    { titulo: "Ambiente tectónico agrupado · nominal", img: "cual_grupo_tectonico.png", csv: "cual_grupo_tectonico.csv", cols: COLS_CUAL,
-      alt: "Diagrama de barras y circular del ambiente tectónico agrupado",
+    { titulo: "Ambiente tectónico agrupado · nominal", csv: "cual_grupo_tectonico.csv", cols: COLS_CUAL,
+      v: "ambiente_tectonico", slug: "desc-01-ambiente-tectonico", nombre: "Ambiente tectónico agrupado", tipo: "Cualitativa nominal",
+      foto: "Grieta de Almannagjá en Þingvellir, Islandia: el borde entre las placas norteamericana y euroasiática",
       lectura: "La moda es <b>dorsal y corteza oceánica</b> (41,8 %), seguida de intraplaca y rift (35,6 %) y margen convergente (21,2 %). Solo el 1,3 % combina ambientes de grupos distintos." },
-    { titulo: "Tipo de roca · nominal", img: "cual_tipo_de_roca.png", csv: "cual_tipo_de_roca.csv", cols: COLS_CUAL,
-      alt: "Diagrama de barras y circular del tipo de roca",
+    { titulo: "Tipo de roca · nominal", csv: "cual_tipo_de_roca.csv", cols: COLS_CUAL,
+      v: "tipo_de_roca", slug: "desc-02-tipo-de-roca", nombre: "Tipo de roca", tipo: "Cualitativa nominal",
+      foto: "Lava almohadillada de basalto en el fondo del océano, la roca volcánica máfica más común de la base",
       lectura: "Más de la mitad de las porciones de roca son <b>volcánicas máficas</b> (55,3 %), sobre todo basaltos; le siguen las plutónicas ultramáficas (17,4 %). Las categorías con menos del 1 % se agruparon en «otros»." },
-    { titulo: "Clase de roca según SiO₂ · ordinal", img: "cual_clase_sio2.png", csv: "cual_clase_sio2.csv", cols: COLS_ORD,
-      alt: "Diagrama de barras y circular de la clase de SiO2",
+    { titulo: "Clase de roca según SiO₂ · ordinal", csv: "cual_clase_sio2.csv", cols: COLS_ORD,
+      v: "clase_SiO2", slug: "desc-03-clase-SiO2", nombre: "Clase de roca según SiO₂", tipo: "Cualitativa ordinal",
+      foto: "Colección de rocas ígneas de distinto color y contenido de sílice",
       lectura: "La moda y la mediana coinciden en <b>básica</b>: el 52,1 % de las rocas tiene entre 45 y 52 % de sílice, y hasta esa clase se acumula el 68,6 %. Las tres clases restantes pesan parecido (15–16 % cada una)." },
-    { titulo: "Grado de alteración · ordinal", img: "cual_alteracion.png", csv: "cual_alteracion.csv", cols: COLS_ORD,
-      alt: "Diagrama de barras y circular del grado de alteración",
+    { titulo: "Grado de alteración · ordinal", csv: "cual_alteracion.csv", cols: COLS_ORD,
+      v: "grado_de_alteracion", slug: "desc-04-grado-de-alteracion", nombre: "Grado de alteración", tipo: "Cualitativa ordinal",
+      foto: "Diabasa con meteorización esferoidal en Barrandov, Praga: la roca se altera en capas, como una cebolla",
       lectura: "Con dato en 33.248 porciones de roca. La moda es <b>fresca</b> (46,9 %) y la mediana <b>leve</b>: el 60,5 % de las rocas está fresca o levemente alterada, y el 86 % no pasa de moderada." },
   ].forEach(b => bloque(cual, b));
 
   const disc = document.getElementById("bloques-disc");
   const COLS_IND = [["indicador", "Indicador"], ["valor", "Valor", 2]];
   [
-    { titulo: "Año de publicación", img: "disc_anio.png", csv: "disc_anio.csv", cols: COLS_TDF,
-      alt: "Histograma, ojiva y diagrama de caja del año de publicación", extra: { csv: "disc_anio_indicadores.csv", cols: COLS_IND },
+    { titulo: "Año de publicación", csv: "disc_anio.csv", cols: COLS_TDF,
+      v: "anio_de_publicacion", slug: "desc-05-anio-de-publicacion", nombre: "Año de publicación", tipo: "Cuantitativa discreta",
+      foto: "Revistas y libros en la biblioteca del Servicio Geológico Central de Taiwán", extra: { csv: "disc_anio_indicadores.csv", cols: COLS_IND },
       lectura: "Agrupado en décadas. Mediana 2004 y moda 2015: la mitad de las porciones de roca se publicó en los últimos veinte años. La asimetría es negativa (−0,29), con una cola corta de trabajos antiguos; prácticamente sin outliers (40 de 159.760)." },
-    { titulo: "Número de analitos por muestra", img: "disc_analitos.png", csv: "disc_analitos.csv", cols: COLS_TDF,
-      alt: "Histograma, ojiva y diagrama de caja del número de analitos", extra: { csv: "disc_analitos_indicadores.csv", cols: COLS_IND },
+    { titulo: "Número de analitos por muestra", csv: "disc_analitos.csv", cols: COLS_TDF,
+      v: "numero_de_analitos", slug: "desc-06-numero-de-analitos", nombre: "Número de analitos", tipo: "Cuantitativa discreta",
+      foto: "Espectrómetro de masas HR-ICP-MS, el equipo que mide decenas de elementos en una porción de roca", extra: { csv: "disc_analitos_indicadores.csv", cols: COLS_IND },
       lectura: "Muy asimétrica a la derecha (1,58): la mediana es 9 analitos, pero la moda es 1 y el coeficiente de variación supera el 100 %. Un 6,4 % de las muestras tiene más de 34 analitos medidos; se dejan en la tabla porque no deforman los intervalos." },
   ].forEach(b => bloque(disc, b));
 
   // Variables continuas: un panel por variable
   const CONT = {
-    SiO2: { u: "wt%", lectura: "Toda la muestra: mediana 50,0 %, rango intercuartílico 7,3 y coeficiente de variación 19,6 %. La clase abierta superior (≥ 66 %) reúne al 12,7 %: son las rocas ácidas. En las volcánicas máficas la distribución es mucho más compacta (rango intercuartílico 2,5; CV 8,7 %)." },
-    MgO: { u: "wt%", lectura: "Asimétrica a la derecha (1,67). La media (11,3 %) supera con holgura a la mediana (7,1 %) por las peridotitas: la clase abierta ≥ 20 % reúne al 16,6 % de las rocas, una segunda población, no un error. En las volcánicas máficas la mediana es 7,3 %." },
-    Cr: { u: "ppm, log10", lectura: "En escala original la asimetría es 39,4 y la media (730 ppm) triplica a la mediana (235 ppm). En log10 aparecen dos modas: una en [2,4-2,6[ (unos 300 ppm, basaltos) y otra en [3,4-3,6[ (unos 3.000 ppm, rocas ultramáficas). Anticipa un ajuste log-normal en la Unidad 2." },
+    SiO2: { u: "wt%", slug: "desc-07-SiO2", nombre: "SiO₂ (sílice, wt%)", foto: "Cristales de cuarzo, la forma pura del SiO₂", lectura: "Toda la muestra: mediana 50,0 %, rango intercuartílico 7,3 y coeficiente de variación 19,6 %. La clase abierta superior (≥ 66 %) reúne al 12,7 %: son las rocas ácidas. En las volcánicas máficas la distribución es mucho más compacta (rango intercuartílico 2,5; CV 8,7 %)." },
+    MgO: { u: "wt%", slug: "desc-08-MgO", nombre: "MgO (wt%)", foto: "Xenolito de peridotita del manto: los cristales verdes son olivino, rico en magnesio", lectura: "Asimétrica a la derecha (1,67). La media (11,3 %) supera con holgura a la mediana (7,1 %) por las peridotitas: la clase abierta ≥ 20 % reúne al 16,6 % de las rocas, una segunda población, no un error. En las volcánicas máficas la mediana es 7,3 %." },
+    Cr: { u: "ppm, log10", slug: "desc-09-Cr", nombre: "Cr (cromo, ppm)", foto: "Banda de cromitita, la mena del cromo, dentro de una serpentinita", lectura: "En escala original la asimetría es 39,4 y la media (730 ppm) triplica a la mediana (235 ppm). En log10 aparecen dos modas: una en [2,4-2,6[ (unos 300 ppm, basaltos) y otra en [3,4-3,6[ (unos 3.000 ppm, rocas ultramáficas). Anticipa un ajuste log-normal en la Unidad 2." },
   };
   const COLS_ERR = [["muestra", "Muestra"], ["medida", "Medida"], ["datos_totales", "Datos totales", 3], ["datos_agrupados", "Agrupados", 3], ["error_pct", "Error (%)", 2]];
   const paneles = document.getElementById("paneles-cont");
@@ -295,6 +317,7 @@ addEventListener("DOMContentLoaded", () => {
     const p = document.createElement("div");
     p.className = "panel"; p.id = "p-" + v; p.hidden = i > 0;
     p.innerHTML = `
+      <div class="bloque inicio-var"><div><h4>${c.nombre} · continua</h4><p class="lectura">${c.lectura}</p></div></div>
       <div class="bloque vertical"><h4>¿Por qué no sirve la agrupación por defecto?</h4>
         <figure class="grafica"><a href="${I}${v}_agrupacion.png" target="_blank" title="Ver en tamaño completo"><img src="${I}${v}_agrupacion.png" alt="Histograma por defecto frente al corregido de ${v}" loading="lazy"></a></figure></div>
       <div class="bloque"><figure class="grafica"><a href="${I}${v}_toda_la_muestra.png" target="_blank" title="Ver en tamaño completo"><img src="${I}${v}_toda_la_muestra.png" alt="Histograma, polígono, ojiva y diagrama de caja de ${v}" loading="lazy"></a></figure>
@@ -303,7 +326,8 @@ addEventListener("DOMContentLoaded", () => {
       <div class="bloque"><figure class="grafica"><a href="${I}${v}_estrato_mafico.png" target="_blank" title="Ver en tamaño completo"><img src="${I}${v}_estrato_mafico.png" alt="Gráficas de ${v} en rocas volcánicas máficas" loading="lazy"></a></figure>
         <div><h4>TDF · rocas volcánicas máficas</h4><div class="tabla corta" data-csv="cont_${v}_estrato.csv"></div></div></div>
       <div class="bloque vertical"><h4>Indicadores de posición, dispersión y forma (escala original)</h4>
-        <div class="tabla corta" data-csv="cont_${v}_indicadores.csv"></div><p class="lectura">${c.lectura}</p></div>`;
+        <div class="tabla corta" data-csv="cont_${v}_indicadores.csv"></div></div>`;
+    p.querySelector(".inicio-var").prepend(tarjeta({ v, slug: c.slug, nombre: c.nombre, tipo: "Cuantitativa continua", foto: c.foto }));
     paneles.appendChild(p);
     p.querySelectorAll("[data-csv]").forEach(async t => {
       const filas = await leerCSV(T + t.dataset.csv);

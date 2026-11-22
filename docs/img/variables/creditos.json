@@ -1,0 +1,56 @@
+{
+ "ambiente_tectonico": {
+  "archivo": "File:Almannagjá rift at Þingvellir National Park.jpg",
+  "autor": "Olga Ernst",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "https://commons.wikimedia.org/wiki/File:Almannagj%C3%A1_rift_at_%C3%9Eingvellir_National_Park.jpg"
+ },
+ "tipo_de_roca": {
+  "archivo": "File:Pillow basalt crop l.jpg",
+  "autor": "National Oceanic and Atmospheric Administration",
+  "licencia": "Public domain",
+  "fuente": "https://commons.wikimedia.org/wiki/File:Pillow_basalt_crop_l.jpg"
+ },
+ "clase_SiO2": {
+  "archivo": "File:Rocas Igneas.JPG",
+  "autor": "Rojinegro81",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "https://commons.wikimedia.org/wiki/File:Rocas_Igneas.JPG"
+ },
+ "grado_de_alteracion": {
+  "archivo": "File:BarrandovRocks-DiabaseSpheroids.jpg",
+  "autor": "Petr Vodička",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "https://commons.wikimedia.org/wiki/File:BarrandovRocks-DiabaseSpheroids.jpg"
+ },
+ "anio_de_publicacion": {
+  "archivo": "File:Stack of journals and books in the Central Geological Survey Library, MOEA.jpg",
+  "autor": "Kai3952",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "https://commons.wikimedia.org/wiki/File:Stack_of_journals_and_books_in_the_Central_Geological_Survey_Library,_MOEA.jpg"
+ },
+ "numero_de_analitos": {
+  "archivo": "File:HR-ICP-MS, high-resolution inductively coupled plasma ionization mass spectrometer used for multi-element analysis, in CAFIA laboratory, Czech Republic.png",
+  "autor": "Sarka Na kopci",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "https://commons.wikimedia.org/wiki/File:HR-ICP-MS,_high-resolution_inductively_coupled_plasma_ionization_mass_spectrometer_used_for_multi-element_analysis,_in_CAFIA_laboratory,_Czech_Republic.png"
+ },
+ "SiO2": {
+  "archivo": "File:Quartz cluster from Mount Breckenridge, British Columbia, with coin for scale.jpg",
+  "autor": "AdamKelliher",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "https://commons.wikimedia.org/wiki/File:Quartz_cluster_from_Mount_Breckenridge,_British_Columbia,_with_coin_for_scale.jpg"
+ },
+ "MgO": {
+  "archivo": "File:Peridotite mantle xenolith in phonotephrite (Peridot Mesa Flow, Middle Pleistocene, 580 ka; Peridot Mesa, San Carlos Volcanic Field, Arizona, USA) 26.jpg",
+  "autor": "James St. John",
+  "licencia": "CC BY 2.0",
+  "fuente": "https://commons.wikimedia.org/wiki/File:Peridotite_mantle_xenolith_in_phonotephrite_(Peridot_Mesa_Flow,_Middle_Pleistocene,_580_ka;_Peridot_Mesa,_San_Carlos_Volcanic_Field,_Arizona,_USA)_26.jpg"
+ },
+ "Cr": {
+  "archivo": "File:Chromite band in serpentinite (Neoarchean; Red Lodge Chromite District, Beartooth Mountains, Montana, USA) 3.jpg",
+  "autor": "James St. John",
+  "licencia": "CC BY 2.0",
+  "fuente": "https://commons.wikimedia.org/wiki/File:Chromite_band_in_serpentinite_(Neoarchean;_Red_Lodge_Chromite_District,_Beartooth_Mountains,_Montana,_USA)_3.jpg"
+ }
+}

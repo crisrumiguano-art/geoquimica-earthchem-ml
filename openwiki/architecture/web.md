@@ -7,7 +7,7 @@ fuentes por CDN. Sin framework ni compilación: GitHub Pages lo sirve tal cual.
 |---|---|
 | `docs/index.html` | portada, planteamiento (una redacción continua), mapa (QGIS / Python / interactivo, PDF A4 y A3, zip QGIS), objetivos (general + 3 con imagen), recorrido |
 | `docs/descriptiva/` | 01 población y muestra · 02 tabla de variables · 03 cualitativas · 04 discretas · 05 continuas · 06 exploración · 07 cómo leer el código R |
-| `docs/datos/` | origen, preparación, descargas (informes, mapas, base, QGIS) |
+| `docs/datos/` | **Introducción** (primera del menú): aviso académico grande, título del proyecto, origen, preparación y descargas |
 | `docs/equipo/` | 5 integrantes con contacto, docente |
 
 El menú está **repetido en cada HTML**: al agregar una página, sumarla en todas. En el celular se desliza de lado (borde derecho desvanecido).
@@ -20,7 +20,7 @@ El menú está **repetido en cada HTML**: al agregar una página, sumarla en tod
 | `data/variables.json` | `tabla_variables.py` | tarjetas de clases y tabla de variables (con «Nombre en español») |
 | `data/tdf/*.csv`, `img/r/*.png` | scripts de `R/` | tablas y gráficas de `/descriptiva/` |
 | `data/codigo_r.json` | `codigo_r.py` | panel «Código R» de cada gráfica y botón «Ver el código paso a paso» |
-| `rpubs/*.html` | `rpubs.py` | documentos R Markdown por variable, enlazados en la sección 07 y en Datos |
+| `rpubs/*.html` | `rpubs.py` | documentos R Markdown por variable; se abren en un `<dialog>` al tocar la tarjeta de la variable o cualquier enlace a rpubs.com/rosemeri |
 
 ## Componentes de `app.js`
 

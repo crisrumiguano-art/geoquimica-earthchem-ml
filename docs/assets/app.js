@@ -13,9 +13,52 @@ if (pagina !== "inicio") nav.classList.add("fija");
 addEventListener("scroll", () => nav.classList.toggle("solid", scrollY > 40), { passive: true });
 
 // Aviso de proyecto académico: al inicio de cada página, sin botón de cerrar (pedido del docente, 16/11/2026);
-// compacto desde el 18/11/2026 porque el bloque grande tapaba media pantalla en el celular
-document.querySelector(".hero-in")?.insertAdjacentHTML("afterbegin", `<div class="aviso" role="note">
+// compacto desde el 18/11/2026 porque el bloque grande tapaba media pantalla en el celular. La Introducción
+// lleva el aviso en grande en su propio HTML (pedido del docente, 22/11/2026), así que ahí no se repite.
+if (!document.querySelector(".aviso-grande"))
+  document.querySelector(".hero-in")?.insertAdjacentHTML("afterbegin", `<div class="aviso" role="note">
   <b>Proyecto estrictamente académico</b><span>FIGEMPA – UCE · sin fines comerciales</span></div>`);
+
+// Documentos de R (RPubs) dentro de la página: el docente pidió que se abran al tocar la variable, no en un enlace
+// aparte (22/11/2026). Se muestra la copia local de docs/rpubs/ (la misma que está en rpubs.com/rosemeri) en un
+// <dialog> modal. Cualquier enlace a rpubs.com/rosemeri/<slug> de cualquier página abre aquí su copia local.
+const RPUBS = new URL("../rpubs/", document.currentScript.src);
+const visor = document.createElement("dialog");
+visor.className = "visor-rpubs";
+visor.setAttribute("closedby", "any");
+visor.setAttribute("aria-labelledby", "visor-titulo");
+visor.innerHTML = `<div class="visor-barra"><h2 id="visor-titulo"></h2>
+  <a class="visor-ext" target="_blank" rel="noopener">Abrir en RPubs ↗</a>
+  <form method="dialog"><button class="visor-cerrar" aria-label="Cerrar">✕</button></form></div>
+  <iframe title="Documento de R"></iframe>`;
+document.body.append(visor);
+visor.addEventListener("close", () => { visor.querySelector("iframe").src = "about:blank"; });
+if (!("closedBy" in HTMLDialogElement.prototype)) {  // Safari: cerrar al tocar fuera sin closedby
+  const fuera = e => { const r = visor.getBoundingClientRect();
+    return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom; };
+  let abajoFuera = false;
+  visor.addEventListener("pointerdown", e => { abajoFuera = fuera(e); });
+  visor.addEventListener("pointerup", e => { if (abajoFuera && fuera(e)) visor.close(); });
+}
+// slug de rpubs.com/rosemeri (desc-01-ambiente-tectonico, inf-01-…, reg-01-…) -> archivo local (01_ambiente_tectonico.html)
+const archivoRPubs = slug => slug.replace(/^desc-/, "").replaceAll("-", "_") + ".html";
+function abrirRPubs(slug, titulo) {
+  visor.querySelector("#visor-titulo").textContent = titulo;
+  visor.querySelector(".visor-ext").href = "https://rpubs.com/rosemeri/" + slug;
+  visor.querySelector("iframe").src = new URL(archivoRPubs(slug), RPUBS);
+  visor.showModal();
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest('a[href^="https://rpubs.com/rosemeri/"]');
+  if (!a || a.closest(".visor-rpubs") || e.ctrlKey || e.metaKey || e.shiftKey) return;
+  const slug = a.getAttribute("href").split("/").pop();
+  if (!slug) return;  // el perfil del equipo sí se abre en RPubs
+  e.preventDefault();
+  const cerca = a.closest(".bloque, .rev, section")?.querySelector("h3, h4");   // «Documento R en RPubs» no sirve de título
+  const tr = a.closest("tr");                                                  // en las tablas resumen el enlace dice «abrir»:
+  const fila = tr && [...tr.cells].slice(0, 3).map(c => c.textContent.trim()).join(" · ");   // tipo · variable · modelo
+  abrirRPubs(slug, a.dataset.titulo || fila || cerca?.textContent.trim() || a.textContent.trim());
+});
 
 // En el celular el menú se desliza de lado: llevar a la vista la página actual
 document.querySelector('.nav ul a[aria-current="page"]')?.scrollIntoView({ block: "nearest", inline: "center" });
