@@ -30,14 +30,18 @@ R 4.6 + `e1071` y `openxlsx`. Ejecutable: `"/c/Program Files/R/R-4.6.1/bin/Rscri
 | `R/04_muestreo.R` | L3, simple y sin funciones (seed 2026, n = 1 061) -> `data/muestras/`, `Muestreo.xlsx` |
 | `R/05_paso_a_paso.R` | SiO2 y ambiente tectónico al estilo de la plantilla; comprueba que da lo mismo que `funciones.R` |
 | `R/graficos/NN_*.R` | **generados**: un script simple por gráfico, sin funciones propias (lo que se muestra y explica) |
-| `R/rpubs/NN_*.Rmd` | **generados** desde `R/graficos/`: un R Markdown por variable (formato RPubs del proyecto modelo) |
+| `R/rpubs/NN_*.Rmd` | **generados** por `rpubs.py`: un R Markdown por variable con el formato de la clase (7 secciones, `gt`) |
 
 El código simple sale de las plantillas de `scripts/codigo_simple.py`. Cada plantilla debe producir el **mismo PNG
 byte a byte** que el bucle: al tocarlas, extraer los 15 scripts a una carpeta vacía con `data/`, correrlos y comparar
 con `cmp`. Las amplitudes redondas se leen de `docs/data/tdf/`.
 
-`rpubs.py` parte cada script por sus marcas `# ---- N. Título ----`: no cambiarlas en `codigo_simple.py` sin
-revisar `TEXTOS` y `DOCUMENTOS`. Necesita `rmarkdown`, `knitr` y pandoc (instalado por winget).
+`rpubs.py` arma cada documento con el formato que mostró el docente (rpubs.com/dcmendez/1446860): 1 Librerías, 2 Leer
+datos, 3 Selección de variable, 4 TDF con `gt`, 5 Gráficas una por una, 6 Indicadores con `gt`, 7 Conclusión. Toma la
+selección y el cálculo de la TDF de las secciones `# ---- N. Título ----` de `R/graficos/` («Datos», «Tabla de
+frecuencias», «Límites», «Intervalos», «Frecuencias», «Error de agrupación»): no renombrarlas en `codigo_simple.py`.
+Necesita `rmarkdown`, `gt`, `dplyr` y pandoc. Para actualizar RPubs sin cambiar la dirección:
+`markdown::rpubsUpload(titulo_ascii, html, id)`, con los ids privados de `R/rpubs/.subidas_rpubs.csv` (ignorado por git).
 
 Los generadores de U2/U3 renderizan con `clean = FALSE` para copiar las figuras de `docs/rpubs/<doc>_files/` a
 `docs/img/...` y luego borran esa carpeta. Cada documento guarda un CSV resumen (chunk oculto `guardar`) que se junta

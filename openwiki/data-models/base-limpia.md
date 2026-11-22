@@ -48,10 +48,11 @@ sin argumentos los ejecuta y muestra el uso.
 
 ## La base limpia
 
-`data/earthchem_limpio.csv.gz`: 159 760 filas × 75 columnas, UTF-8, punto decimal. La clasificación completa de
-las 75 variables (tipo, subtipo, escala, instrumento, unidad, dominio, % con dato) está en
-`data/tabla_variables.xlsx` y se genera con `scripts/tabla_variables.py`, que toma el **método analítico más
-frecuente** de cada variable desde las columnas `Method` del crudo.
+`data/earthchem_limpio.csv.gz`: 159 760 filas × 75 columnas, UTF-8, punto decimal. La tabla de variables
+(`data/tabla_variables.xlsx` y `docs/data/variables.json`) la genera `scripts/tabla_variables.py`, que toma el **método
+analítico más frecuente** de cada variable desde las columnas `Method` del crudo. Sigue el formato que pidió el docente
+el 11/11/2026: N°, nombre, nombre corto, nombre en español, descripción, tipo, subtipo, **un solo dominio**, rango
+observado, instrumento, unidad, escala, variable de interés e individuo. Sin columna «% con dato».
 
 | Tipo | Cuántas | Ejemplos |
 |---|---|---|
@@ -60,28 +61,18 @@ frecuente** de cada variable desde las columnas `Method` del crudo.
 | Discreta | 2 | `Publication Year`, `N Analytes` |
 | Continua | 58 | 52 químicas (wt% y ppm), coordenadas, elevaciones, edades en Ma |
 
-Desde el 07/11/2026 la tabla tiene la columna «Nombre en español» (`ESPANOL` en el script) y los
-identificadores (`Sample Name`, `Sample URL`) figuran como cualitativas nominales, a pedido del docente.
-
-La tabla sigue el formato de la plantilla del curso (`referencias_curso/Litogeoquímica del Perú/BD_LITOGEOQUIMICA.xlsx`,
-hoja `Hoja1`): nombre, descripción, tipo, subtipo, **dominio** en dos versiones (definición, p. ej.
-`D={x/x es concentración ^ x ∈ R}`, y conjunto, p. ej. `D={x/x ∈ R+ ∪ {0}}`), **rango** observado
-(`R={y/ min ≤ y ≤ max}` o `R={y/y ∈ categorías}`), instrumento, unidad y escala. Dominio = valores posibles en teoría;
-rango = valores que aparecen en la muestra.
-
-Las descripciones viven en `OTRAS` y `NOMBRES`, y los dominios en `DOMINIOS` y `ENUMERADOS`, dentro de
-`scripts/tabla_variables.py`: si una variable nueva entra a la base, agregarla ahí o el script falla con `KeyError`.
+Dominio = valores posibles (en las cualitativas, el conjunto de categorías); rango = lo que aparece en la base
+(`R={x/x ∈ R ^ min ≤ x ≤ max}` o las categorías observadas). Las descripciones viven en `OTRAS`, `NOMBRES` y
+`CUALITATIVAS` de `scripts/tabla_variables.py`: una variable nueva sin entrada ahí hace fallar el script (`KeyError`).
 
 ## Población, individuo y muestra (marco del curso)
 
-La muestra probabilística para inferir (L3) es `data/muestras/muestra_estratificada.csv` (n = 1 061, estratos =
-`Tectonic Group`, afijación proporcional, seed 2026; `R/04_muestreo.R`).
-
+En L3 se sortearon tres muestras de n = 1 061 (`R/04_muestreo.R`, seed 2026): aleatoria simple, sistemática y
+estratificada por `Tectonic Group`. La inferencia de la Unidad 2 usa la **aleatoria simple**.
 
 - Población U: todas las porciones de roca total de la corteza y el manto superior (infinita).
-- Individuo Xᵢ: cada porción de roca analizada.
-- Muestra M ⊂ U: los 159 760 análisis de PetDB. **No es probabilística** (es el marco muestral);
-  la inferencia (Unidad 2) usa la muestra aleatoria simple sorteada en L3.
+- Individuo Xᵢ: cada porción de roca (no el análisis).
+- Marco muestral: las 159 760 porciones de roca de PetDB. **No es probabilístico**; los IC se validan contra él.
 
 ## Al cambiar la limpieza
 

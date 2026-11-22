@@ -5,12 +5,16 @@ fuentes por CDN. Sin framework ni compilación: GitHub Pages lo sirve tal cual.
 
 | Página | Contenido |
 |---|---|
-| `docs/index.html` | portada, planteamiento (una redacción continua), mapa (QGIS / Python / interactivo, PDF A4 y A3, zip QGIS), objetivos (general + 3 con imagen), recorrido |
+| `docs/index.html` | **portada única**: aviso académico grande, título y cifras; 01 Introducción (origen y preparación de la base), 02 Planteamiento (una redacción), 03 Mapa (QGIS, Python, interactivo; PDF A4/A3 y zip), 04 Objetivos, 05 Recorrido, 06 Tecnologías, 07 Descargas |
 | `docs/descriptiva/` | 01 población y muestra · 02 tabla de variables · 03 cualitativas · 04 discretas · 05 continuas · 06 exploración · 07 cómo leer el código R |
-| `docs/datos/` | solo redirige a `/#introduccion`: la Introducción (origen, preparación, descargas) vive en la portada |
-| `docs/equipo/` | 5 integrantes con contacto, docente |
+| `docs/inferencial/`, `regresion/`, `ml/` | Unidades 2, 3 y 4, con tabla resumen y enlace al documento R de cada modelo |
+| `docs/conclusiones/` | objetivo general, objetivos 1–3 y limitaciones (texto fijo, última página del menú) |
+| `docs/equipo/` | 5 integrantes y docente |
+| `docs/datos/` | solo redirige a `/#introduccion` (enlaces viejos) |
 
-El menú y el pie **se generan en `assets/app.js`** (`MENU` y `pie`): cada HTML solo trae `<nav id="nav">` y `<footer data-nota="…">`. Para agregar una página, sumarla a `MENU`. En el celular el menú se desliza de lado (borde derecho desvanecido).
+El menú y el pie **se generan en `assets/app.js`** (`MENU` y `pie`): cada HTML solo trae `<nav id="nav">` (con el logo,
+por si no hay JS) y `<footer data-nota="…">`. Para agregar o renombrar una página se edita solo `MENU`. En el celular el
+menú se desliza de lado (borde derecho desvanecido) y lleva a la vista la página actual.
 
 ## Datos que consume
 
@@ -20,12 +24,18 @@ El menú y el pie **se generan en `assets/app.js`** (`MENU` y `pie`): cada HTML 
 | `data/variables.json` | `tabla_variables.py` | tarjetas de clases y tabla de variables (con «Nombre en español») |
 | `data/tdf/*.csv`, `img/r/*.png` | scripts de `R/` | tablas y gráficas de `/descriptiva/` |
 | `data/codigo_r.json` | `codigo_r.py` | panel «Código R» de cada gráfica y botón «Ver el código paso a paso» |
-| `rpubs/*.html` | `rpubs.py` | documentos R Markdown por variable; se abren en un `<dialog>` al tocar la tarjeta de la variable o cualquier enlace a rpubs.com/rosemeri |
+| `rpubs/*.html` | `rpubs.py`, `inferencial.py`, `regresion.py` | copias locales de los documentos de RPubs, que abre el visor |
+| `img/variables/*.jpg`, `creditos.json` | a mano (Wikimedia Commons) | fotos reales de las tarjetas de variable; autor y licencia al pie |
 
 ## Componentes de `app.js`
 
-- **Aviso académico**: franja compacta con borde magma al inicio de cada página (`app.js`, dentro de `.hero-in`), sin botón de cerrar.
-- **Botón «Código R»**: un `MutationObserver` agrega el botón a cada `figure.grafica` con imagen de `img/r/`;
+- **Aviso académico**: en grande (`.aviso-grande`, en el HTML) en la portada; en las demás páginas `app.js` agrega una franja
+  compacta en `.hero-in`. Sin botón de cerrar (pedido del docente).
+- **Visor de RPubs** (`abrirRPubs`): todo enlace a `rpubs.com/rosemeri/<slug>` abre la copia local `rpubs/<archivo>.html`
+  en un `<dialog>` modal (`closedby="any"` con respaldo para Safari). Slug → archivo: se quita `desc-` y `-` pasa a `_`.
+- **Tarjetas de variable** (`tarjeta()` en el script de `/descriptiva/`): foto real + tipo + botón al RPubs. Reemplazan
+  las gráficas de R en cualitativas y discretas; en continuas encabezan el panel.
+- **Botón «Código R»** (gráficas de R que siguen en la página): un `MutationObserver` lo agrega a cada `figure.grafica` de `img/r/`;
   `panelCodigo()` abre el código simple de ese PNG con botón Copiar. El JSON se pide con `cache: "no-cache"`.
 - **`resaltarR()`**: resaltado de sintaxis R propio (un regex; clases `.r-c/s/k/b/n/f/o`, colores tipo VS Code);
   también colorea `<pre class="r-mini">` de la sección 07.
