@@ -160,7 +160,8 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
 
 - Se publica desde la rama `main`, carpeta `/docs`. Cualquier push a `docs/` actualiza la web en ~1 min.
 - Repo público: GitHub Pages gratis no funciona en repos privados.
-- Una página por unidad. Orden del menú: Inicio, Equipo, `/descriptiva/` (U1), `/inferencial/` (U2), `/regresion/` (U3),
+- Una página por unidad. Orden del menú: Introducción (la portada, `/`; en el menú dice «Introducción» y no «Inicio»
+  desde el 22/11/2026 para que se vea desde todas las páginas), Equipo, `/descriptiva/` (U1), `/inferencial/` (U2), `/regresion/` (U3),
   `/ml/` (U4), `/conclusiones/` (al final, página propia desde el 22/11/2026, con el mismo texto que antes estaba en la
   portada: objetivo general, objetivos 1–3 y limitaciones). El menú está repetido en cada HTML: al agregar una página, sumarla en **todas**.
 - **Portada única (22/11/2026, pedido del equipo):** Introducción e Inicio son una sola página (`docs/index.html`):
