@@ -7,7 +7,7 @@ fuentes por CDN. Sin framework ni compilación: GitHub Pages lo sirve tal cual.
 |---|---|
 | `docs/index.html` | portada, planteamiento (una redacción continua), mapa (QGIS / Python / interactivo, PDF A4 y A3, zip QGIS), objetivos (general + 3 con imagen), recorrido |
 | `docs/descriptiva/` | 01 población y muestra · 02 tabla de variables · 03 cualitativas · 04 discretas · 05 continuas · 06 exploración · 07 cómo leer el código R |
-| `docs/datos/` | **Introducción** (primera del menú): aviso académico grande, título del proyecto, origen, preparación y descargas |
+| `docs/datos/` | solo redirige a `/#introduccion`: la Introducción (origen, preparación, descargas) vive en la portada |
 | `docs/equipo/` | 5 integrantes con contacto, docente |
 
 El menú está **repetido en cada HTML**: al agregar una página, sumarla en todas. En el celular se desliza de lado (borde derecho desvanecido).

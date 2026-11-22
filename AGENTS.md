@@ -160,10 +160,13 @@ y enlazado en el repo como `referencias_curso/` (junction, ignorada por git).
 
 - Se publica desde la rama `main`, carpeta `/docs`. Cualquier push a `docs/` actualiza la web en ~1 min.
 - Repo público: GitHub Pages gratis no funciona en repos privados.
-- Una página por unidad. Orden del menú: **Introducción** (`/datos/`), Inicio (`/`: problema, mapa, objetivos,
-  conclusiones), `/descriptiva/` (U1), `/inferencial/` (U2), `/regresion/` (U3), `/ml/` (U4), `/equipo/`. El menú está
-  repetido en cada HTML: al agregar una página, sumarla en **todas**.
-- **Correcciones del docente (22/11/2026)**: (1) la página de datos pasa a ser la **Introducción**, primera del menú, con
+- Una página por unidad. Orden del menú: Inicio, Equipo, `/descriptiva/` (U1), `/inferencial/` (U2), `/regresion/` (U3),
+  `/ml/` (U4). El menú está repetido en cada HTML: al agregar una página, sumarla en **todas**.
+- **Portada única (22/11/2026, pedido del equipo):** Introducción e Inicio son una sola página (`docs/index.html`):
+  aviso académico grande + título + cifras arriba, y luego 01 Introducción (origen y preparación de la base),
+  02 Planteamiento, 03 Mapa, 04 Objetivos, 05 Conclusiones, 06 Recorrido, 07 Tecnologías, 08 Descargas.
+  `docs/datos/index.html` solo redirige a `/#introduccion` para no romper enlaces viejos.
+- **Correcciones del docente (22/11/2026)**: (1) la página de datos pasa a ser la **Introducción** (luego unida a la portada, ver arriba), con
   el aviso «estrictamente académico» **en grande** (`.aviso-grande`, en su HTML; `app.js` no le agrega el compacto) y el
   título del proyecto; el resto de páginas sigue con la franja compacta. (2) La lista de RPubs «no es práctica»: se
   quitó de la Introducción. **Cada RPubs se abre dentro de su variable**: en `/descriptiva/` cada variable es una
