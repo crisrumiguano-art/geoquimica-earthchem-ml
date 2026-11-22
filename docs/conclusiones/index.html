@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>Conclusiones — Geoquímica de rocas PetDB</title>
+<meta name="description" content="Conclusiones del proyecto: lo que respondió cada objetivo, con las cifras de las cuatro unidades.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/estilo.css">
+<script src="../assets/app.js" defer></script>
+</head>
+<body data-pagina="conclusiones">
+
+<nav class="nav" id="nav" aria-label="Páginas del proyecto">
+  <a class="marca" href="../"><b>Pt</b>Geoquímica PetDB</a>
+  <ul>
+    <li><a data-p="inicio" href="../">Inicio</a></li>
+    <li><a data-p="equipo" href="../equipo/">Equipo</a></li>
+    <li><a data-p="descriptiva" href="../descriptiva/"><span class="u">U1</span>Descriptiva</a></li>
+    <li><a data-p="inferencial" href="../inferencial/"><span class="u">U2</span>Inferencial</a></li>
+    <li><a data-p="regresion" href="../regresion/"><span class="u">U3</span>Regresión</a></li>
+    <li><a data-p="ml" href="../ml/"><span class="u">U4</span>Machine learning</a></li>
+    <li><a data-p="conclusiones" href="../conclusiones/">Conclusiones</a></li>
+  </ul>
+</nav>
+
+<header class="cabecera">
+  <img src="../img/nucleos.jpg" alt="" aria-hidden="true">
+  <div class="hero-in">
+    <div class="ojo rev" style="--d:0">Cierre del proyecto</div>
+    <h1 class="rev" style="--d:1">Conclu<em>siones</em></h1>
+    <p class="lead rev" style="--d:2">Lo que respondió el proyecto, objetivo por objetivo, con las cifras de cada unidad.</p>
+  </div>
+</header>
+
+<main>
+  <section class="cap" id="conclusiones">
+        <div class="callout rev">
+      <h3>Objetivo general</h3>
+      <p>La composición geoquímica de las 159.760 porciones de roca de EarthChem PetDB se pudo caracterizar estadísticamente, y
+        sí depende del tipo de roca y del ambiente tectónico: separar por esas dos variables convierte distribuciones con
+        varios picos y valores extremos en distribuciones simples, que ajustan a modelos de probabilidad, se relacionan entre
+        sí con regresiones fuertes y permiten reconocer el ambiente de formación de una roca a partir de su química.</p>
+    </div>
+    <div class="callout rev">
+      <h3>1 · Describir (Unidad 1)</h3>
+      <ol>
+        <li>La base está dominada por rocas del fondo oceánico: el 41,8 % es de dorsal y corteza oceánica y el 55,3 % son
+          rocas volcánicas máficas (basaltos). Es un sesgo de la compilación, no de la Tierra.</li>
+        <li>El SiO<sub>2</sub> tiene mediana 50,0 % (rango basáltico); el MgO es asimétrico (1,67) porque las peridotitas forman una
+          segunda población (16,6 % con MgO ≥ 20 %); el cromo varía varios órdenes de magnitud y solo se describe bien en log10.</li>
+        <li>Los valores atípicos son otras rocas, no errores: no se eliminaron. La agrupación por defecto no servía y se
+          reemplazó por intervalos sobre el rango intercuartílico más clases abiertas, con error de agrupación menor al 5 %.</li>
+      </ol>
+    </div>
+    <div class="callout rev">
+      <h3>2 · Modelar (Unidades 2 y 3)</h3>
+      <ol>
+        <li>Con la muestra aleatoria de 1.061 porciones de roca, los siete modelos de probabilidad pasan el chi-cuadrado al 95 %:
+          binomial, geométrico y Poisson para conteos, y normal (SiO<sub>2</sub>), log-normal (Zr), exponencial
+          (K<sub>2</sub>O) y beta (Mg#) en los basaltos.</li>
+        <li>Los siete intervalos de confianza del 95 % contienen el valor del marco muestral (la base completa): el
+          procedimiento de estimación funciona. Para toda la Tierra, la inferencia arrastra el sesgo oceánico de la base.</li>
+        <li>Los elementos con química parecida se explican uno a otro casi por completo: La–Ce (r = 0,97) y Zr–Hf (r = 0,97 en
+          logaritmos). La diferenciación magmática se ve en SiO<sub>2</sub>–MgO (r = −0,88) y en la curva de MgO–CaO
+          (r = 0,80). La regresión múltiple explica el 72 % del Nd y la logística reconoce las rocas de arco en el 84,6 % de
+          los casos.</li>
+      </ol>
+    </div>
+    <div class="callout rev">
+      <h3>3 · Predecir (Unidad 4)</h3>
+      <ol>
+        <li>Una red neuronal reconoce el ambiente tectónico de una roca volcánica con sus ocho óxidos mayores en el 86,7 % de
+          los casos nuevos (kappa 0,80), frente al 74,4 % de la regresión logística.</li>
+        <li>Otra red estima el níquel, un metal crítico, con R² = 0,835, frente a 0,58 del mejor modelo de una sola variable
+          de la Unidad 3: combinar todas las variables de forma no lineal mejora la predicción.</li>
+      </ol>
+    </div>
+    <div class="callout rev">
+      <h3>Limitaciones y recomendaciones</h3>
+      <ol>
+        <li>La base no es una muestra probabilística de la Tierra: tiene muchas más rocas oceánicas que continentales. Las
+          conclusiones valen para la población que representa PetDB.</li>
+        <li>La exportación casi no trae TiO<sub>2</sub>, un óxido clave para clasificar basaltos: conviene volver a exportarlo.</li>
+        <li>Los datos vienen de miles de laboratorios y de casi un siglo de métodos distintos; comparar por método analítico
+          y por estrato de roca es la forma de controlar ese efecto.</li>
+      </ol>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span class="academico">Proyecto <b>estrictamente académico</b>, sin fines comerciales, desarrollado para la asignatura Estadística y Probabilidades (FIGEMPA – Universidad Central del Ecuador).</span>
+  <span>Datos: Astromaterials Data Synthesis / EarthChem PetDB (<a href="https://search.astromat.org/">search.astromat.org</a>), 13/10/2026, CC BY 4.0.</span>
+  <span>Imágenes ilustrativas generadas con IA (Google Flow).</span>
+  <span><a class="repo" href="https://github.com/crisrumiguano-art/geoquimica-earthchem-ml"><img src="../img/logos/github.svg" alt="" width="14" height="14" style="vertical-align:-2px;filter:invert(1);margin-right:.35rem">Código y datos en GitHub</a></span>
+</footer>
+</body>
+</html>
